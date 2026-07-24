@@ -241,6 +241,27 @@
                             </div>
                         </div>
 
+                        {{-- Results & Explanation Settings --}}
+                        <div class="space-y-3 pt-4 border-t border-slate-100">
+                            <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Fitur Hasil & Pembahasan</label>
+                            
+                            <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-slate-50/20 cursor-pointer hover:bg-slate-50 transition-all">
+                                <span class="text-xs font-bold text-slate-700">Tampilkan Hasil</span>
+                                <div class="relative inline-flex items-center">
+                                    <input type="checkbox" name="show_result" value="1" {{ $examPackage->show_result ? 'checked' : '' }} class="sr-only peer">
+                                    <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                                </div>
+                            </label>
+                            
+                            <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-slate-50/20 cursor-pointer hover:bg-slate-50 transition-all">
+                                <span class="text-xs font-bold text-slate-700">Tampilkan Pembahasan</span>
+                                <div class="relative inline-flex items-center">
+                                    <input type="checkbox" name="show_explanation" value="1" {{ $examPackage->show_explanation ? 'checked' : '' }} class="sr-only peer">
+                                    <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                                </div>
+                            </label>
+                        </div>
+
                         {{-- Actions --}}
                         <div class="pt-6 border-t border-slate-50 space-y-3">
                             <button type="submit" class="w-full py-3 bg-[#153c96] hover:bg-blue-800 text-white rounded-2xl text-xs font-bold uppercase tracking-wider shadow-lg shadow-blue-500/10 active:scale-95 transition-all flex items-center justify-center gap-2">

@@ -38,7 +38,8 @@ class ExamPackageController extends Controller
             'description' => 'required|string',
             'type' => 'required|in:free,premium',
             'price' => 'nullable|numeric|min:0',
-            'is_active' => 'nullable',
+            'show_result' => 'nullable',
+            'show_explanation' => 'nullable',
             'subtests' => 'required|array|min:1',
             'subtests.*.subject_id' => 'required|exists:subjects,id',
             'subtests.*.duration_minutes' => 'required|integer|min:1',
@@ -56,6 +57,8 @@ class ExamPackageController extends Controller
                 'type' => $validated['type'],
                 'price' => $validated['type'] === 'premium' ? ($validated['price'] ?? 0) : 0,
                 'is_active' => $request->has('is_active'),
+                'show_result' => $request->has('show_result'),
+                'show_explanation' => $request->has('show_explanation'),
                 'created_by' => auth()->id(),
             ]);
 
@@ -91,12 +94,14 @@ class ExamPackageController extends Controller
             'description' => 'required|string',
             'type' => 'required|in:free,premium',
             'price' => 'nullable|numeric|min:0',
-            'is_active' => 'nullable',
+            'show_result' => 'nullable',
+            'show_explanation' => 'nullable',
             'subtests' => 'required|array|min:1',
             'subtests.*.subject_id' => 'required|exists:subjects,id',
             'subtests.*.duration_minutes' => 'required|integer|min:1',
             'subtests.*.total_questions' => 'required|integer|min:1',
             'subtests.*.order' => 'nullable|integer',
+            'subtests.*.db_id' => 'nullable|exists:exam_subtests,id',
         ]);
 
         try {
@@ -108,18 +113,38 @@ class ExamPackageController extends Controller
                 'type' => $validated['type'],
                 'price' => $validated['type'] === 'premium' ? ($validated['price'] ?? 0) : 0,
                 'is_active' => $request->has('is_active'),
+                'show_result' => $request->has('show_result'),
+                'show_explanation' => $request->has('show_explanation'),
             ]);
 
-            // Delete old subtests and recreate
-            $examPackage->subtests()->delete();
-            foreach ($validated['subtests'] as $index => $subtestData) {
-                $examPackage->subtests()->create([
-                    'subject_id' => $subtestData['subject_id'],
-                    'duration_minutes' => $subtestData['duration_minutes'],
-                    'total_questions' => $subtestData['total_questions'],
-                    'order' => $subtestData['order'] ?? $index,
-                ]);
+            $submittedSubtestIds = [];
+            foreach ($request->input('subtests', []) as $index => $subtestData) {
+                if (!empty($subtestData['db_id'])) {
+                    // Update existing subtest to preserve ID and question relationships
+                    $subtest = $examPackage->subtests()->find($subtestData['db_id']);
+                    if ($subtest) {
+                        $subtest->update([
+                            'subject_id' => $subtestData['subject_id'],
+                            'duration_minutes' => $subtestData['duration_minutes'],
+                            'total_questions' => $subtestData['total_questions'],
+                            'order' => $subtestData['order'] ?? $index,
+                        ]);
+                        $submittedSubtestIds[] = $subtest->id;
+                    }
+                } else {
+                    // Create new subtest
+                    $newSubtest = $examPackage->subtests()->create([
+                        'subject_id' => $subtestData['subject_id'],
+                        'duration_minutes' => $subtestData['duration_minutes'],
+                        'total_questions' => $subtestData['total_questions'],
+                        'order' => $subtestData['order'] ?? $index,
+                    ]);
+                    $submittedSubtestIds[] = $newSubtest->id;
+                }
             }
+
+            // Safely delete subtests that were removed in the UI
+            $examPackage->subtests()->whereNotIn('id', $submittedSubtestIds)->delete();
 
             DB::commit();
 

@@ -18,7 +18,7 @@
                 Kembali
             </a>
             <div class="flex items-center gap-3">
-                <button type="submit" class="px-6 py-2.5 bg-[#153c96] hover:bg-blue-800 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-lg shadow-blue-500/10">
+                <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 shadow-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                         <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2"></path>
@@ -207,19 +207,11 @@
                         </div>
 
                         {{-- Final Actions --}}
-                        <div class="pt-5 border-t border-slate-50 space-y-3">
-                            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-50 bg-slate-50/20 cursor-pointer hover:bg-slate-50 transition-all">
-                                <input type="checkbox" name="is_active" value="1" checked class="w-5 h-5 text-[#153c96] border-slate-200 rounded-lg focus:ring-4 focus:ring-blue-100">
-                                <span class="text-xs font-bold text-slate-700">Aktifkan Sesi</span>
+                        <div class="pt-4 border-t border-slate-100">
+                            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200/80 bg-slate-50/20 cursor-pointer hover:bg-slate-50 transition-all">
+                                <input type="checkbox" name="is_active" value="1" checked class="w-4 h-4 text-indigo-600 border-slate-350 rounded focus:ring-indigo-500">
+                                <span class="text-xs font-semibold text-slate-700">Aktifkan Sesi</span>
                             </label>
-
-                            <button type="submit" class="w-full py-3.5 bg-[#153c96] hover:bg-blue-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-lg shadow-blue-500/10 active:scale-95 transition-all flex items-center justify-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                    <path d="M5 12l5 5l10 -10"></path>
-                                </svg>
-                                Simpan Sesi
-                            </button>
                         </div>
                     </div>
                 </div>

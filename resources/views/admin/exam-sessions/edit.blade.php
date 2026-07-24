@@ -18,14 +18,14 @@
                 Kembali
             </a>
             <div class="flex items-center gap-3">
-                <button type="submit" class="px-6 py-2.5 bg-[#153c96] hover:bg-blue-800 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-lg shadow-blue-500/10">
+                <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 shadow-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                         <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2"></path>
                         <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
                         <path d="M14 4l0 4l-4 0l0 -4"></path>
                     </svg>
-                    Perbarui Sesi
+                    Simpan Perubahan
                 </button>
             </div>
         </div>
@@ -47,8 +47,8 @@
                 {{-- Main Configuration --}}
                 <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden transition-all hover:shadow-md"
                      :class="touched.title && !title ? 'ring-2 ring-rose-500 border-transparent' : ''">
-                    <div class="p-5 border-b border-slate-50 flex items-center gap-3 bg-slate-50/20">
-                        <div class="w-9 h-9 bg-[#153c96] text-white rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/10">
+                    <div class="p-5 border-b border-slate-100 flex items-center gap-3 bg-slate-50/20">
+                        <div class="w-9 h-9 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center border border-indigo-100/50">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                 <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4"></path>
@@ -65,9 +65,9 @@
                         <!-- Title -->
                         <div class="relative">
                             <div class="group border rounded-xl px-3 py-1.5 flex items-center gap-2 transition-all duration-200"
-                                 :class="touched.title && !title ? 'border-rose-400 focus-within:border-rose-500 focus-within:ring-2 focus-within:ring-rose-100/50' : 'border-slate-200 focus-within:border-[#153c96] focus-within:ring-2 focus-within:ring-blue-100/50'">
+                                 :class="touched.title && !title ? 'border-rose-400 focus-within:border-rose-500 focus-within:ring-2 focus-within:ring-rose-100/50' : 'border-slate-200 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-100/50'">
                                 <label for="title" class="absolute -top-2.5 left-3 px-1.5 bg-white text-[10px] font-extrabold transition-all duration-200"
-                                       :class="touched.title && !title ? 'text-rose-500 group-focus-within:text-rose-600' : 'text-slate-500 group-focus-within:text-[#153c96]'">Nama Sesi Ujian <span class="text-rose-500 font-bold">*</span></label>
+                                       :class="touched.title && !title ? 'text-rose-500 group-focus-within:text-rose-600' : 'text-slate-500 group-focus-within:text-indigo-500'">Nama Sesi Ujian <span class="text-rose-500 font-bold">*</span></label>
                                 <input type="text" name="title" id="title" x-model="title" @blur="touched.title = true" required 
                                        class="w-full bg-transparent border-0 p-0 text-xs text-slate-800 placeholder-slate-300 focus:ring-0 focus:outline-none py-1" />
                             </div>
@@ -81,9 +81,9 @@
                             <!-- Start Time -->
                             <div class="relative">
                                 <div class="group border rounded-xl px-3 py-1.5 flex items-center gap-2 transition-all duration-200"
-                                     :class="touched.startTime && !startTime ? 'border-rose-400 focus-within:border-rose-500 focus-within:ring-2 focus-within:ring-rose-100/50' : 'border-slate-200 focus-within:border-[#153c96] focus-within:ring-2 focus-within:ring-blue-100/50'">
+                                     :class="touched.startTime && !startTime ? 'border-rose-400 focus-within:border-rose-500 focus-within:ring-2 focus-within:ring-rose-100/50' : 'border-slate-200 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-100/50'">
                                     <label for="start_time" class="absolute -top-2.5 left-3 px-1.5 bg-white text-[10px] font-extrabold transition-all duration-200"
-                                           :class="touched.startTime && !startTime ? 'text-rose-500 group-focus-within:text-rose-600' : 'text-slate-500 group-focus-within:text-[#153c96]'">Waktu Mulai <span class="text-rose-500 font-bold">*</span></label>
+                                           :class="touched.startTime && !startTime ? 'text-rose-500 group-focus-within:text-rose-600' : 'text-slate-500 group-focus-within:text-indigo-500'">Waktu Mulai <span class="text-rose-500 font-bold">*</span></label>
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 shrink-0" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                         <path d="M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
@@ -99,9 +99,9 @@
                             <!-- End Time -->
                             <div class="relative">
                                 <div class="group border rounded-xl px-3 py-1.5 flex items-center gap-2 transition-all duration-200"
-                                     :class="touched.endTime && (!endTime || endTime <= startTime) ? 'border-rose-400 focus-within:border-rose-500 focus-within:ring-2 focus-within:ring-rose-100/50' : 'border-slate-200 focus-within:border-[#153c96] focus-within:ring-2 focus-within:ring-blue-100/50'">
+                                     :class="touched.endTime && (!endTime || endTime <= startTime) ? 'border-rose-400 focus-within:border-rose-500 focus-within:ring-2 focus-within:ring-rose-100/50' : 'border-slate-200 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-100/50'">
                                     <label for="end_time" class="absolute -top-2.5 left-3 px-1.5 bg-white text-[10px] font-extrabold transition-all duration-200"
-                                           :class="touched.endTime && (!endTime || endTime <= startTime) ? 'text-rose-500 group-focus-within:text-rose-600' : 'text-slate-500 group-focus-within:text-[#153c96]'">Waktu Selesai <span class="text-rose-500 font-bold">*</span></label>
+                                           :class="touched.endTime && (!endTime || endTime <= startTime) ? 'text-rose-500 group-focus-within:text-rose-600' : 'text-slate-500 group-focus-within:text-indigo-500'">Waktu Selesai <span class="text-rose-500 font-bold">*</span></label>
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 shrink-0" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                         <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path>
@@ -134,10 +134,10 @@
                     </div>
                     <div class="p-5">
                         <div class="relative">
-                            <div class="group border border-slate-200 focus-within:border-[#153c96] rounded-xl px-3 py-1.5 flex items-center gap-2">
-                                <label for="token" class="absolute -top-2.5 left-3 px-1.5 bg-white text-[10px] font-bold text-slate-500 group-focus-within:text-[#153c96] transition-all duration-200">Token Akses</label>
+                            <div class="group border border-slate-200 focus-within:border-indigo-500 rounded-xl px-3 py-1.5 flex items-center gap-2">
+                                <label for="token" class="absolute -top-2.5 left-3 px-1.5 bg-white text-[10px] font-bold text-slate-500 group-focus-within:text-indigo-500 transition-all duration-200">Token Akses</label>
                                 <input type="text" name="token" id="token" x-model="token" required placeholder="AUTO-GENERATE" maxlength="10"
-                                       class="w-full bg-transparent border-0 p-0 text-base font-black tracking-widest text-[#153c96] focus:ring-0 focus:outline-none py-1 uppercase text-center md:text-left" />
+                                       class="w-full bg-transparent border-0 p-0 text-base font-black tracking-widest text-indigo-600 focus:ring-0 focus:outline-none py-1 uppercase text-center md:text-left" />
                             </div>
                         </div>
                     </div>
@@ -159,7 +159,7 @@
                                     <label class="relative flex items-center p-3 rounded-xl border border-slate-100 cursor-pointer transition-all hover:bg-slate-50 group"
                                            :class="selectedPackage == {{ $pkg->id }} ? 'bg-blue-50 ring-2 ring-blue-100 border-transparent shadow-sm' : 'bg-white'">
                                         <input type="radio" name="exam_package_id" value="{{ $pkg->id }}" x-model="selectedPackage" class="hidden">
-                                        <div class="flex-shrink-0 w-7 h-7 rounded-lg bg-[#153c96] flex items-center justify-center text-white mr-3 shadow-sm" x-show="selectedPackage == {{ $pkg->id }}">
+                                        <div class="flex-shrink-0 w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center text-white mr-3 shadow-sm" x-show="selectedPackage == {{ $pkg->id }}">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                                 <path d="M5 12l5 5l10 -10"></path>
@@ -187,27 +187,33 @@
 
                         {{-- Participants --}}
                         <div class="relative">
-                            <div class="group border border-slate-200 focus-within:border-[#153c96] rounded-xl px-3 py-1.5 flex items-center gap-2">
-                                <label for="max_participants" class="absolute -top-2.5 left-3 px-1.5 bg-white text-[10px] font-bold text-slate-500 group-focus-within:text-[#153c96]">Limit Peserta</label>
+                            <div class="group border border-slate-200 focus-within:border-indigo-500 rounded-xl px-3 py-1.5 flex items-center gap-2 transition-colors">
+                                <label for="max_participants" class="absolute -top-2.5 left-3 px-1.5 bg-white text-[10px] font-bold text-slate-500 group-focus-within:text-indigo-500">Limit Peserta</label>
                                 <input type="number" name="max_participants" id="max_participants" value="{{ $examSession->max_participants }}" placeholder="Tak Terbatas" 
                                        class="w-full bg-transparent border-0 p-0 text-xs text-slate-800 placeholder-slate-300 focus:ring-0 focus:outline-none py-1 text-center font-bold" />
                             </div>
                         </div>
 
-                        {{-- Final Actions --}}
-                        <div class="pt-5 border-t border-slate-50 space-y-3">
-                            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-50 bg-slate-50/20 cursor-pointer hover:bg-slate-50 transition-all">
-                                <input type="checkbox" name="is_active" value="1" {{ $examSession->is_active ? 'checked' : '' }} class="w-5 h-5 text-[#153c96] border-slate-200 rounded-lg focus:ring-4 focus:ring-blue-100">
-                                <span class="text-xs font-bold text-slate-700">Aktifkan Sesi</span>
-                            </label>
+                        {{-- Status Selection --}}
+                        <div class="relative">
+                            <div class="group border border-slate-200 focus-within:border-indigo-500 rounded-xl px-3 py-1.5 flex flex-col gap-1 transition-colors">
+                                <label for="status" class="absolute -top-2.5 left-3 px-1.5 bg-white text-[10px] font-bold text-slate-500 group-focus-within:text-indigo-500">Status Sesi</label>
+                                <select name="status" id="status" x-model="status" 
+                                        class="w-full bg-transparent border-0 p-0 text-xs text-slate-800 focus:ring-0 focus:outline-none py-1 font-semibold cursor-pointer">
+                                    <option value="scheduled">Terjadwal</option>
+                                    <option value="active">Aktif (Berjalan)</option>
+                                    <option value="completed">Selesai</option>
+                                    <option value="cancelled">Dibatalkan</option>
+                                </select>
+                            </div>
+                        </div>
 
-                            <button type="submit" class="w-full py-3.5 bg-[#153c96] hover:bg-blue-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-lg shadow-blue-500/10 active:scale-95 transition-all flex items-center justify-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                    <path d="M5 12l5 5l10 -10"></path>
-                                </svg>
-                                Perbarui Sesi
-                            </button>
+                        {{-- Final Actions --}}
+                        <div class="pt-4 border-t border-slate-100">
+                            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200/80 bg-slate-50/20 cursor-pointer hover:bg-slate-50 transition-all">
+                                <input type="checkbox" name="is_active" value="1" {{ $examSession->is_active ? 'checked' : '' }} class="w-4 h-4 text-indigo-600 border-slate-350 rounded focus:ring-indigo-500">
+                                <span class="text-xs font-semibold text-slate-700">Aktifkan Sesi</span>
+                            </label>
                         </div>
                     </div>
                 </div>

@@ -99,7 +99,7 @@ class QuestionController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('admin.questions.index')->with('success', 'Soal berhasil ditambahkan.');
+            return redirect()->route('admin.questions.index', ['subject_id' => $request->subject_id])->with('success', 'Soal berhasil ditambahkan.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('error', 'Gagal menambahkan soal: ' . $e->getMessage());
@@ -166,7 +166,7 @@ class QuestionController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('admin.questions.index')->with('success', 'Soal berhasil diperbarui.');
+            return redirect()->route('admin.questions.index', ['subject_id' => $request->subject_id])->with('success', 'Soal berhasil diperbarui.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('error', 'Gagal memperbarui soal: ' . $e->getMessage());

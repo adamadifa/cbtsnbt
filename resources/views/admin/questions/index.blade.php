@@ -198,6 +198,7 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-[#153c96] text-white select-none">
+                            <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95 w-16 text-center">No</th>
                             <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95">Konten Soal</th>
                             <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95">Materi Uji</th>
                             <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95">Tipe & Bobot</th>
@@ -207,6 +208,9 @@
                     <tbody class="divide-y divide-slate-50">
                         @forelse($questions as $question)
                         <tr class="hover:bg-slate-50/20 transition-colors group">
+                            <td class="px-6 py-4 text-xs font-bold text-slate-500 text-center w-16">
+                                {{ ($questions->currentPage() - 1) * $questions->perPage() + $loop->iteration }}
+                            </td>
                             <td class="px-6 py-4 max-w-xl">
                                 <div class="text-sm font-medium text-slate-700 line-clamp-2 leading-relaxed">
                                     {!! strip_tags($question->content) !!}
@@ -263,7 +267,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="4" class="px-6 py-16 text-center">
+                            <td colspan="5" class="px-6 py-16 text-center">
                                 <div class="flex flex-col items-center gap-2">
                                     <div class="p-4 bg-slate-50 text-slate-300 rounded-2xl">
                                         📭

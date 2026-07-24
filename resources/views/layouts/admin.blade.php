@@ -64,7 +64,7 @@
                class="fixed inset-y-0 left-0 z-50 flex flex-col bg-[#153c96] text-white transition-all duration-300 transform md:relative md:translate-x-0 select-none shrink-0">
             
             <!-- Sidebar Header -->
-            <div class="h-16 flex items-center justify-between px-5 border-b border-white/10 shrink-0">
+            <div class="h-16 flex items-center justify-between px-5 border-b border-white/10 shrink-0 relative z-10">
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2.5">
                     <div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-[#153c96] font-bold text-lg shadow-sm">
                         A
@@ -91,7 +91,20 @@
             </div>
 
             <!-- Sidebar Menu Navigation -->
-            <div class="flex-1 overflow-y-auto sidebar-scrollbar px-4 py-6 space-y-7">
+            <div class="flex-1 overflow-y-auto sidebar-scrollbar px-4 py-6 space-y-7 relative z-10">
+                {{-- User Info Section --}}
+                <div class="px-3 pb-6 border-b border-white/10 flex items-center gap-3" :class="{ 'justify-center': !sidebarOpen }">
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=ffffff&color=153c96&bold=true&size=80" 
+                         alt="User Avatar" 
+                         class="w-10 h-10 rounded-xl object-cover shadow-sm shrink-0 border border-white/20">
+                    <div x-show="sidebarOpen" x-transition class="min-w-0">
+                        <h4 class="text-sm font-bold text-white truncate leading-snug">{{ auth()->user()->name }}</h4>
+                        <span class="text-[10px] font-semibold text-blue-200 capitalize">
+                            {{ str_replace('_', ' ', auth()->user()->getRoleNames()->first() ?? 'Admin') }}
+                        </span>
+                    </div>
+                </div>
+
                 <!-- MAIN MENU -->
                 <div class="space-y-2">
                     <div class="text-[10px] font-semibold text-white/55 uppercase tracking-widest px-3" x-show="sidebarOpen">Menu Utama</div>
@@ -147,7 +160,7 @@
                         </a>
 
                         <a href="{{ route('admin.exam-sessions.index') }}" 
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm transition-all {{ request()->routeIs('admin.exam-sessions.*') ? 'bg-white/20 text-white' : 'text-blue-100 hover:text-white hover:bg-white/10' }}">
+                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm transition-all {{ (request()->routeIs('admin.exam-sessions.*') && !request('status')) ? 'bg-white/20 text-white' : 'text-blue-100 hover:text-white hover:bg-white/10' }}">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
@@ -160,16 +173,16 @@
                 <div class="space-y-2">
                     <div class="text-[10px] font-semibold text-white/55 uppercase tracking-widest px-3" x-show="sidebarOpen">Laporan & Sistem</div>
                     <div class="space-y-1">
-                        <a href="#" 
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm transition-all text-blue-100 hover:text-white hover:bg-white/10">
+                        <a href="{{ route('admin.exam-sessions.index', ['status' => 'active']) }}" 
+                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm transition-all {{ (request()->routeIs('admin.exam-sessions.*') && request('status') === 'active') ? 'bg-white/20 text-white' : 'text-blue-100 hover:text-white hover:bg-white/10' }}">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                             </svg>
                             <span x-show="sidebarOpen" class="transition-opacity">Monitoring</span>
                         </a>
 
-                        <a href="#" 
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm transition-all text-blue-100 hover:text-white hover:bg-white/10">
+                        <a href="{{ route('admin.exam-sessions.index', ['status' => 'completed']) }}" 
+                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm transition-all {{ (request()->routeIs('admin.exam-sessions.*') && request('status') === 'completed') ? 'bg-white/20 text-white' : 'text-blue-100 hover:text-white hover:bg-white/10' }}">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                             </svg>
@@ -189,7 +202,7 @@
             </div>
 
             <!-- Sidebar Footer / Logout -->
-            <div class="p-4 border-t border-white/10 shrink-0">
+            <div class="p-4 border-t border-white/10 shrink-0 relative z-10">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-200 hover:bg-white/10 font-semibold text-sm transition-all">
@@ -199,6 +212,14 @@
                         <span x-show="sidebarOpen">Log Out</span>
                     </button>
                 </form>
+            </div>
+
+            <!-- Wave Ornament at Sidebar Bottom -->
+            <div class="absolute bottom-0 left-0 w-full overflow-hidden pointer-events-none select-none z-0">
+                <svg viewBox="0 0 120 28" class="w-full h-20 -mb-1 text-white/5 fill-current" preserveAspectRatio="none">
+                    <path d="M0 15 c 30 0, 30 -10, 60 -10 c 30 0, 30 10, 60 10 l 0 15 l -120 0 Z" />
+                    <path d="M0 10 c 30 0, 30 15, 60 15 c 30 0, 30 -15, 60 -15 l 0 25 l -120 0 Z" class="text-white/10" />
+                </svg>
             </div>
         </aside>
 

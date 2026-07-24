@@ -42,7 +42,7 @@
         <form action="{{ route('admin.exam-packages.index') }}" method="GET" class="flex flex-col sm:flex-row gap-4 items-center justify-between">
             <div class="w-full sm:flex-1 relative">
                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                         <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path>
                         <path d="M21 21l-6 -6"></path>
@@ -65,7 +65,7 @@
             <div class="bg-white rounded-3xl border-l-4 border-l-[#153c96] border border-slate-100 shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-300 flex flex-col justify-between p-6 relative overflow-hidden group">
                 
                 <!-- Floating Decorative Glow -->
-                <div class="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-blue-50/40 filter blur-xl transition-all duration-500 group-hover:scale-150"></div>
+                <div class="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-blue-50/40 filter blur-xl transition-all duration-500 group-hover:scale-150 pointer-events-none"></div>
                 
                 <div>
                     <!-- Card Header (Badges Row) -->
@@ -146,11 +146,11 @@
                     </div>
 
                     <!-- Modern Outlined Action Buttons -->
-                    <div class="flex items-center gap-2">
+                    <div class="relative z-10 flex items-center gap-2">
                         <a href="{{ route('admin.exam-packages.edit', $package) }}" 
                            class="p-2 bg-slate-50 hover:bg-blue-50 hover:text-[#153c96] text-slate-400 rounded-xl transition-all border border-slate-100 shadow-sm" 
                            title="Edit Paket">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                 <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4"></path>
                                 <path d="M13.5 6.5l4 4"></path>
@@ -160,10 +160,10 @@
                         <form id="delete-form-{{ $package->id }}" action="{{ route('admin.exam-packages.destroy', $package) }}" method="POST" class="inline">
                             @csrf
                             @method('DELETE')
-                            <button type="button" @click="confirmDelete({{ $package->id }})" 
+                            <button type="button" onclick="confirmDelete({{ $package->id }})" 
                                     class="p-2 bg-slate-50 hover:bg-rose-50 hover:text-rose-600 text-slate-400 rounded-xl transition-all border border-slate-100 shadow-sm" 
                                     title="Hapus Paket">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                     <path d="M4 7l16 0"></path>
                                     <path d="M10 11l0 6"></path>
@@ -179,9 +179,12 @@
             </div>
         @empty
             <div class="col-span-full bg-white rounded-3xl border border-slate-100 p-16 text-center shadow-sm">
-                <div class="flex flex-col items-center gap-2">
-                    <div class="p-4 bg-slate-50 text-slate-350 rounded-3xl">
-                        📭
+                <div class="flex flex-col items-center gap-3">
+                    <div class="p-4 bg-slate-50 text-slate-400 rounded-2xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 13h6l1 2h2l1-2h6" />
+                            <path d="M4 6h16v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6z" />
+                        </svg>
                     </div>
                     <p class="text-slate-400 font-bold">Belum ada paket tryout ditambahkan.</p>
                 </div>

@@ -47,14 +47,29 @@ class WordImportService
         $text = trim($this->getElementText($element));
         $html = $this->getElementHtml($element);
 
-        // Check for markers
-        if (preg_match('/^\[SOAL\]/i', $text)) {
+        // If divider is encountered, save the current question and reset
+        if (preg_match('/^---/i', $text)) {
             if ($this->currentQuestion) {
                 $this->questions[] = $this->currentQuestion;
+                $this->currentQuestion = null;
             }
+            return;
+        }
+
+        // A new question block starts if we see a header marker AND the current question already has content or options
+        $isQuestionHeaderMarker = preg_match('/^\[(TIPE|POIN|KESULITAN|SOAL)\]/i', $text);
+        if ($isQuestionHeaderMarker && $this->currentQuestion) {
+            if (!empty($this->currentQuestion['content']) || !empty($this->currentQuestion['options'])) {
+                $this->questions[] = $this->currentQuestion;
+                $this->currentQuestion = null;
+            }
+        }
+
+        // Initialize question if null
+        if (!$this->currentQuestion) {
             $this->currentQuestion = [
                 'subject_id' => $this->currentSubjectId,
-                'content' => preg_replace('/^\[SOAL\]\s*/i', '', $html),
+                'content' => '',
                 'type' => 'pilihan_ganda',
                 'options' => [],
                 'explanation' => '',
@@ -62,6 +77,11 @@ class WordImportService
                 'points' => 1,
                 'is_active' => true,
             ];
+        }
+
+        // Check for markers
+        if (preg_match('/^\[SOAL\]/i', $text)) {
+            $this->currentQuestion['content'] = preg_replace('/^\[SOAL\]\s*/i', '', $html);
             $this->currentState = 'soal';
         } elseif (preg_match('/^\[([A-E])\]/i', $text, $matches)) {
             $label = strtoupper($matches[1]);
@@ -108,7 +128,7 @@ class WordImportService
             }
             $this->currentState = 'difficulty';
         } elseif (preg_match('/^---/i', $text)) {
-            // New separator, optional since [SOAL] also starts new
+            // Already handled above
         } else {
             // Append to current state
             if ($this->currentQuestion) {
@@ -206,6 +226,14 @@ class WordImportService
     {
         $importedCount = 0;
         foreach ($this->questions as $qData) {
+            // Safety check: ensure subject_id exists and question is not empty
+            if (!isset($qData['subject_id'])) {
+                continue;
+            }
+            if (empty(trim(strip_tags($qData['content']))) && empty($qData['options'])) {
+                continue;
+            }
+
             $question = Question::create([
                 'subject_id' => $qData['subject_id'],
                 'type' => $qData['type'],

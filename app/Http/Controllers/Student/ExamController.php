@@ -79,7 +79,8 @@ class ExamController extends Controller
         ];
 
         $currentSubtestId = $metadata['current_subtest_id'];
-        $currentSubtest = $session->examPackage->subtests->find($currentSubtestId);
+        $currentSubtest = $session->examPackage->subtests->find($currentSubtestId) 
+            ?? $session->examPackage->subtests->first();
         
         // Filter questions for the current subtest from the EAGER LOADED collection
         $questions = $currentSubtest 
@@ -295,14 +296,7 @@ class ExamController extends Controller
             return redirect()->route('student.exam.results', $examResult)->with('error', 'Pembahasan tidak tersedia untuk ujian ini.');
         }
 
-        // Fetch subtests that were actually attempted (completed or current)
-        $metadata = $examResult->metadata ?? [];
-        $attemptedSubtestIds = array_unique(array_merge(
-            $metadata['completed_subtests'] ?? [],
-            [$metadata['current_subtest_id'] ?? null]
-        ));
-
-        $subtests = $package->subtests->whereIn('id', $attemptedSubtestIds)->sortBy('order');
+        $subtests = $package->subtests->sortBy('order');
         $allQuestions = collect();
         foreach ($subtests as $subtest) {
             // Apply the same limit and order on the EAGER LOADED collection
