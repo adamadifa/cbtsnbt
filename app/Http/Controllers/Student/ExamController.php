@@ -95,7 +95,14 @@ class ExamController extends Controller
             ->pluck('option_id', 'question_id')
             ->toArray();
 
-        return view('student.exam.show', compact('examResult', 'session', 'currentSubtest', 'questions', 'allSubtests', 'totalExamQuestions', 'userAnswers', 'metadata'));
+        $nextSubtestDelay = (int) \App\Models\Setting::getValue('next_subtest_delay', 10);
+
+        $agent = new \Jenssegers\Agent\Agent();
+        if ($agent->isMobile() || $agent->isTablet()) {
+            return view('student.exam.show-mobile', compact('examResult', 'session', 'currentSubtest', 'questions', 'allSubtests', 'totalExamQuestions', 'userAnswers', 'metadata', 'nextSubtestDelay'));
+        }
+
+        return view('student.exam.show', compact('examResult', 'session', 'currentSubtest', 'questions', 'allSubtests', 'totalExamQuestions', 'userAnswers', 'metadata', 'nextSubtestDelay'));
     }
 
     public function saveAnswer(Request $request, ExamResult $examResult)
@@ -281,6 +288,11 @@ class ExamController extends Controller
         // Total Score from DB
         $totalScore = $examResult->total_score;
 
+        $agent = new \Jenssegers\Agent\Agent();
+        if ($agent->isMobile() || $agent->isTablet()) {
+            return view('student.exam.results-mobile', compact('examResult', 'session', 'package', 'stats', 'breakdown', 'duration', 'totalScore'));
+        }
+
         return view('student.exam.results', compact('examResult', 'session', 'package', 'stats', 'breakdown', 'duration', 'totalScore'));
     }
 
@@ -315,6 +327,11 @@ class ExamController extends Controller
         $userAnswers = StudentAnswer::where('exam_result_id', $examResult->id)
             ->get()
             ->keyBy('question_id');
+
+        $agent = new \Jenssegers\Agent\Agent();
+        if ($agent->isMobile() || $agent->isTablet()) {
+            return view('student.exam.explanation-mobile', compact('examResult', 'session', 'package', 'allQuestions', 'userAnswers', 'subtests'));
+        }
 
         return view('student.exam.explanation', compact('examResult', 'session', 'package', 'allQuestions', 'userAnswers', 'subtests'));
     }

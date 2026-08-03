@@ -16,6 +16,7 @@ class SettingSeeder extends Seeder
             ['key' => 'admin_email', 'value' => 'admin@cbt.test', 'type' => 'text', 'group' => 'contact'],
             ['key' => 'contact_whatsapp', 'value' => '6281234567890', 'type' => 'text', 'group' => 'contact'],
             ['key' => 'certificate_signature_name', 'value' => 'Lulus SNBT Admin', 'type' => 'text', 'group' => 'certificate'],
+            ['key' => 'next_subtest_delay', 'value' => '10', 'type' => 'text', 'group' => 'ujian'],
         ];
 
         foreach ($settings as $setting) {

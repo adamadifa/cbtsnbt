@@ -7,6 +7,8 @@ use App\Models\ExamSession;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+use Jenssegers\Agent\Agent;
+
 class DashboardController extends Controller
 {
     public function index()
@@ -37,6 +39,11 @@ class DashboardController extends Controller
             ->where('status', 'completed')
             ->latest('finished_at')
             ->get();
+
+        $agent = new Agent();
+        if ($agent->isMobile() || $agent->isTablet()) {
+            return view('student.dashboard-mobile', compact('sessions', 'completedResults'));
+        }
 
         return view('student.dashboard', compact('sessions', 'completedResults'));
     }

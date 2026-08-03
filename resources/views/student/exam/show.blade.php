@@ -429,7 +429,7 @@
             allSubtests: @json($allSubtests),
             completedSubtests: @json($metadata['completed_subtests'] ?? []),
             isTransitioning: false,
-            transitionSeconds: 10,
+            transitionSeconds: {{ $nextSubtestDelay }},
             transitionInterval: null,
 
             initExam() {
@@ -460,7 +460,7 @@
             sendViolation(type) {
                 if (this.isTransitioning) return;
 
-                fetch(`{{ route('student.exam.log-violation', $examResult) }}`, {
+                fetch(`/exam/{{ $examResult->id }}/log-violation`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -486,7 +486,7 @@
             startTransition() {
                 clearInterval(this.timerInterval);
                 this.isTransitioning = true;
-                this.transitionSeconds = 10;
+                this.transitionSeconds = {{ $nextSubtestDelay }};
                 
                 this.transitionInterval = setInterval(() => {
                     this.transitionSeconds--;
@@ -501,7 +501,7 @@
                 // Post to server to update metadata & calculate next end_time
                 const form = document.createElement('form');
                 form.method = 'POST';
-                form.action = `{{ route('student.exam.next-subtest', $examResult) }}`;
+                form.action = `/exam/{{ $examResult->id }}/next-subtest`;
                 
                 const csrf = document.createElement('input');
                 csrf.type = 'hidden';
@@ -621,7 +621,7 @@
 
                 this.answers[q.id] = payload;
 
-                fetch(`{{ route('student.exam.save-answer', $examResult) }}`, {
+                fetch(`/exam/{{ $examResult->id }}/save-answer`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
