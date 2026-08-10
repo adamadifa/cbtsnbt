@@ -9,6 +9,9 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified', 'redirect_role'])->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\Student\DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/student/targets', [\App\Http\Controllers\Student\DashboardController::class, 'saveTargets'])->name('student.targets.save');
+    Route::get('/api/campuses-list', [\App\Http\Controllers\Student\DashboardController::class, 'getCampusesList'])->name('api.campuses-list');
+    Route::get('/api/campus-prodis-list', [\App\Http\Controllers\Student\DashboardController::class, 'getCampusProdisList'])->name('api.campus-prodis-list');
 
     // Student Exam Flow
     Route::prefix('exam')->name('student.exam.')->group(function () {
@@ -30,12 +33,21 @@ Route::middleware(['auth', 'verified', 'redirect_role'])->group(function () {
         Route::get('users/download-template', [\App\Http\Controllers\Admin\UserController::class, 'downloadTemplate'])->name('users.download-template');
         Route::post('users/import', [\App\Http\Controllers\Admin\UserController::class, 'import'])->name('users.import');
         Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+        
+        // Campus & Prodi management
+        Route::get('campus-prodis', [\App\Http\Controllers\Admin\CampusProdiController::class, 'index'])->name('campus-prodis.index');
+        Route::post('campus-prodis/upload', [\App\Http\Controllers\Admin\CampusProdiController::class, 'upload'])->name('campus-prodis.upload');
+        Route::post('campus-prodis/import', [\App\Http\Controllers\Admin\CampusProdiController::class, 'import'])->name('campus-prodis.import');
+        Route::get('campus-prodis/prodis', [\App\Http\Controllers\Admin\CampusProdiController::class, 'getProdisByCampus'])->name('campus-prodis.prodis');
+        Route::delete('campus-prodis/destroy-all', [\App\Http\Controllers\Admin\CampusProdiController::class, 'destroyAll'])->name('campus-prodis.destroy-all');
+
         Route::resource('subjects', \App\Http\Controllers\Admin\SubjectController::class);
         Route::post('subjects/import', [\App\Http\Controllers\Admin\SubjectController::class, 'import'])->name('subjects.import');
 
         Route::get('questions/download-template', [\App\Http\Controllers\Admin\QuestionController::class, 'downloadTemplate'])->name('questions.download-template');
         Route::post('questions/upload-image', [\App\Http\Controllers\Admin\QuestionImageController::class, 'upload'])->name('questions.upload-image');
         Route::post('questions/import-word', [\App\Http\Controllers\Admin\QuestionController::class, 'importWord'])->name('questions.import-word');
+        Route::post('questions/bulk-delete', [\App\Http\Controllers\Admin\QuestionController::class, 'bulkDelete'])->name('questions.bulk-delete');
         Route::resource('questions', \App\Http\Controllers\Admin\QuestionController::class);
         
         // System Settings
@@ -61,4 +73,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+use App\Http\Controllers\RegionApiController;
+
+Route::get('/api/regions/provinces', [RegionApiController::class, 'getProvinces'])->name('api.provinces');
+Route::get('/api/regions/cities', [RegionApiController::class, 'getCities'])->name('api.cities');
+Route::get('/api/regions/campuses', [RegionApiController::class, 'getCampuses'])->name('api.campuses');
+
 require __DIR__.'/auth.php';
+

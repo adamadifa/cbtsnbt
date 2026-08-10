@@ -188,11 +188,26 @@ class ExamSessionController extends Controller
             else $distribution['81-100']++;
         }
 
-        if (request()->ajax()) {
-            return view('admin.exam-sessions.partials.monitor-data', compact('examSession', 'results', 'stats', 'subtestStats', 'distribution'));
+        // Prepare detailed matrix data (Subtest -> Questions)
+        $matrixSubtests = [];
+        foreach ($subtests as $subtest) {
+            $questions = $subtest->questions()
+                ->take($subtest->total_questions)
+                ->orderBy('exam_subtest_questions.order')
+                ->get();
+            
+            $matrixSubtests[] = [
+                'id' => $subtest->id,
+                'title' => $subtest->title ?: ($subtest->subject->name ?? 'Subtest'),
+                'questions' => $questions
+            ];
         }
 
-        return view('admin.exam-sessions.show', compact('examSession', 'results', 'stats', 'subtestStats', 'distribution'));
+        if (request()->ajax()) {
+            return view('admin.exam-sessions.partials.monitor-data', compact('examSession', 'results', 'stats', 'subtestStats', 'distribution', 'matrixSubtests'));
+        }
+
+        return view('admin.exam-sessions.show', compact('examSession', 'results', 'stats', 'subtestStats', 'distribution', 'matrixSubtests'));
     }
 
     public function resetStudent(ExamSession $examSession, \App\Models\ExamResult $examResult)
@@ -211,13 +226,28 @@ class ExamSessionController extends Controller
 
     public function exportExcel(ExamSession $examSession)
     {
-        $results = \App\Models\ExamResult::with(['user', 'violations'])
+        $results = \App\Models\ExamResult::with(['user', 'answers', 'violations'])
             ->where('exam_session_id', $examSession->id)
             ->orderByDesc('total_score')
             ->get();
 
+        $subtests = $examSession->examPackage->subtests->sortBy('order');
+        $matrixSubtests = [];
+        foreach ($subtests as $subtest) {
+            $questions = $subtest->questions()
+                ->take($subtest->total_questions)
+                ->orderBy('exam_subtest_questions.order')
+                ->get();
+            
+            $matrixSubtests[] = [
+                'id' => $subtest->id,
+                'title' => $subtest->title ?: ($subtest->subject->name ?? 'Subtest'),
+                'questions' => $questions
+            ];
+        }
+
         return \Maatwebsite\Excel\Facades\Excel::download(
-            new \App\Exports\ExamResultsExport($results), 
+            new \App\Exports\ExamResultsExport($results, $matrixSubtests), 
             'hasil_ujian_' . Str::slug($examSession->title) . '.xlsx'
         );
     }

@@ -179,6 +179,18 @@ class QuestionController extends Controller
         return back()->with('success', 'Soal berhasil dihapus.');
     }
 
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'required|exists:questions,id',
+        ]);
+
+        Question::destroy($request->ids);
+
+        return back()->with('success', count($request->ids) . ' soal berhasil dihapus.');
+    }
+
     public function importWord(Request $request)
     {
         $request->validate([
@@ -201,33 +213,97 @@ class QuestionController extends Controller
     {
         $phpWord = new \PhpOffice\PhpWord\PhpWord();
         $section = $phpWord->addSection();
-        
-        $section->addTitle('Template Import Soal (.docx)', 1);
-        $section->addText('Petunjuk: Gunakan penanda berikut untuk memisahkan setiap bagian:');
-        $section->addListItem('[SOAL] : Isi pertanyaan');
-        $section->addListItem('[A], [B], [C], [D], [E] : Pilihan jawaban');
-        $section->addListItem('[KUNCI] : Label kunci (A/B/C/D/E). Pisahkan koma jika jawaban lebih dari satu.');
-        $section->addListItem('[TIPE] : pilihan_ganda, pilihan_ganda_kompleks, essai');
-        $section->addListItem('[POIN] : Angka (misal: 1 atau 2.5)');
-        $section->addListItem('[KESULITAN] : mudah, sedang, sulit');
-        $section->addListItem('[PEMBAHASAN] : Penjelasan soal');
-        $section->addText('Gunakan "---" sebagai pemisah antar soal.');
+
+        // Header - menggunakan addText dengan font style bold & besar
+        $headerFont = ['bold' => true, 'size' => 16];
+        $boldFont = ['bold' => true, 'size' => 11];
+        $normalFont = ['size' => 10];
+
+        $section->addText('Template Import Soal (.docx)', $headerFont);
+        $section->addTextBreak(1);
+
+        $section->addText('PETUNJUK PENGGUNAAN', $boldFont);
+        $section->addText('Gunakan penanda berikut untuk memisahkan setiap bagian:', $normalFont);
+        $section->addTextBreak(1);
+        $section->addText('[SOAL] - Isi pertanyaan', $normalFont);
+        $section->addText('[A], [B], [C], dst. - Pernyataan atau opsi jawaban', $normalFont);
+        $section->addText('    Khusus tipe menjodohkan, tulis: Kiri = Kanan. Contoh: [A] Jakarta = Indonesia', $normalFont);
+        $section->addText('[KUNCI] - Label kunci jawaban (A/B/C/dst)', $normalFont);
+        $section->addText('    Untuk pilihan_ganda_kompleks, pisahkan koma. Contoh: A, C', $normalFont);
+        $section->addText('    Untuk benar_salah, cantumkan label yang BENAR. Contoh: A, C', $normalFont);
+        $section->addText('    Untuk menjodohkan dan essai, kosongkan saja', $normalFont);
+        $section->addText('[TIPE] - pilihan_ganda / pilihan_ganda_kompleks / essai / menjodohkan / benar_salah', $normalFont);
+        $section->addText('[POIN] - Angka poin soal (misal: 1 atau 5)', $normalFont);
+        $section->addText('[KESULITAN] - mudah / sedang / sulit', $normalFont);
+        $section->addText('[PEMBAHASAN] - Penjelasan soal', $normalFont);
+        $section->addText('Gunakan --- (tiga strip) sebagai pemisah antar soal.', $normalFont);
         $section->addTextBreak(2);
 
-        $section->addText('[TIPE] pilihan_ganda');
-        $section->addText('[POIN] 2');
-        $section->addText('[KESULITAN] sedang');
-        $section->addText('[SOAL]');
-        $section->addText('Berikut ini adalah contoh soal pertama? Anda bisa menambahkan tabel atau gambar di sini.');
-        $section->addText('[A] Pilihan Pertama');
-        $section->addText('[B] Pilihan Kedua');
-        $section->addText('[C] Pilihan Ketiga');
-        $section->addText('[D] Pilihan Keempat');
-        $section->addText('[E] Pilihan Kelima');
-        $section->addText('[KUNCI] A');
-        $section->addText('[PEMBAHASAN]');
-        $section->addText('Tuliskan penjelasan jawaban di sini.');
-        $section->addText('---');
+        // ============ CONTOH 1: Pilihan Ganda ============
+        $section->addText('CONTOH 1: PILIHAN GANDA', $boldFont);
+        $section->addText('[TIPE] pilihan_ganda', $normalFont);
+        $section->addText('[POIN] 1', $normalFont);
+        $section->addText('[KESULITAN] mudah', $normalFont);
+        $section->addText('[SOAL] Berikut ini adalah contoh soal Pilihan Ganda?', $normalFont);
+        $section->addText('[A] Pilihan Pertama (Benar)', $normalFont);
+        $section->addText('[B] Pilihan Kedua', $normalFont);
+        $section->addText('[C] Pilihan Ketiga', $normalFont);
+        $section->addText('[D] Pilihan Keempat', $normalFont);
+        $section->addText('[KUNCI] A', $normalFont);
+        $section->addText('[PEMBAHASAN] Pembahasan kunci jawaban A.', $normalFont);
+        $section->addText('---', $normalFont);
+        $section->addTextBreak(1);
+
+        // ============ CONTOH 2: Pilihan Ganda Kompleks ============
+        $section->addText('CONTOH 2: PILIHAN GANDA KOMPLEKS', $boldFont);
+        $section->addText('[TIPE] pilihan_ganda_kompleks', $normalFont);
+        $section->addText('[POIN] 2', $normalFont);
+        $section->addText('[KESULITAN] sedang', $normalFont);
+        $section->addText('[SOAL] Pilihlah dua pernyataan yang benar di bawah ini!', $normalFont);
+        $section->addText('[A] Pernyataan Pertama (Benar)', $normalFont);
+        $section->addText('[B] Pernyataan Kedua (Salah)', $normalFont);
+        $section->addText('[C] Pernyataan Ketiga (Benar)', $normalFont);
+        $section->addText('[D] Pernyataan Keempat (Salah)', $normalFont);
+        $section->addText('[KUNCI] A, C', $normalFont);
+        $section->addText('[PEMBAHASAN] Kunci jawaban yang benar adalah A dan C.', $normalFont);
+        $section->addText('---', $normalFont);
+        $section->addTextBreak(1);
+
+        // ============ CONTOH 3: Benar / Salah ============
+        $section->addText('CONTOH 3: BENAR / SALAH', $boldFont);
+        $section->addText('[TIPE] benar_salah', $normalFont);
+        $section->addText('[POIN] 2', $normalFont);
+        $section->addText('[KESULITAN] sedang', $normalFont);
+        $section->addText('[SOAL] Tentukan nilai kebenaran dari pernyataan berikut!', $normalFont);
+        $section->addText('[A] Air mendidih pada suhu 100 derajat Celcius.', $normalFont);
+        $section->addText('[B] Matahari berputar mengelilingi bumi.', $normalFont);
+        $section->addText('[C] Indonesia merdeka pada tahun 1945.', $normalFont);
+        $section->addText('[KUNCI] A, C', $normalFont);
+        $section->addText('[PEMBAHASAN] Opsi A dan C bernilai Benar, sedangkan Opsi B bernilai Salah.', $normalFont);
+        $section->addText('---', $normalFont);
+        $section->addTextBreak(1);
+
+        // ============ CONTOH 4: Menjodohkan ============
+        $section->addText('CONTOH 4: MENJODOHKAN', $boldFont);
+        $section->addText('[TIPE] menjodohkan', $normalFont);
+        $section->addText('[POIN] 3', $normalFont);
+        $section->addText('[KESULITAN] sulit', $normalFont);
+        $section->addText('[SOAL] Jodohkanlah negara dengan ibukotanya!', $normalFont);
+        $section->addText('[A] Indonesia = Jakarta', $normalFont);
+        $section->addText('[B] Jepang = Tokyo', $normalFont);
+        $section->addText('[C] Perancis = Paris', $normalFont);
+        $section->addText('[PEMBAHASAN] Penjelasan pasangan menjodohkan yang tepat.', $normalFont);
+        $section->addText('---', $normalFont);
+        $section->addTextBreak(1);
+
+        // ============ CONTOH 5: Essai ============
+        $section->addText('CONTOH 5: ESSAI', $boldFont);
+        $section->addText('[TIPE] essai', $normalFont);
+        $section->addText('[POIN] 5', $normalFont);
+        $section->addText('[KESULITAN] sedang', $normalFont);
+        $section->addText('[SOAL] Jelaskan apa yang dimaksud dengan fotosintesis pada tumbuhan!', $normalFont);
+        $section->addText('[PEMBAHASAN] Jawaban essai harus menjelaskan proses konversi cahaya matahari menjadi energi kimia oleh tumbuhan.', $normalFont);
+        $section->addText('---', $normalFont);
 
         $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007');
         $tempFile = tempnam(sys_get_temp_dir(), 'template_soal');
@@ -236,3 +312,4 @@ class QuestionController extends Controller
         return response()->download($tempFile, 'template_import_soal_cbt.docx')->deleteFileAfterSend(true);
     }
 }
+

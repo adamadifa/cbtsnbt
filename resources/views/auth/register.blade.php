@@ -72,6 +72,42 @@
                         <x-input-error :messages="$errors->get('school')" class="mt-1" />
                     </div>
 
+                    <!-- Provinsi Kampus Tujuan -->
+                    <div class="space-y-1">
+                        <label for="target_province" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Provinsi Kampus Tujuan</label>
+                        <select id="target_province" 
+                                name="target_province"
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-100 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 rounded-2xl transition-all duration-200 text-slate-800 font-medium text-sm focus:outline-none"
+                                required>
+                            <option value="">Pilih Provinsi</option>
+                        </select>
+                        <x-input-error :messages="$errors->get('target_province')" class="mt-1" />
+                    </div>
+
+                    <!-- Kota/Kabupaten Kampus Tujuan -->
+                    <div class="space-y-1">
+                        <label for="target_city" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Kota/Kabupaten Kampus Tujuan</label>
+                        <select id="target_city" 
+                                name="target_city"
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-100 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 rounded-2xl transition-all duration-200 text-slate-800 font-medium text-sm focus:outline-none"
+                                required disabled>
+                            <option value="">Pilih Kota/Kabupaten</option>
+                        </select>
+                        <x-input-error :messages="$errors->get('target_city')" class="mt-1" />
+                    </div>
+
+                    <!-- Pilihan Kampus Tujuan -->
+                    <div class="space-y-1">
+                        <label for="target_campus" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Pilihan Kampus Tujuan</label>
+                        <select id="target_campus" 
+                                name="target_campus"
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-100 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 rounded-2xl transition-all duration-200 text-slate-800 font-medium text-sm focus:outline-none"
+                                required disabled>
+                            <option value="">Pilih Kampus</option>
+                        </select>
+                        <x-input-error :messages="$errors->get('target_campus')" class="mt-1" />
+                    </div>
+
                     <!-- Email Address -->
                     <div class="space-y-1">
                         <label for="email" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Email Address</label>
@@ -139,3 +175,167 @@
         </div>
     </div>
 </x-guest-layout>
+
+<!-- Select2 CSS and JS with jQuery -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    /* Styling to make Select2 look beautiful and match the existing Tailwind form controls */
+    .select2-container .select2-selection--single {
+        height: 52px !important;
+        background-color: #f8fafc !important; /* bg-slate-50 */
+        border: 1px solid #f1f5f9 !important; /* border-slate-100 */
+        border-radius: 1rem !important; /* rounded-2xl */
+        transition: all 0.2s ease-in-out !important;
+        display: flex;
+        align-items: center;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #1e293b !important; /* text-slate-800 */
+        font-weight: 500 !important;
+        font-size: 0.875rem !important; /* text-sm */
+        padding-left: 1rem !important;
+        padding-right: 2.5rem !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 50px !important;
+        right: 12px !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow b {
+        border-color: #94a3b8 transparent transparent transparent !important; /* text-slate-400 */
+        border-width: 5px 5px 0 5px !important;
+        margin-left: -5px !important;
+    }
+    .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+        border-color: transparent transparent #94a3b8 transparent !important;
+        border-width: 0 5px 5px 5px !important;
+    }
+    .select2-container--default.select2-container--focus .select2-selection--single {
+        border-color: #1a5eff !important;
+        background-color: #fff !important;
+        box-shadow: 0 0 0 2px rgba(26, 94, 255, 0.15) !important;
+    }
+    .select2-dropdown {
+        background-color: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 1rem !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02) !important;
+        overflow: hidden;
+        z-index: 9999;
+        margin-top: 4px;
+    }
+    .select2-container--default .select2-search--dropdown .select2-search__field {
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 0.75rem !important;
+        padding: 8px 12px !important;
+        outline: none !important;
+        font-size: 0.875rem !important;
+    }
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background-color: #1a5eff !important;
+    }
+    .select2-container--default .select2-results__option[aria-selected="true"] {
+        background-color: #f1f5f9 !important;
+        color: #1a5eff !important;
+        font-weight: 600;
+    }
+    .select2-container--default .select2-selection--single[aria-disabled="true"] {
+        background-color: #f1f5f9 !important;
+        border-color: #f1f5f9 !important;
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    .select2-results__option {
+        padding: 10px 16px !important;
+        font-size: 0.875rem !important;
+    }
+</style>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    // Initialize select2
+    $('#target_province').select2({ placeholder: "Pilih Provinsi" });
+    $('#target_city').select2({ placeholder: "Pilih Kota/Kabupaten" });
+    $('#target_campus').select2({ placeholder: "Pilih Kampus" });
+
+    // When province changes
+    $('#target_province').on('change', function() {
+        const provinceName = $(this).val();
+        const provinceId = $(this).find(':selected').attr('data-id') || $(this).find(':selected').data('id');
+
+        // Reset city & campus
+        $('#target_city').html('<option value="">Pilih Kota/Kabupaten</option>').val('').trigger('change').prop('disabled', true);
+        $('#target_campus').html('<option value="">Pilih Kampus</option>').val('').trigger('change').prop('disabled', true);
+
+        if (!provinceId) return;
+
+        // Fetch cities
+        $.ajax({
+            url: '{{ route('api.cities') }}',
+            data: { province_id: provinceId },
+            success: function(res) {
+                if (res && res.data) {
+                    $('#target_city').prop('disabled', false);
+                    res.data.forEach(function(city) {
+                        const opt = $('<option></option>')
+                            .val(city.name)
+                            .attr('data-id', city.id)
+                            .text(city.name);
+                        $('#target_city').append(opt);
+                    });
+                    $('#target_city').trigger('change');
+                }
+            }
+        });
+    });
+
+    // When city changes
+    $('#target_city').on('change', function() {
+        const provinceId = $('#target_province').find(':selected').attr('data-id') || $('#target_province').find(':selected').data('id');
+        const cityId = $(this).find(':selected').attr('data-id') || $(this).find(':selected').data('id');
+        const cityName = $(this).val();
+
+        $('#target_campus').html('<option value="">Pilih Kampus</option>').val('').trigger('change').prop('disabled', true);
+
+        if (!cityId) return;
+
+        // Fetch campuses
+        $.ajax({
+            url: '{{ route('api.campuses') }}',
+            data: { province_id: provinceId, city_id: cityId, city_name: cityName },
+            success: function(res) {
+                if (res && res.data) {
+                    $('#target_campus').prop('disabled', false);
+                    res.data.forEach(function(campus) {
+                        const opt = $('<option></option>')
+                            .val(campus.name)
+                            .text(campus.name);
+                        $('#target_campus').append(opt);
+                    });
+                    $('#target_campus').trigger('change');
+                }
+            }
+        });
+    });
+
+    // Initial Load Provinces
+    $.ajax({
+        url: '{{ route('api.provinces') }}',
+        success: function(res) {
+            if (res && res.data) {
+                res.data.forEach(function(province) {
+                    const opt = $('<option></option>')
+                        .val(province.name)
+                        .attr('data-id', province.id)
+                        .text(province.name);
+                    $('#target_province').append(opt);
+                });
+                $('#target_province').trigger('change');
+            }
+        }
+    });
+});
+</script>
+

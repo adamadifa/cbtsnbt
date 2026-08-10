@@ -141,6 +141,27 @@
                         <span class="text-slate-450">Tipe Anggota</span>
                         <span class="px-2 py-0.5 rounded bg-blue-50 border border-blue-100 text-[9px] font-bold text-blue-700 uppercase tracking-wide">Siswa Pro</span>
                     </div>
+
+                    <!-- Kampus Tujuan -->
+                    <div class="pt-4 border-t border-slate-100">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pilihan Kampus Tujuan</span>
+                            <button onclick="openTargetsModal()" class="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 transition-colors">Ubah</button>
+                        </div>
+                        <div class="space-y-1.5">
+                            @forelse($targets as $target)
+                                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex items-start gap-2 shadow-xs">
+                                    <div class="w-4 h-4 bg-indigo-100 text-indigo-700 text-[9px] font-black rounded flex items-center justify-center shrink-0 mt-0.5">{{ $target->order }}</div>
+                                    <div class="min-w-0">
+                                        <div class="font-bold text-slate-800 text-[10px] leading-tight truncate">{{ $target->campusProdi->campus_name }}</div>
+                                        <div class="text-[9px] text-slate-500 mt-0.5 leading-tight">{{ $target->campusProdi->prodi_name }} ({{ $target->campusProdi->jenjang }})</div>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="text-[10px] text-slate-450 italic py-1 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">Belum memilih kampus impian.</div>
+                            @endforelse
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -278,6 +299,8 @@
         </div>
     </div>
 </div>
+
+@include('student.partials.targets-modal')
 
 @push('scripts')
 <script>

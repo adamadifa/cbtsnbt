@@ -20,12 +20,13 @@ class WordImportService
     protected $questions = [];
     protected $currentQuestion = null;
     protected $currentType = 'pilihan_ganda';
+    protected $currentState = null;
 
     public function import($filePath, $subjectId)
     {
         $this->currentSubjectId = $subjectId;
         $phpWord = IOFactory::load($filePath);
-        
+
         $sections = $phpWord->getSections();
         foreach ($sections as $section) {
             $elements = $section->getElements();
@@ -83,17 +84,17 @@ class WordImportService
         if (preg_match('/^\[SOAL\]/i', $text)) {
             $this->currentQuestion['content'] = preg_replace('/^\[SOAL\]\s*/i', '', $html);
             $this->currentState = 'soal';
-        } elseif (preg_match('/^\[([A-E])\]/i', $text, $matches)) {
+        } elseif (preg_match('/^\[([A-Z])\]/i', $text, $matches)) {
             $label = strtoupper($matches[1]);
             $this->currentQuestion['options'][$label] = [
-                'content' => preg_replace('/^\[[A-E]\]\s*/i', '', $html),
+                'content' => preg_replace('/^\[[A-Z]\]\s*/i', '', $html),
                 'is_correct' => false,
             ];
             $this->currentState = 'option_' . $label;
         } elseif (preg_match('/^\[KUNCI\]/i', $text)) {
             $kunciText = trim(preg_replace('/^\[KUNCI\]\s*/i', '', $text));
             $kuncis = array_map('trim', explode(',', strtoupper($kunciText)));
-            
+
             foreach ($kuncis as $kunci) {
                 if (isset($this->currentQuestion['options'][$kunci])) {
                     $this->currentQuestion['options'][$kunci]['is_correct'] = true;
@@ -109,7 +110,7 @@ class WordImportService
             $this->currentState = 'explanation';
         } elseif (preg_match('/^\[TIPE\]/i', $text)) {
             $typeInput = trim(strtolower(preg_replace('/^\[TIPE\]\s*/i', '', $text)));
-            $allowedTypes = ['pilihan_ganda', 'pilihan_ganda_kompleks', 'essai'];
+            $allowedTypes = ['pilihan_ganda', 'pilihan_ganda_kompleks', 'essai', 'menjodohkan', 'benar_salah'];
             if (in_array($typeInput, $allowedTypes)) {
                 $this->currentQuestion['type'] = $typeInput;
             }
@@ -117,7 +118,7 @@ class WordImportService
         } elseif (preg_match('/^\[POIN\]/i', $text)) {
             $poinInput = trim(preg_replace('/^\[POIN\]\s*/i', '', $text));
             if (is_numeric($poinInput)) {
-                $this->currentQuestion['points'] = (float)$poinInput;
+                $this->currentQuestion['points'] = (float) $poinInput;
             }
             $this->currentState = 'points';
         } elseif (preg_match('/^\[KESULITAN\]/i', $text)) {
@@ -166,7 +167,7 @@ class WordImportService
         if ($element instanceof Table) {
             return $this->renderTableToHtml($element);
         }
-        
+
         $html = '';
         if ($element instanceof TextRun) {
             foreach ($element->getElements() as $child) {
@@ -187,7 +188,7 @@ class WordImportService
                 $html = '<img src="' . Storage::url($imagePath) . '" class="max-w-full h-auto my-2">';
             }
         }
-        
+
         return $html;
     }
 
@@ -212,12 +213,13 @@ class WordImportService
     protected function saveImage($imageElement)
     {
         $base64Data = $imageElement->getImageStringData(true);
-        if (!$base64Data) return null;
+        if (!$base64Data)
+            return null;
 
         $imageData = base64_decode($base64Data);
         $extension = $imageElement->getImageExtension();
         $filename = 'questions/' . Str::random(40) . '.' . $extension;
-        
+
         Storage::disk('public')->put($filename, $imageData);
         return $filename;
     }
@@ -246,10 +248,19 @@ class WordImportService
             ]);
 
             foreach ($qData['options'] as $label => $optData) {
+                $content = $optData['content'] ?: '-';
+                $dbLabel = $label;
+
+                if ($qData['type'] === 'menjodohkan' && strpos($content, '=') !== false) {
+                    $parts = explode('=', $content);
+                    $dbLabel = trim(strip_tags($parts[0]));
+                    $content = trim(strip_tags($parts[1]));
+                }
+
                 QuestionOption::create([
                     'question_id' => $question->id,
-                    'label' => $label,
-                    'content' => $optData['content'] ?: '-',
+                    'label' => $dbLabel,
+                    'content' => $content,
                     'is_correct' => $optData['is_correct'],
                 ]);
             }

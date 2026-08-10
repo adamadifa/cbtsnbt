@@ -331,6 +331,95 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
     </div>
 </div>
 
+{{-- Matrix Tab --}}
+<div x-show="activeTab === 'matrix'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <!-- Card Header -->
+        <div class="bg-[#153c96] text-white px-6 py-4 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-bold text-sm tracking-wide">Matriks Jawaban Siswa (Analisis Butir Soal)</h3>
+                    <p class="text-[10px] text-white/70">Analisis respon jawaban siswa (1 = Benar, 0 = Salah, - = Tidak Dijawab)</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse min-w-max text-xs">
+                <thead>
+                    <!-- Row 1: Subtest Names -->
+                    <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                        <th rowspan="2" class="px-6 py-4 font-bold border-r border-slate-200 align-middle">Nama Peserta</th>
+                        @foreach($matrixSubtests as $subtest)
+                            <th colspan="{{ $subtest['questions']->count() }}" class="px-3 py-2 text-center font-bold border-r border-slate-200">
+                                {{ $subtest['title'] }}
+                            </th>
+                        @endforeach
+                    </tr>
+                    <!-- Row 2: Question Numbers -->
+                    <tr class="bg-slate-50 text-slate-650 border-b border-slate-200">
+                        @foreach($matrixSubtests as $subtest)
+                            @foreach($subtest['questions'] as $index => $q)
+                                <th class="px-2 py-2 text-center font-bold border-r border-slate-100 w-8" title="Soal ID: {{ $q->id }}">
+                                    {{ $index + 1 }}
+                                </th>
+                            @endforeach
+                        @endforeach
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @forelse($results as $result)
+                        @php
+                            $studentAnswers = $result->answers->keyBy('question_id');
+                        @endphp
+                        <tr class="hover:bg-slate-50/50 transition-colors">
+                            <!-- Student Name -->
+                            <td class="px-6 py-3 border-r border-slate-200 font-medium text-slate-800">
+                                <div class="flex flex-col">
+                                    <span class="font-bold text-sm">{{ $result->user->name }}</span>
+                                    <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">{{ $result->user->school ?? 'N/A' }}</span>
+                                </div>
+                            </td>
+                            <!-- Student Answers -->
+                            @foreach($matrixSubtests as $subtest)
+                                @foreach($subtest['questions'] as $q)
+                                    @php
+                                        $ans = $studentAnswers->get($q->id);
+                                        $isCorrect = $ans && $ans->is_correct;
+                                    @endphp
+                                    <td class="px-2 py-3 text-center border-r border-slate-100">
+                                        @if($ans)
+                                            @if($isCorrect)
+                                                <span class="text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded text-[10px]">1</span>
+                                            @else
+                                                <span class="text-rose-500 font-bold bg-rose-50 px-1.5 py-0.5 rounded text-[10px]">0</span>
+                                            @endif
+                                        @else
+                                            <span class="text-slate-350">-</span>
+                                        @endif
+                                    </td>
+                                @endforeach
+                            @endforeach
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="{{ 1 + collect($matrixSubtests)->pluck('questions')->flatten()->count() }}" class="px-6 py-16 text-center">
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Belum ada data peserta.</p>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
 <script>
     function initCharts() {
         // Wrap in timeout to ensure Alpine has finished rendering tabs

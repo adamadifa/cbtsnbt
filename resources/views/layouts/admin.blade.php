@@ -133,6 +133,14 @@
                             </svg>
                             <span x-show="sidebarOpen" class="transition-opacity">Materi Uji</span>
                         </a>
+
+                        <a href="{{ route('admin.campus-prodis.index') }}" 
+                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm transition-all {{ request()->routeIs('admin.campus-prodis.*') ? 'bg-white/20 text-white' : 'text-blue-100 hover:text-white hover:bg-white/10' }}">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.685 0-5.3.233-7.875.682V21A2.25 2.25 0 006.375 23.25h11.25A2.25 2.25 0 0019.5 21z" />
+                            </svg>
+                            <span x-show="sidebarOpen" class="transition-opacity">Kampus & Prodi</span>
+                        </a>
                         @endrole
                     </div>
                 </div>

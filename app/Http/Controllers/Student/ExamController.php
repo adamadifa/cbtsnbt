@@ -45,7 +45,7 @@ class ExamController extends Controller
 
         if (!$result) {
             $firstSubtest = $session->examPackage->subtests()->orderBy('order')->first();
-            
+
             $result = ExamResult::create([
                 'user_id' => Auth::id(),
                 'exam_session_id' => $session->id,
@@ -67,11 +67,13 @@ class ExamController extends Controller
     public function show(ExamResult $examResult)
     {
         // Security Check
-        if ($examResult->user_id !== Auth::id()) abort(403);
-        if ($examResult->status !== 'in_progress') return redirect()->route('dashboard');
+        if ($examResult->user_id !== Auth::id())
+            abort(403);
+        if ($examResult->status !== 'in_progress')
+            return redirect()->route('dashboard');
 
         $session = $examResult->examSession()->with('examPackage.subtests.questions.options')->first();
-        
+
         $metadata = $examResult->metadata ?? [
             'current_subtest_id' => $session->examPackage->subtests->first()->id ?? null,
             'subtest_end_time' => now()->addMinutes($session->examPackage->subtests->first()->duration_minutes ?? 0)->toDateTimeString(),
@@ -79,11 +81,11 @@ class ExamController extends Controller
         ];
 
         $currentSubtestId = $metadata['current_subtest_id'];
-        $currentSubtest = $session->examPackage->subtests->find($currentSubtestId) 
+        $currentSubtest = $session->examPackage->subtests->find($currentSubtestId)
             ?? $session->examPackage->subtests->first();
-        
+
         // Filter questions for the current subtest from the EAGER LOADED collection
-        $questions = $currentSubtest 
+        $questions = $currentSubtest
             ? $currentSubtest->questions->sortBy('pivot.order')->take($currentSubtest->total_questions)->values()
             : collect();
 
@@ -128,9 +130,9 @@ class ExamController extends Controller
             $option = $request->option_id ? $question->options->find($request->option_id) : null;
             $isCorrect = $option ? $option->is_correct : false;
         } elseif ($question->type === 'pilihan_ganda_kompleks') {
-            $selectedIds = $request->option_ids ?? [];
+            $selectedIds = array_map('intval', $request->option_ids ?? []);
             $correctIds = $question->options->where('is_correct', true)->pluck('id')->toArray();
-            
+
             // Correct if both sets match exactly
             sort($selectedIds);
             sort($correctIds);
@@ -144,6 +146,22 @@ class ExamController extends Controller
                 if (!isset($answers[$option->id]) || $answers[$option->id] != $option->id) {
                     $isCorrect = false;
                     break;
+                }
+            }
+        } elseif ($question->type === 'benar_salah') {
+            $answers = $request->matching_answers ?? [];
+            $isCorrect = true;
+            
+            if (count($answers) !== $question->options->count()) {
+                $isCorrect = false;
+            } else {
+                foreach ($question->options as $option) {
+                    $submittedVal = $answers[$option->id] ?? null;
+                    $correctVal = $option->is_correct ? 'benar' : 'salah';
+                    if ($submittedVal !== $correctVal) {
+                        $isCorrect = false;
+                        break;
+                    }
                 }
             }
         } elseif ($question->type === 'essai') {
@@ -180,14 +198,15 @@ class ExamController extends Controller
 
     public function nextSubtest(ExamResult $examResult)
     {
-        if ($examResult->user_id !== Auth::id() || $examResult->status !== 'in_progress') abort(403);
+        if ($examResult->user_id !== Auth::id() || $examResult->status !== 'in_progress')
+            abort(403);
 
         $metadata = $examResult->metadata;
         $session = $examResult->examSession()->with('examPackage.subtests')->first();
         $subtests = $session->examPackage->subtests->sortBy('order');
 
         $currentIdx = $subtests->search(fn($s) => $s->id == $metadata['current_subtest_id']);
-        
+
         // Mark current as completed
         $completed = $metadata['completed_subtests'] ?? [];
         if (!in_array($metadata['current_subtest_id'], $completed)) {
@@ -211,11 +230,12 @@ class ExamController extends Controller
 
     public function finish(ExamResult $examResult)
     {
-        if ($examResult->user_id !== Auth::id()) abort(403);
+        if ($examResult->user_id !== Auth::id())
+            abort(403);
 
-        DB::transaction(function() use ($examResult) {
+        DB::transaction(function () use ($examResult) {
             $totalScore = StudentAnswer::where('exam_result_id', $examResult->id)->sum('points');
-            
+
             $examResult->update([
                 'status' => 'completed',
                 'finished_at' => now(),
@@ -230,8 +250,9 @@ class ExamController extends Controller
 
     public function results(ExamResult $examResult)
     {
-        if ($examResult->user_id !== Auth::id()) abort(403);
-        
+        if ($examResult->user_id !== Auth::id())
+            abort(403);
+
         // Ensure the exam is completed
         if ($examResult->status !== 'completed') {
             return redirect()->route('student.exam.show', $examResult);
@@ -260,16 +281,16 @@ class ExamController extends Controller
         $stats['empty'] = max(0, $stats['empty']); // Prevent negative if answered > total somehow
 
         // Accuracy Percentage
-        $stats['accuracy'] = $stats['total_questions'] > 0 
-            ? round(($stats['correct'] / $stats['total_questions']) * 100, 1) 
+        $stats['accuracy'] = $stats['total_questions'] > 0
+            ? round(($stats['correct'] / $stats['total_questions']) * 100, 1)
             : 0;
 
         // Subtest Breakdown
-        $breakdown = $subtests->map(function($subtest) use ($answers) {
+        $breakdown = $subtests->map(function ($subtest) use ($answers) {
             $validQuestions = $subtest->questions->sortBy('pivot.order')->take($subtest->total_questions);
             $subtestQuestionIds = $validQuestions->pluck('id');
             $subtestAnswers = $answers->whereIn('question_id', $subtestQuestionIds);
-            
+
             $correct = $subtestAnswers->where('is_correct', true)->count();
             $total = $validQuestions->count();
 
@@ -298,8 +319,9 @@ class ExamController extends Controller
 
     public function explanation(ExamResult $examResult)
     {
-        if ($examResult->user_id !== Auth::id()) abort(403);
-        
+        if ($examResult->user_id !== Auth::id())
+            abort(403);
+
         // Check if explanation is allowed
         $session = $examResult->examSession()->with('examPackage.subtests.questions.options')->first();
         $package = $session->examPackage;
@@ -315,8 +337,8 @@ class ExamController extends Controller
             $subQuestions = $subtest->questions->sortBy('pivot.order')
                 ->take($subtest->total_questions)
                 ->values()
-                ->map(function($q) use ($subtest) {
-                    $q->subtest_id = $subtest->id; 
+                ->map(function ($q) use ($subtest) {
+                    $q->subtest_id = $subtest->id;
                     $q->subtest_title = $subtest->title ?: ($subtest->subject->name ?? 'Subtest');
                     return $q;
                 });

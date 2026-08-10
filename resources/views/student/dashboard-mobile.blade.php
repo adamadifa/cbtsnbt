@@ -41,6 +41,27 @@
         </div>
     </div>
 
+    <!-- Target Campuses Card (Mobile) -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-3">
+        <div class="flex items-center justify-between">
+            <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Kampus Impian Anda</span>
+            <button onclick="openTargetsModal()" class="text-[10px] font-bold text-indigo-600 hover:text-indigo-850 transition-colors">Ubah</button>
+        </div>
+        <div class="grid grid-cols-1 gap-2">
+            @forelse($targets as $target)
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-start gap-2.5">
+                    <div class="w-5 h-5 bg-indigo-50 text-indigo-700 text-[10px] font-black rounded-lg flex items-center justify-center shrink-0 mt-0.5">{{ $target->order }}</div>
+                    <div class="min-w-0">
+                        <div class="font-extrabold text-slate-800 text-xs truncate leading-tight">{{ $target->campusProdi->campus_name }}</div>
+                        <div class="text-[10px] text-slate-500 mt-0.5 leading-tight">{{ $target->campusProdi->prodi_name }} ({{ $target->campusProdi->jenjang }})</div>
+                    </div>
+                </div>
+            @empty
+                <div class="text-xs text-slate-450 italic py-3 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">Belum memilih kampus impian.</div>
+            @endforelse
+        </div>
+    </div>
+
     {{-- Active Exam Sessions List --}}
     <div class="space-y-3">
         <div class="flex items-center justify-between px-1">
@@ -240,6 +261,8 @@
         </form>
     </div>
 </div>
+
+@include('student.partials.targets-modal')
 
 @push('scripts')
 <script>

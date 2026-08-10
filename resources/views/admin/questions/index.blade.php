@@ -172,6 +172,19 @@
                 </div>
                 
                 <div class="flex items-center gap-3">
+                    <!-- Bulk Delete Button (hidden by default) -->
+                    <button id="bulk-delete-btn" style="display: none;" onclick="confirmBulkDelete()" class="inline-flex items-center gap-1.5 px-4 py-2 bg-rose-600 hover:bg-rose-750 text-white rounded-xl font-bold text-xs shadow-sm transition-all animate-pulse">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path d="M4 7l16 0"></path>
+                            <path d="M10 11l0 6"></path>
+                            <path d="M14 11l0 6"></path>
+                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+                        </svg>
+                        Hapus Terpilih (<span id="bulk-delete-count">0</span>)
+                    </button>
+
                     <button @click="showImportWordModal = true" class="inline-flex items-center gap-1.5 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold text-xs border border-white/15 transition-all">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -198,7 +211,12 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-[#153c96] text-white select-none">
-                            <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95 w-16 text-center">No</th>
+                            <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95 w-24 text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <input type="checkbox" id="select-all-checkbox" class="rounded border-slate-300 text-[#153c96] focus:ring-[#153c96] w-4 h-4 cursor-pointer bg-white/10">
+                                    <span>No</span>
+                                </div>
+                            </th>
                             <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95">Konten Soal</th>
                             <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95">Materi Uji</th>
                             <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95">Tipe & Bobot</th>
@@ -208,8 +226,11 @@
                     <tbody class="divide-y divide-slate-50">
                         @forelse($questions as $question)
                         <tr class="hover:bg-slate-50/20 transition-colors group">
-                            <td class="px-6 py-4 text-xs font-bold text-slate-500 text-center w-16">
-                                {{ ($questions->currentPage() - 1) * $questions->perPage() + $loop->iteration }}
+                            <td class="px-6 py-4 text-center w-24">
+                                <div class="flex items-center justify-center gap-2">
+                                    <input type="checkbox" value="{{ $question->id }}" class="question-checkbox rounded border-slate-300 text-[#153c96] focus:ring-[#153c96] w-4 h-4 cursor-pointer">
+                                    <span class="text-xs font-bold text-slate-500">{{ ($questions->currentPage() - 1) * $questions->perPage() + $loop->iteration }}</span>
+                                </div>
                             </td>
                             <td class="px-6 py-4 max-w-xl">
                                 <div class="text-sm font-medium text-slate-700 line-clamp-2 leading-relaxed">
@@ -351,12 +372,93 @@
                 </div>
             </div>
         </div>
+        <!-- Hidden Bulk Delete Form -->
+        <form id="bulk-delete-form" action="{{ route('admin.questions.bulk-delete') }}" method="POST" style="display: none;">
+            @csrf
+        </form>
     </div>
 @endif
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const selectAllCheckbox = document.getElementById('select-all-checkbox');
+        const questionCheckboxes = document.querySelectorAll('.question-checkbox');
+        const bulkDeleteBtn = document.getElementById('bulk-delete-btn');
+        const bulkDeleteCount = document.getElementById('bulk-delete-count');
+
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function () {
+                questionCheckboxes.forEach(cb => {
+                    cb.checked = selectAllCheckbox.checked;
+                });
+                updateBulkDeleteUI();
+            });
+
+            questionCheckboxes.forEach(cb => {
+                cb.addEventListener('change', function () {
+                    // Update Select All state
+                    const allChecked = Array.from(questionCheckboxes).every(c => c.checked);
+                    const someChecked = Array.from(questionCheckboxes).some(c => c.checked);
+                    selectAllCheckbox.checked = allChecked;
+                    selectAllCheckbox.indeterminate = someChecked && !allChecked;
+                    updateBulkDeleteUI();
+                });
+            });
+        }
+
+        function updateBulkDeleteUI() {
+            const checkedCount = document.querySelectorAll('.question-checkbox:checked').length;
+            if (checkedCount > 0) {
+                bulkDeleteBtn.style.display = 'inline-flex';
+                bulkDeleteCount.textContent = checkedCount;
+            } else {
+                bulkDeleteBtn.style.display = 'none';
+                bulkDeleteCount.textContent = '0';
+            }
+        }
+    });
+
+    function confirmBulkDelete() {
+        const checkedBoxes = document.querySelectorAll('.question-checkbox:checked');
+        const count = checkedBoxes.length;
+
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: `${count} soal yang dipilih akan dihapus secara permanen!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#e11d48',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Ya, hapus semua!',
+            cancelButtonText: 'Batal',
+            customClass: {
+                popup: 'rounded-3xl border border-slate-100',
+                confirmButton: 'rounded-xl px-5 py-2.5 font-bold text-xs uppercase tracking-wider',
+                cancelButton: 'rounded-xl px-5 py-2.5 font-bold text-xs uppercase tracking-wider'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.getElementById('bulk-delete-form');
+                
+                // Clear any existing dynamically added inputs
+                form.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
+
+                // Append selected question IDs
+                checkedBoxes.forEach(cb => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'ids[]';
+                    input.value = cb.value;
+                    form.appendChild(input);
+                });
+
+                form.submit();
+            }
+        });
+    }
+
     function confirmDelete(questionId) {
         Swal.fire({
             title: 'Apakah Anda yakin?',

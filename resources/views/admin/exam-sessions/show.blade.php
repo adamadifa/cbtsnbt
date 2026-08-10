@@ -75,6 +75,11 @@
                 class="px-5 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all">
             Analytics & Statistik
         </button>
+        <button @click="activeTab = 'matrix'" 
+                :class="activeTab === 'matrix' ? 'bg-[#153c96] text-white shadow-lg shadow-blue-500/10' : 'text-slate-500 hover:bg-slate-50'"
+                class="px-5 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all">
+            Matriks Hasil Soal
+        </button>
     </div>
 
     {{-- Flash Messages --}}

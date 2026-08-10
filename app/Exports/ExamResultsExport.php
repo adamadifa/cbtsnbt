@@ -2,49 +2,26 @@
 
 namespace App\Exports;
 
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
+use Illuminate\Contracts\View\View;
+use Maatwebsite\Excel\Concerns\FromView;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class ExamResultsExport implements FromCollection, WithHeadings, WithMapping
+class ExamResultsExport implements FromView, ShouldAutoSize
 {
     protected $results;
+    protected $matrixSubtests;
 
-    public function __construct($results)
+    public function __construct($results, $matrixSubtests)
     {
         $this->results = $results;
+        $this->matrixSubtests = $matrixSubtests;
     }
 
-    public function collection()
+    public function view(): View
     {
-        return $this->results;
-    }
-
-    public function headings(): array
-    {
-        return [
-            'Nama Peserta',
-            'Email',
-            'Sekolah',
-            'Status',
-            'Mulai',
-            'Selesai',
-            'Pelanggaran',
-            'Total Skor'
-        ];
-    }
-
-    public function map($result): array
-    {
-        return [
-            $result->user->name,
-            $result->user->email,
-            $result->user->school ?? '-',
-            $result->status === 'completed' ? 'Selesai' : 'Mengerjakan',
-            $result->started_at->format('d/m/Y H:i'),
-            $result->finished_at ? $result->finished_at->format('d/m/Y H:i') : '-',
-            $result->violations->count(),
-            $result->total_score
-        ];
+        return view('admin.exam-sessions.excel-results', [
+            'results' => $this->results,
+            'matrixSubtests' => $this->matrixSubtests
+        ]);
     }
 }
