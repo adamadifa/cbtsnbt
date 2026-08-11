@@ -312,6 +312,28 @@
                                 </div>
                             </div>
                         </template>
+
+                        {{-- Isian Singkat --}}
+                        <template x-if="currentQuestion && currentQuestion.type === 'isian_singkat'">
+                            <div class="space-y-3 max-w-xl">
+                                <div
+                                    class="p-4 bg-white rounded-2xl border border-slate-200 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
+                                    <label
+                                        class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Jawaban Singkat Anda</label>
+                                    <input type="text" x-model="essayAnswer" @input.debounce.1000ms="saveAnswer()"
+                                        class="w-full border-0 focus:ring-0 text-xs font-semibold text-slate-700 placeholder-slate-300"
+                                        placeholder="Ketik jawaban singkat Anda di sini...">
+                                </div>
+                                <div class="flex items-center gap-2 text-slate-400">
+                                    <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <span class="text-[9px] font-medium tracking-wide italic">Jawaban akan tersimpan otomatis saat Anda mengetik</span>
+                                </div>
+                            </div>
+                        </template>
                     </div>
 
                     {{-- Question Navigation & Ragu-ragu Bar --}}
@@ -693,7 +715,7 @@
                         if (q.type === 'menjodohkan') {
                             this.prepareShuffledMatches();
                         }
-                    } else if (q.type === 'essai') {
+                    } else if (q.type === 'essai' || q.type === 'isian_singkat') {
                         this.essayAnswer = ans.essay_answer || '';
                     }
                 },
@@ -731,7 +753,7 @@
                 },
 
                 isMatched(matchId) {
-                    return Object.values(this.matchingAnswers).includes(matchId.toString());
+                    return Object.values(this.matchingAnswers).map(String).includes(matchId.toString());
                 },
 
                 getAvailableMatches() {
@@ -760,7 +782,7 @@
                         payload.option_ids = this.selectedOptionIds;
                     } else if (q.type === 'menjodohkan' || q.type === 'benar_salah') {
                         payload.matching_answers = this.matchingAnswers;
-                    } else if (q.type === 'essai') {
+                    } else if (q.type === 'essai' || q.type === 'isian_singkat') {
                         payload.essay_answer = this.essayAnswer;
                     }
 
@@ -815,7 +837,7 @@
                         if (q.type === 'pilihan_ganda') isAnswered = !!ans.option_id || !!ans;
                         else if (q.type === 'pilihan_ganda_kompleks') isAnswered = ans.option_ids && ans.option_ids.length > 0;
                         else if (q.type === 'menjodohkan' || q.type === 'benar_salah') isAnswered = ans.matching_answers && Object.keys(ans.matching_answers).length > 0;
-                        else if (q.type === 'essai') isAnswered = ans.essay_answer && ans.essay_answer.trim().length > 0;
+                        else if (q.type === 'essai' || q.type === 'isian_singkat') isAnswered = ans.essay_answer && ans.essay_answer.trim().length > 0;
                     }
 
                     if (isCurrent && isDoubtful) {

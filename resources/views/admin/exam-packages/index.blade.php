@@ -62,7 +62,7 @@
     <!-- Exam Packages Modern Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @forelse($packages as $package)
-            <div class="bg-white rounded-3xl border-l-4 border-l-[#153c96] border border-slate-100 shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-300 flex flex-col justify-between p-6 relative overflow-hidden group">
+            <div class="bg-white rounded-3xl border border-slate-100/80 shadow-xs hover:shadow-lg hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between p-6 relative overflow-hidden group">
                 
                 <!-- Floating Decorative Glow -->
                 <div class="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-blue-50/40 filter blur-xl transition-all duration-500 group-hover:scale-150 pointer-events-none"></div>

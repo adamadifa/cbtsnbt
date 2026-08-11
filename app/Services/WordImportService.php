@@ -93,16 +93,26 @@ class WordImportService
             $this->currentState = 'option_' . $label;
         } elseif (preg_match('/^\[KUNCI\]/i', $text)) {
             $kunciText = trim(preg_replace('/^\[KUNCI\]\s*/i', '', $text));
-            $kuncis = array_map('trim', explode(',', strtoupper($kunciText)));
-
-            foreach ($kuncis as $kunci) {
-                if (isset($this->currentQuestion['options'][$kunci])) {
-                    $this->currentQuestion['options'][$kunci]['is_correct'] = true;
+            if ($this->currentQuestion['type'] === 'isian_singkat') {
+                $kuncis = array_map('trim', explode(',', $kunciText));
+                foreach ($kuncis as $kunci) {
+                    $this->currentQuestion['options'][$kunci] = [
+                        'content' => $kunci,
+                        'is_correct' => true,
+                    ];
                 }
-            }
-            // If multiple keys, change type to complex if it's currently pilihan_ganda
-            if (count($kuncis) > 1 && $this->currentQuestion['type'] === 'pilihan_ganda') {
-                $this->currentQuestion['type'] = 'pilihan_ganda_kompleks';
+            } else {
+                $kuncis = array_map('trim', explode(',', strtoupper($kunciText)));
+
+                foreach ($kuncis as $kunci) {
+                    if (isset($this->currentQuestion['options'][$kunci])) {
+                        $this->currentQuestion['options'][$kunci]['is_correct'] = true;
+                    }
+                }
+                // If multiple keys, change type to complex if it's currently pilihan_ganda
+                if (count($kuncis) > 1 && $this->currentQuestion['type'] === 'pilihan_ganda') {
+                    $this->currentQuestion['type'] = 'pilihan_ganda_kompleks';
+                }
             }
             $this->currentState = 'kunci';
         } elseif (preg_match('/^\[PEMBAHASAN\]/i', $text)) {
@@ -110,7 +120,7 @@ class WordImportService
             $this->currentState = 'explanation';
         } elseif (preg_match('/^\[TIPE\]/i', $text)) {
             $typeInput = trim(strtolower(preg_replace('/^\[TIPE\]\s*/i', '', $text)));
-            $allowedTypes = ['pilihan_ganda', 'pilihan_ganda_kompleks', 'essai', 'menjodohkan', 'benar_salah'];
+            $allowedTypes = ['pilihan_ganda', 'pilihan_ganda_kompleks', 'essai', 'menjodohkan', 'benar_salah', 'isian_singkat'];
             if (in_array($typeInput, $allowedTypes)) {
                 $this->currentQuestion['type'] = $typeInput;
             }

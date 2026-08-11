@@ -17,9 +17,16 @@
             </a>
             <h1 class="text-xl font-bold text-slate-800 tracking-tight">{{ $examSession->title }}</h1>
         </div>
-        <div class="flex items-center gap-4 mt-1.5 ml-11">
-            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Token: <span class="text-[#153c96] bg-blue-50 px-2 py-0.5 rounded font-black">{{ $examSession->token }}</span></p>
-            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Status: <span class="text-slate-650 bg-slate-100 px-2 py-0.5 rounded font-black">{{ strtoupper($examSession->status) }}</span></p>
+        <div class="flex items-center gap-3.5 mt-1.5 ml-11 text-xs font-semibold text-slate-500">
+            <div class="flex items-center gap-1.5">
+                <span>Token:</span>
+                <span class="text-[#153c96] bg-blue-50 px-2 py-0.5 rounded-lg font-bold select-all tracking-wider">{{ $examSession->token }}</span>
+            </div>
+            <div class="w-1 h-1 rounded-full bg-slate-300"></div>
+            <div class="flex items-center gap-1.5">
+                <span>Status:</span>
+                <span class="text-slate-600 bg-slate-100 px-2 py-0.5 rounded-lg font-bold capitalize">{{ $examSession->status }}</span>
+            </div>
         </div>
     </div>
     <div class="flex items-center gap-2 self-start md:self-center">
@@ -64,20 +71,20 @@
         })
     }
 }" class="space-y-6">
-    <div class="flex items-center gap-1 p-1 bg-white border border-slate-100 rounded-2xl w-fit shadow-sm">
+    <div class="flex items-center gap-1.5 p-1 bg-white border border-slate-100 rounded-2xl w-fit shadow-xs">
         <button @click="activeTab = 'monitor'" 
-                :class="activeTab === 'monitor' ? 'bg-[#153c96] text-white shadow-lg shadow-blue-500/10' : 'text-slate-500 hover:bg-slate-50'"
-                class="px-5 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all">
+                :class="activeTab === 'monitor' ? 'bg-[#153c96] text-white shadow-sm' : 'text-slate-655 hover:bg-slate-50'"
+                class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all">
             Live Monitoring
         </button>
         <button @click="activeTab = 'analytics'" 
-                :class="activeTab === 'analytics' ? 'bg-[#153c96] text-white shadow-lg shadow-blue-500/10' : 'text-slate-500 hover:bg-slate-50'"
-                class="px-5 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all">
-            Analytics & Statistik
+                :class="activeTab === 'analytics' ? 'bg-[#153c96] text-white shadow-sm' : 'text-slate-655 hover:bg-slate-50'"
+                class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all">
+            Analisis & Statistik
         </button>
         <button @click="activeTab = 'matrix'" 
-                :class="activeTab === 'matrix' ? 'bg-[#153c96] text-white shadow-lg shadow-blue-500/10' : 'text-slate-500 hover:bg-slate-50'"
-                class="px-5 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all">
+                :class="activeTab === 'matrix' ? 'bg-[#153c96] text-white shadow-sm' : 'text-slate-655 hover:bg-slate-50'"
+                class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all">
             Matriks Hasil Soal
         </button>
     </div>

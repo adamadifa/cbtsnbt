@@ -229,9 +229,8 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
 <div x-show="activeTab === 'analytics'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         {{-- Distribution Chart --}}
-        <div class="lg:col-span-2 bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm">
-            <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest mb-6 flex items-center gap-2">
-                <div class="w-1.5 h-4 bg-[#153c96] rounded-full"></div>
+        <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+            <h3 class="text-sm font-bold text-slate-800 mb-6">
                 Distribusi Skor Peserta (%)
             </h3>
             <div class="h-[300px] relative">
@@ -240,9 +239,8 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
         </div>
 
         {{-- Subject Comparison Chart --}}
-        <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm">
-            <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest mb-6 flex items-center gap-2">
-                <div class="w-1.5 h-4 bg-[#153c96] rounded-full"></div>
+        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+            <h3 class="text-sm font-bold text-slate-800 mb-6">
                 Performa per Subtest
             </h3>
             <div class="h-[300px] relative">
@@ -254,19 +252,19 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
     {{-- Subtest Detailed Stats Cards --}}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         @foreach($subtestStats as $subtest)
-            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm group hover:border-blue-200 transition-all">
-                <div class="flex items-center justify-between">
-                    <div class="p-2.5 bg-slate-50 text-slate-650 rounded-xl group-hover:bg-blue-50 group-hover:text-[#153c96] transition-all">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2" /></svg>
+            <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-xs hover:shadow-md transition-all flex items-center gap-4 group">
+                <div class="p-3 bg-blue-50/50 text-[#153c96] rounded-xl shrink-0 group-hover:bg-[#153c96] group-hover:text-white transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2" /></svg>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <h4 class="text-xs font-bold text-slate-800 leading-snug truncate" title="{{ $subtest['title'] }}">{{ $subtest['title'] }}</h4>
+                    <div class="flex items-center justify-between gap-2 mt-1.5">
+                        <span class="text-[11px] font-bold text-[#153c96]">{{ $subtest['percentage'] }}% Benar</span>
+                        <span class="text-[10px] font-semibold text-slate-400">{{ $subtest['avg_correct'] }}/{{ $subtest['total_questions'] }} Soal</span>
                     </div>
-                    <span class="text-lg font-black text-[#153c96]">{{ $subtest['percentage'] }}%</span>
-                </div>
-                <h4 class="mt-4 text-xs font-bold text-slate-700 leading-snug truncate">{{ $subtest['title'] }}</h4>
-                <div class="mt-4 w-full h-1.5 bg-slate-50 rounded-full overflow-hidden border border-slate-100/50">
-                    <div class="bg-[#153c96] h-full transition-all duration-500" style="width: {{ $subtest['percentage'] }}%"></div>
-                </div>
-                <div class="mt-2 text-right">
-                    <span class="text-[10px] font-bold text-slate-600">{{ $subtest['avg_correct'] }}/{{ $subtest['total_questions'] }}</span>
+                    <div class="mt-2 w-full h-1 bg-slate-50 rounded-full overflow-hidden border border-slate-100/50">
+                        <div class="bg-[#153c96] h-full rounded-full" style="width: {{ $subtest['percentage'] }}%"></div>
+                    </div>
                 </div>
             </div>
         @endforeach
@@ -274,29 +272,29 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
 
     {{-- Leaderboard Table --}}
     <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <!-- Card Header (Unified Blue Bar) -->
-        <div class="bg-[#153c96] text-white px-6 py-4 flex items-center justify-between gap-4">
+        <!-- Card Header (Unified Header) -->
+        <div class="bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between gap-4">
             <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center text-amber-300">
+                <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center text-amber-500">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                         <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path>
                     </svg>
                 </div>
                 <div>
-                    <h3 class="font-bold text-sm tracking-wide">Leaderboard (Peringkat Teratas)</h3>
-                    <p class="text-[10px] text-white/70">10 siswa dengan nilai tertinggi pada sesi ini</p>
+                    <h3 class="font-bold text-sm text-slate-800">Leaderboard (Peringkat Teratas)</h3>
+                    <p class="text-[10px] text-slate-400">10 siswa dengan nilai tertinggi pada sesi ini</p>
                 </div>
             </div>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="bg-[#153c96] text-white select-none">
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95 w-20">Peringkat</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95">Peserta</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95">Sekolah</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95 text-right">Skor Total</th>
+                    <tr class="bg-slate-50 border-b border-slate-100 text-slate-500 select-none">
+                        <th class="px-6 py-3.5 text-xs font-bold text-slate-700 w-20">Peringkat</th>
+                        <th class="px-6 py-3.5 text-xs font-bold text-slate-700">Peserta</th>
+                        <th class="px-6 py-3.5 text-xs font-bold text-slate-700">Sekolah</th>
+                        <th class="px-6 py-3.5 text-xs font-bold text-slate-700 text-right">Skor Total</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50">
@@ -317,7 +315,7 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
                                     <span class="text-sm font-bold text-slate-800">{{ $res->user->name }}</span>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                            <td class="px-6 py-4 text-xs font-semibold text-slate-650">
                                 {{ $res->user->school ?? 'N/A' }}
                             </td>
                             <td class="px-6 py-4 text-right">
@@ -332,24 +330,38 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
 </div>
 
 {{-- Matrix Tab --}}
-<div x-show="activeTab === 'matrix'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
+<div x-show="activeTab === 'matrix'" x-data="{ matrixTab: 'table' }" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
     <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         <!-- Card Header -->
-        <div class="bg-[#153c96] text-white px-6 py-4 flex items-center justify-between gap-4">
+        <div class="bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between gap-4">
             <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center text-white">
+                <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-[#153c96]">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
                     </svg>
                 </div>
                 <div>
-                    <h3 class="font-bold text-sm tracking-wide">Matriks Jawaban Siswa (Analisis Butir Soal)</h3>
-                    <p class="text-[10px] text-white/70">Analisis respon jawaban siswa (1 = Benar, 0 = Salah, - = Tidak Dijawab)</p>
+                    <h3 class="font-bold text-sm text-slate-800">Matriks Jawaban Siswa (Analisis Butir Soal)</h3>
+                    <p class="text-[10px] text-slate-400">Analisis respon jawaban siswa (1 = Benar, 0 = Salah, - = Tidak Dijawab)</p>
                 </div>
             </div>
         </div>
 
-        <div class="overflow-x-auto">
+        <!-- Sub-tabs navigation -->
+        <div class="flex items-center gap-1.5 p-4 border-b border-slate-100 bg-slate-50/30">
+            <button @click="matrixTab = 'table'"
+                :class="matrixTab === 'table' ? 'bg-[#153c96] text-white shadow-xs' : 'text-slate-655 hover:bg-slate-100'"
+                class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all">
+                Tabel Matriks
+            </button>
+            <button @click="matrixTab = 'questions'"
+                :class="matrixTab === 'questions' ? 'bg-[#153c96] text-white shadow-xs' : 'text-slate-655 hover:bg-slate-100'"
+                class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all">
+                Daftar Soal
+            </button>
+        </div>
+
+        <div x-show="matrixTab === 'table'" class="overflow-x-auto">
             <table class="w-full text-left border-collapse min-w-max text-xs">
                 <thead>
                     <!-- Row 1: Subtest Names -->
@@ -403,7 +415,7 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
                                             <span class="text-slate-350">-</span>
                                         @endif
                                     </td>
-                                @endforeach
+                                		@endforeach
                             @endforeach
                         </tr>
                     @empty
@@ -415,6 +427,33 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
                     @endforelse
                 </tbody>
             </table>
+        </div>
+
+        {{-- Question Reference Legend --}}
+        <div x-show="matrixTab === 'questions'" class="p-6 bg-slate-50/20">
+            <h4 class="text-xs font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                Referensi Soal (Kunci Kolom Matriks)
+            </h4>
+            <div class="space-y-4">
+                @foreach($matrixSubtests as $subtest)
+                    <div class="bg-white rounded-xl border border-slate-100 p-4">
+                        <h5 class="text-xs font-bold text-[#153c96] mb-3">{{ $subtest['title'] }}</h5>
+                        <div class="divide-y divide-slate-100">
+                            @foreach($subtest['questions'] as $index => $q)
+                                <div class="py-3.5 flex gap-3 text-xs leading-relaxed">
+                                    <span class="w-6 h-6 rounded bg-[#153c96]/10 text-[#153c96] flex items-center justify-center text-[10px] font-bold shrink-0">{{ $index + 1 }}</span>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-slate-700 font-semibold prose prose-sm max-w-none">{!! $q->content !!}</div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endforeach
+            </div>
         </div>
     </div>
 </div>

@@ -62,6 +62,7 @@ class QuestionController extends Controller
             'points' => 'required|numeric|min:0',
             'options.*.content' => 'required_if:type,pilihan_ganda,pilihan_ganda_kompleks',
             'match_options.*.right' => 'required_if:type,menjodohkan',
+            'isian_answers.*' => 'required_if:type,isian_singkat',
         ]);
 
         try {
@@ -96,6 +97,14 @@ class QuestionController extends Controller
                         'is_correct' => true,
                     ]);
                 }
+            } elseif ($request->type === 'isian_singkat') {
+                foreach ($request->isian_answers as $ans) {
+                    $question->options()->create([
+                        'label' => 'Kunci',
+                        'content' => $ans,
+                        'is_correct' => true,
+                    ]);
+                }
             }
 
             DB::commit();
@@ -127,6 +136,7 @@ class QuestionController extends Controller
             'type' => 'required',
             'content' => 'required',
             'points' => 'required|numeric|min:0',
+            'isian_answers.*' => 'required_if:type,isian_singkat',
         ]);
 
         try {
@@ -160,6 +170,15 @@ class QuestionController extends Controller
                     $question->options()->create([
                         'label' => $opt['left'],
                         'content' => $opt['right'],
+                        'is_correct' => true,
+                    ]);
+                }
+            } elseif ($request->type === 'isian_singkat') {
+                $question->options()->delete();
+                foreach ($request->isian_answers as $ans) {
+                    $question->options()->create([
+                        'label' => 'Kunci',
+                        'content' => $ans,
                         'is_correct' => true,
                     ]);
                 }
@@ -231,8 +250,8 @@ class QuestionController extends Controller
         $section->addText('[KUNCI] - Label kunci jawaban (A/B/C/dst)', $normalFont);
         $section->addText('    Untuk pilihan_ganda_kompleks, pisahkan koma. Contoh: A, C', $normalFont);
         $section->addText('    Untuk benar_salah, cantumkan label yang BENAR. Contoh: A, C', $normalFont);
-        $section->addText('    Untuk menjodohkan dan essai, kosongkan saja', $normalFont);
-        $section->addText('[TIPE] - pilihan_ganda / pilihan_ganda_kompleks / essai / menjodohkan / benar_salah', $normalFont);
+        $section->addText('    Untuk menjodohkan dan essai, kosongkan saja. Untuk isian_singkat, tuliskan kunci jawaban langsung (pisahkan koma jika ada alternatif). Contoh: Jakarta, DKI Jakarta', $normalFont);
+        $section->addText('[TIPE] - pilihan_ganda / pilihan_ganda_kompleks / essai / menjodohkan / benar_salah / isian_singkat', $normalFont);
         $section->addText('[POIN] - Angka poin soal (misal: 1 atau 5)', $normalFont);
         $section->addText('[KESULITAN] - mudah / sedang / sulit', $normalFont);
         $section->addText('[PEMBAHASAN] - Penjelasan soal', $normalFont);
@@ -303,6 +322,17 @@ class QuestionController extends Controller
         $section->addText('[KESULITAN] sedang', $normalFont);
         $section->addText('[SOAL] Jelaskan apa yang dimaksud dengan fotosintesis pada tumbuhan!', $normalFont);
         $section->addText('[PEMBAHASAN] Jawaban essai harus menjelaskan proses konversi cahaya matahari menjadi energi kimia oleh tumbuhan.', $normalFont);
+        $section->addText('---', $normalFont);
+        $section->addTextBreak(1);
+
+        // ============ CONTOH 6: Isian Singkat ============
+        $section->addText('CONTOH 6: ISIAN SINGKAT', $boldFont);
+        $section->addText('[TIPE] isian_singkat', $normalFont);
+        $section->addText('[POIN] 2', $normalFont);
+        $section->addText('[KESULITAN] mudah', $normalFont);
+        $section->addText('[SOAL] Ibukota negara Indonesia adalah...', $normalFont);
+        $section->addText('[KUNCI] Jakarta, DKI Jakarta', $normalFont);
+        $section->addText('[PEMBAHASAN] Ibukota Indonesia adalah Jakarta.', $normalFont);
         $section->addText('---', $normalFont);
 
         $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007');

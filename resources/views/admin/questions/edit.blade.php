@@ -55,7 +55,7 @@
                 </div>
 
                 {{-- Options Card --}}
-                <div x-show="type !== 'essai'" x-transition
+                <div x-show="type !== 'essai' && type !== 'isian_singkat'" x-transition
                     class="bg-white rounded-2xl border border-slate-200/70 shadow-sm overflow-hidden transition-all duration-300">
                     {{-- Options Header --}}
                     <div class="flex items-center justify-between p-5 border-b border-slate-100 bg-slate-50/40"
@@ -237,6 +237,50 @@
                     </div>
                 </div>
 
+                {{-- Isian Singkat Card --}}
+                <div x-show="type === 'isian_singkat'" x-transition
+                    class="bg-white rounded-2xl border border-slate-200/70 shadow-sm overflow-hidden transition-all duration-300">
+                    <div class="flex items-center justify-between p-5 border-b border-slate-100 bg-slate-50/40">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-9 h-9 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-slate-800 tracking-tight">Kunci Jawaban Isian Singkat <span class="text-red-500">*</span></h3>
+                                <p class="text-xs text-slate-400 mt-0.5">Tentukan satu atau beberapa alternatif kunci jawaban yang benar (case-insensitive)</p>
+                            </div>
+                        </div>
+                        <button type="button" @click="addIsianAnswer()"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 text-xs font-semibold rounded-lg transition-colors group">
+                            <svg class="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            Tambah Kunci
+                        </button>
+                    </div>
+
+                    <div class="p-6 space-y-4">
+                        <template x-for="(ans, index) in isianAnswers" :key="ans.id">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold bg-indigo-50 border border-indigo-100 text-indigo-600 shrink-0" x-text="index + 1"></div>
+                                <input type="text" name="isian_answers[]" x-model="ans.content" required
+                                    class="flex-grow border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500 py-2.5 transition-all bg-slate-50/30"
+                                    placeholder="Ketik alternatif kunci jawaban...">
+                                <button type="button" @click="removeIsianAnswer(index)" x-show="isianAnswers.length > 1"
+                                    class="p-2.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
                 {{-- Explanation Card --}}
                 <div
                     class="bg-white rounded-2xl border border-slate-200/70 shadow-sm overflow-hidden transition-all duration-300">
@@ -297,7 +341,8 @@
                                 <option value="pilihan_ganda">Pilihan Ganda</option>
                                 <option value="pilihan_ganda_kompleks">Pilihan Ganda Kompleks</option>
                                 <option value="menjodohkan">Menjodohkan</option>
-                                <option value="essai">Essai / Isian</option>
+                                <option value="isian_singkat">Isian Singkat</option>
+                                <option value="essai">Essai (Grading Manual)</option>
                             </select>
                         </div>
 
@@ -414,6 +459,15 @@
                         { id: Date.now() + 1, left: '', right: '' },
                     @endif
                 ],
+                isianAnswers: [
+                    @if($question->type === 'isian_singkat')
+                        @foreach($question->options as $option)
+                            { id: {{ $option->id }}, content: `{!! addslashes($option->content) !!}` },
+                        @endforeach
+                    @else
+                        { id: Date.now(), content: '' }
+                    @endif
+                ],
                 labels: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'],
 
                 init() {
@@ -493,6 +547,16 @@
                     this.matchingPairs.push({ id: Date.now(), left: '', right: '' });
                 },
 
+                addIsianAnswer() {
+                    this.isianAnswers.push({ id: Date.now(), content: '' });
+                },
+
+                removeIsianAnswer(index) {
+                    if (this.isianAnswers.length > 1) {
+                        this.isianAnswers.splice(index, 1);
+                    }
+                },
+
                 removeOption(index) {
                     if (this.options.length > 2) {
                         const id = `editor-opt-${this.options[index].id}`;
@@ -541,8 +605,9 @@
 
                     const isInvalid = !this.subject_id ||
                         !this.hasContent ||
-                        (this.type !== 'essai' && this.options.some(opt => !opt.hasContent)) ||
-                        (this.type !== 'essai' && !this.hasCorrectSelection);
+                        (this.type !== 'essai' && this.type !== 'isian_singkat' && this.options.some(opt => !opt.hasContent)) ||
+                        (this.type !== 'essai' && this.type !== 'isian_singkat' && !this.hasCorrectSelection) ||
+                        (this.type === 'isian_singkat' && this.isianAnswers.some(ans => !ans.content.trim()));
 
                     if (isInvalid) {
                         e.preventDefault();

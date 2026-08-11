@@ -296,6 +296,29 @@
                                         </div>
                                     </div>
                                 </template>
+
+                                {{-- Isian Singkat --}}
+                                <template x-if="currentQuestion && currentQuestion.type === 'isian_singkat'">
+                                    <div class="space-y-4">
+                                        <div class="p-4 bg-white border border-slate-200 rounded-xl shadow-xs">
+                                            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Jawaban Anda</label>
+                                            <div class="text-xs font-semibold text-slate-750 leading-relaxed" x-text="essayAnswer || 'Tidak ada jawaban.'"></div>
+                                        </div>
+                                        <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl shadow-xs">
+                                            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Kunci Jawaban yang Benar</label>
+                                            <div class="space-y-1">
+                                                <template x-for="opt in currentQuestion.options" :key="opt.id">
+                                                    <div class="text-xs font-bold text-emerald-600 flex items-center gap-1.5">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                                                        </svg>
+                                                        <span x-text="opt.content"></span>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
                             </div>
 
                             {{-- Explanation Box --}}
@@ -500,7 +523,7 @@
                         this.selectedOptionIds = ans.option_ids || [];
                     } else if (q.type === 'menjodohkan' || q.type === 'benar_salah') {
                         this.matchingAnswers = ans.matching_answers || {};
-                    } else if (q.type === 'essai') {
+                    } else if (q.type === 'essai' || q.type === 'isian_singkat') {
                         this.essayAnswer = ans.essay_answer || '';
                     }
                 },
@@ -537,6 +560,9 @@
                                 if (matches[o.id] == expected) correctCount++;
                             });
                             isCorrect = correctCount === totalOptions;
+                        } else if (q.type === 'isian_singkat') {
+                            const submittedVal = (ans.essay_answer || '').trim().toLowerCase();
+                            isCorrect = q.options.some(o => o.content.trim().toLowerCase() === submittedVal);
                         } else if (q.type === 'essai') {
                             isCorrect = true;
                         }

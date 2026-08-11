@@ -53,8 +53,8 @@
         <!-- Card Header (Unified Blue Bar) -->
         <div class="bg-[#153c96] text-white px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                         <path d="M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
                         <path d="M16 3l0 4"></path>
@@ -86,11 +86,11 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-[#153c96] text-white select-none">
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95">Info Sesi</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95">Jadwal / Waktu</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95">Token Akses</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95">Status</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95 text-right">Aksi</th>
+                        <th class="px-6 py-4 text-xs font-bold text-white/95">Info Sesi</th>
+                        <th class="px-6 py-4 text-xs font-bold text-white/95">Jadwal / Waktu</th>
+                        <th class="px-6 py-4 text-xs font-bold text-white/95">Token Akses</th>
+                        <th class="px-6 py-4 text-xs font-bold text-white/95">Status</th>
+                        <th class="px-6 py-4 text-xs font-bold text-white/95 text-right">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50">
@@ -143,19 +143,19 @@
                             @php
                                 $status = $session->computed_status;
                                 $colors = [
-                                    'scheduled' => 'bg-amber-50 text-amber-700 border-amber-100',
-                                    'active' => 'bg-emerald-50 text-emerald-700 border-emerald-100',
-                                    'completed' => 'bg-slate-50 text-slate-500 border-slate-100',
-                                    'cancelled' => 'bg-rose-50 text-rose-700 border-rose-100',
+                                     'scheduled' => 'bg-amber-50 text-amber-700 border-amber-100',
+                                     'active' => 'bg-emerald-50 text-emerald-700 border-emerald-100',
+                                     'completed' => 'bg-slate-50 text-slate-500 border-slate-100',
+                                     'cancelled' => 'bg-rose-50 text-rose-700 border-rose-100',
                                 ];
                                 $labels = [
-                                    'scheduled' => 'Mendatang',
-                                    'active' => 'Aktif',
-                                    'completed' => 'Selesai',
-                                    'cancelled' => 'Dibatalkan',
+                                     'scheduled' => 'Mendatang',
+                                     'active' => 'Aktif',
+                                     'completed' => 'Selesai',
+                                     'cancelled' => 'Dibatalkan',
                                 ];
                             @endphp
-                            <span class="px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider border {{ $colors[$status] }}">
+                            <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold border {{ $colors[$status] }}">
                                 {{ $labels[$status] }}
                             </span>
                         </td>

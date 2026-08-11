@@ -60,7 +60,7 @@
 <body class="bg-[#f4f7fa] text-slate-800 antialiased overflow-hidden" x-data="{ sidebarOpen: true, mobileSidebarOpen: false }">
     <div class="h-screen flex overflow-hidden">
         <!-- Sidebar -->
-        <aside :class="{ 'translate-x-0': mobileSidebarOpen, '-translate-x-full': !mobileSidebarOpen, 'md:translate-x-0': true, 'md:w-64': sidebarOpen, 'md:w-20': !sidebarOpen }"
+        <aside :class="{ 'translate-x-0': mobileSidebarOpen, '-translate-x-full': !mobileSidebarOpen, 'md:translate-x-0': true, 'w-64': sidebarOpen, 'md:w-64': sidebarOpen, 'w-20': !sidebarOpen, 'md:w-20': !sidebarOpen }"
                class="fixed inset-y-0 left-0 z-50 flex flex-col bg-[#153c96] text-white transition-all duration-300 transform md:relative md:translate-x-0 select-none shrink-0">
             
             <!-- Sidebar Header -->

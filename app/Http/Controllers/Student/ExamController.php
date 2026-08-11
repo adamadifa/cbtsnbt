@@ -92,9 +92,18 @@ class ExamController extends Controller
         $allSubtests = $session->examPackage->subtests->sortBy('order');
         $totalExamQuestions = $allSubtests->sum('total_questions');
 
-        // Fetch user's answers
+        // Fetch user's answers (all types)
         $userAnswers = StudentAnswer::where('exam_result_id', $examResult->id)
-            ->pluck('option_id', 'question_id')
+            ->get()
+            ->keyBy('question_id')
+            ->map(function ($ans) {
+                return [
+                    'option_id' => $ans->option_id,
+                    'option_ids' => $ans->option_ids ?? [],
+                    'matching_answers' => $ans->matching_answers ?? (object)[],
+                    'essay_answer' => $ans->essay_answer ?? '',
+                ];
+            })
             ->toArray();
 
         $nextSubtestDelay = (int) \App\Models\Setting::getValue('next_subtest_delay', 10);
@@ -162,6 +171,16 @@ class ExamController extends Controller
                         $isCorrect = false;
                         break;
                     }
+                }
+            }
+        } elseif ($question->type === 'isian_singkat') {
+            $submittedVal = trim(strtolower($request->essay_answer ?? ''));
+            $isCorrect = false;
+            foreach ($question->options as $option) {
+                $correctVal = trim(strtolower($option->content));
+                if ($submittedVal === $correctVal) {
+                    $isCorrect = true;
+                    break;
                 }
             }
         } elseif ($question->type === 'essai') {

@@ -235,6 +235,20 @@
                             saat Anda mengetik</span>
                     </div>
                 </template>
+
+                {{-- Isian Singkat --}}
+                <template x-if="currentQuestion && currentQuestion.type === 'isian_singkat'">
+                    <div class="space-y-3">
+                        <div
+                            class="p-4 bg-white rounded-xl border border-slate-200 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-50 transition-all">
+                            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Jawaban Singkat Anda</label>
+                            <input type="text" x-model="essayAnswer" @input.debounce.1000ms="saveAnswer()"
+                                class="w-full border-0 focus:ring-0 text-xs font-semibold text-slate-700 placeholder-slate-300 p-0"
+                                placeholder="Ketik jawaban singkat Anda di sini...">
+                        </div>
+                        <span class="text-[9px] font-semibold text-slate-400 italic block pl-1">Jawaban otomatis tersimpan saat Anda mengetik</span>
+                    </div>
+                </template>
             </div>
         </div>
 
@@ -515,7 +529,7 @@
                             if (q.type === 'menjodohkan') {
                                 this.prepareShuffledMatches();
                             }
-                        } else if (q.type === 'essai') {
+                        } else if (q.type === 'essai' || q.type === 'isian_singkat') {
                             this.essayAnswer = ans.essay_answer || '';
                         }
                     },
@@ -553,7 +567,7 @@
                     },
 
                     isMatched(matchId) {
-                        return Object.values(this.matchingAnswers).includes(matchId.toString());
+                        return Object.values(this.matchingAnswers).map(String).includes(matchId.toString());
                     },
 
                     getAvailableMatches() {
@@ -582,7 +596,7 @@
                             payload.option_ids = this.selectedOptionIds;
                         } else if (q.type === 'menjodohkan' || q.type === 'benar_salah') {
                             payload.matching_answers = this.matchingAnswers;
-                        } else if (q.type === 'essai') {
+                        } else if (q.type === 'essai' || q.type === 'isian_singkat') {
                             payload.essay_answer = this.essayAnswer;
                         }
 
@@ -637,7 +651,7 @@
                             if (q.type === 'pilihan_ganda') isAnswered = !!ans.option_id || !!ans;
                             else if (q.type === 'pilihan_ganda_kompleks') isAnswered = ans.option_ids && ans.option_ids.length > 0;
                             else if (q.type === 'menjodohkan' || q.type === 'benar_salah') isAnswered = ans.matching_answers && Object.keys(ans.matching_answers).length > 0;
-                            else if (q.type === 'essai') isAnswered = ans.essay_answer && ans.essay_answer.trim().length > 0;
+                            else if (q.type === 'essai' || q.type === 'isian_singkat') isAnswered = ans.essay_answer && ans.essay_answer.trim().length > 0;
                         }
 
                         if (isCurrent && isDoubtful) {
