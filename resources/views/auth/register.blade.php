@@ -72,37 +72,13 @@
                         <x-input-error :messages="$errors->get('school')" class="mt-1" />
                     </div>
 
-                    <!-- Provinsi Kampus Tujuan -->
-                    <div class="space-y-1">
-                        <label for="target_province" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Provinsi Kampus Tujuan</label>
-                        <select id="target_province" 
-                                name="target_province"
-                                class="w-full px-4 py-3 bg-slate-50 border border-slate-100 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 rounded-2xl transition-all duration-200 text-slate-800 font-medium text-sm focus:outline-none"
-                                required>
-                            <option value="">Pilih Provinsi</option>
-                        </select>
-                        <x-input-error :messages="$errors->get('target_province')" class="mt-1" />
-                    </div>
-
-                    <!-- Kota/Kabupaten Kampus Tujuan -->
-                    <div class="space-y-1">
-                        <label for="target_city" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Kota/Kabupaten Kampus Tujuan</label>
-                        <select id="target_city" 
-                                name="target_city"
-                                class="w-full px-4 py-3 bg-slate-50 border border-slate-100 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 rounded-2xl transition-all duration-200 text-slate-800 font-medium text-sm focus:outline-none"
-                                required disabled>
-                            <option value="">Pilih Kota/Kabupaten</option>
-                        </select>
-                        <x-input-error :messages="$errors->get('target_city')" class="mt-1" />
-                    </div>
-
                     <!-- Pilihan Kampus Tujuan -->
                     <div class="space-y-1">
                         <label for="target_campus" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Pilihan Kampus Tujuan</label>
                         <select id="target_campus" 
                                 name="target_campus"
                                 class="w-full px-4 py-3 bg-slate-50 border border-slate-100 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 rounded-2xl transition-all duration-200 text-slate-800 font-medium text-sm focus:outline-none"
-                                required disabled>
+                                required>
                             <option value="">Pilih Kampus</option>
                         </select>
                         <x-input-error :messages="$errors->get('target_campus')" class="mt-1" />
@@ -256,86 +232,22 @@
 <script>
 $(document).ready(function() {
     // Initialize select2
-    $('#target_province').select2({ placeholder: "Pilih Provinsi" });
-    $('#target_city').select2({ placeholder: "Pilih Kota/Kabupaten" });
     $('#target_campus').select2({ placeholder: "Pilih Kampus" });
 
-    // When province changes
-    $('#target_province').on('change', function() {
-        const provinceName = $(this).val();
-        const provinceId = $(this).find(':selected').attr('data-id') || $(this).find(':selected').data('id');
-
-        // Reset city & campus
-        $('#target_city').html('<option value="">Pilih Kota/Kabupaten</option>').val('').trigger('change').prop('disabled', true);
-        $('#target_campus').html('<option value="">Pilih Kampus</option>').val('').trigger('change').prop('disabled', true);
-
-        if (!provinceId) return;
-
-        // Fetch cities
-        $.ajax({
-            url: '{{ route('api.cities') }}',
-            data: { province_id: provinceId },
-            success: function(res) {
-                if (res && res.data) {
-                    $('#target_city').prop('disabled', false);
-                    res.data.forEach(function(city) {
-                        const opt = $('<option></option>')
-                            .val(city.name)
-                            .attr('data-id', city.id)
-                            .text(city.name);
-                        $('#target_city').append(opt);
-                    });
-                    $('#target_city').trigger('change');
-                }
-            }
-        });
-    });
-
-    // When city changes
-    $('#target_city').on('change', function() {
-        const provinceId = $('#target_province').find(':selected').attr('data-id') || $('#target_province').find(':selected').data('id');
-        const cityId = $(this).find(':selected').attr('data-id') || $(this).find(':selected').data('id');
-        const cityName = $(this).val();
-
-        $('#target_campus').html('<option value="">Pilih Kampus</option>').val('').trigger('change').prop('disabled', true);
-
-        if (!cityId) return;
-
-        // Fetch campuses
-        $.ajax({
-            url: '{{ route('api.campuses') }}',
-            data: { province_id: provinceId, city_id: cityId, city_name: cityName },
-            success: function(res) {
-                if (res && res.data) {
-                    $('#target_campus').prop('disabled', false);
-                    res.data.forEach(function(campus) {
-                        const opt = $('<option></option>')
-                            .val(campus.name)
-                            .text(campus.name);
-                        $('#target_campus').append(opt);
-                    });
-                    $('#target_campus').trigger('change');
-                }
-            }
-        });
-    });
-
-    // Initial Load Provinces
+    // Fetch and load all campuses directly
     $.ajax({
-        url: '{{ route('api.provinces') }}',
+        url: '{{ route('api.campuses') }}',
         success: function(res) {
             if (res && res.data) {
-                res.data.forEach(function(province) {
+                res.data.forEach(function(campus) {
                     const opt = $('<option></option>')
-                        .val(province.name)
-                        .attr('data-id', province.id)
-                        .text(province.name);
-                    $('#target_province').append(opt);
+                        .val(campus.name)
+                        .text(campus.name);
+                    $('#target_campus').append(opt);
                 });
-                $('#target_province').trigger('change');
+                $('#target_campus').trigger('change');
             }
         }
     });
 });
 </script>
-
