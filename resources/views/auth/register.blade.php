@@ -136,79 +136,7 @@
                             </a>
                         </p>
                     </div>
-                </form>
             </div>
         </div>
     </div>
-</x-guest-layout>
-
-<!-- Select2 CSS and JS with jQuery -->
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<style>
-    /* Styling to make Select2 look beautiful and match the existing Tailwind form controls */
-    .select2-container .select2-selection--single {
-        height: 52px !important;
-        background-color: #f8fafc !important; /* bg-slate-50 */
-        border: 1px solid #f1f5f9 !important; /* border-slate-100 */
-        border-radius: 1rem !important; /* rounded-2xl */
-        transition: all 0.2s ease-in-out !important;
-        display: flex;
-        align-items: center;
-    }
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-        color: #1e293b !important; /* text-slate-800 */
-        font-weight: 500 !important;
-        font-size: 0.875rem !important; /* text-sm */
-        padding-left: 1rem !important;
-        padding-right: 2.5rem !important;
-    }
-    .select2-container--default .select2-selection--single .select2-selection__arrow {
-        height: 50px !important;
-        right: 12px !important;
-    }
-    .select2-container--default .select2-selection--single .select2-selection__arrow b {
-        border-color: #94a3b8 transparent transparent transparent !important; /* text-slate-400 */
-        border-width: 5px 5px 0 5px !important;
-        margin-left: -5px !important;
-    }
-    .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
-        border-color: transparent transparent #94a3b8 transparent !important;
-        border-width: 0 5px 5px 5px !important;
-    }
-    .select2-container--default.select2-container--focus .select2-selection--single {
-        border-color: #1a5eff !important;
-        background-color: #fff !important;
-        box-shadow: 0 0 0 2px rgba(26, 94, 255, 0.15) !important;
-    }
-    .select2-dropdown {
-        background-color: #ffffff !important;
-        border: 1px solid #e2e8f0 !important;
-        border-radius: 1rem !important;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02) !important;
-        overflow: hidden;
-        z-index: 9999;
-        margin-top: 4px;
-    }
-    .select2-container--default .select2-search--dropdown .select2-search__field {
-        border: 1px solid #e2e8f0 !important;
-        border-radius: 0.75rem !important;
-        padding: 8px 12px !important;
-        outline: none !important;
-        font-size: 0.875rem !important;
-    }
-    .select2-container--default .select2-results__option--highlighted[aria-selected] {
-        background-color: #1a5eff !important;
-    }
-    .select2-container--default .select2-results__option[aria-selected="true"] {
-        background-color: #f1f5f9 !important;
-        color: #1a5eff !important;
-        font-weight: 600;
-    }
-    .select2-container--default .select2-selection--single[aria-disabled="true"] {
-        background-color: #f1f5f9 !important;
-        border-color: #f1f5f9 !important;
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
-    .select2-results__option {
 </x-guest-layout>
