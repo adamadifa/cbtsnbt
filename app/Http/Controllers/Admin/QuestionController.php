@@ -86,7 +86,7 @@ class QuestionController extends Controller
                     $question->options()->create([
                         'label' => $label,
                         'content' => $opt['content'],
-                        'is_correct' => isset($opt['is_correct']),
+                        'is_correct' => !empty($opt['is_correct']),
                     ]);
                 }
             } elseif ($request->type === 'menjodohkan') {
@@ -161,7 +161,7 @@ class QuestionController extends Controller
                     $question->options()->create([
                         'label' => $label,
                         'content' => $opt['content'],
-                        'is_correct' => isset($opt['is_correct']),
+                        'is_correct' => !empty($opt['is_correct']),
                     ]);
                 }
             } elseif ($request->type === 'menjodohkan') {
