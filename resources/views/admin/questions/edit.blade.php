@@ -59,7 +59,7 @@
                     class="bg-white rounded-2xl border border-slate-200/70 shadow-sm overflow-hidden transition-all duration-300">
                     {{-- Options Header --}}
                     <div class="flex items-center justify-between p-5 border-b border-slate-100 bg-slate-50/40"
-                        x-show="type === 'pilihan_ganda' || type === 'pilihan_ganda_kompleks'">
+                        x-show="type === 'pilihan_ganda' || type === 'pilihan_ganda_kompleks' || type === 'benar_salah'">
                         <div class="flex items-center gap-3.5">
                             <div class="w-9 h-9 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -68,9 +68,9 @@
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="text-sm font-semibold text-slate-800 tracking-tight">Pilihan Jawaban <span
+                                <h3 class="text-sm font-semibold text-slate-800 tracking-tight" x-text="type === 'benar_salah' ? 'Daftar Pernyataan' : 'Pilihan Jawaban'"><span
                                         class="text-red-500">*</span></h3>
-                                <p class="text-xs text-slate-400 mt-0.5">Tentukan opsi jawaban dan tandai opsi yang benar
+                                <p class="text-xs text-slate-400 mt-0.5" x-text="type === 'benar_salah' ? 'Tuliskan pernyataan dan centang pernyataan yang bernilai BENAR' : 'Tentukan opsi jawaban dan tandai opsi yang benar'">
                                 </p>
                             </div>
                         </div>
@@ -104,7 +104,7 @@
                     </div>
 
                     <div class="p-6 space-y-5">
-                        <template x-if="type === 'pilihan_ganda' || type === 'pilihan_ganda_kompleks'">
+                        <template x-if="type === 'pilihan_ganda' || type === 'pilihan_ganda_kompleks' || type === 'benar_salah'">
                             <div class="space-y-4">
                                 <template x-for="(option, index) in options" :key="option.id">
                                     <div class="flex flex-col gap-2">
@@ -114,11 +114,11 @@
                                             {{-- Selector (Radio / Checkbox) --}}
                                             <div class="flex-shrink-0 pt-2">
                                                 <label class="relative flex items-center cursor-pointer group">
-                                                    <input :type="type === 'pilihan_ganda' ? 'radio' : 'checkbox'"
+                                                    <input :type="(type === 'pilihan_ganda') ? 'radio' : 'checkbox'"
                                                         name="correct_answer_proxy" :checked="option.is_correct"
                                                         @change="setCorrect(index)"
                                                         class="w-5 h-5 text-indigo-600 border-slate-300 focus:ring-offset-0 focus:ring-2 focus:ring-indigo-100 transition-all cursor-pointer"
-                                                        :class="type === 'pilihan_ganda' ? 'rounded-full' : 'rounded'">
+                                                        :class="(type === 'pilihan_ganda') ? 'rounded-full' : 'rounded'">
                                                     <input type="hidden" :name="`options[${option.label}][is_correct]`"
                                                         :value="option.is_correct ? 1 : 0">
                                                 </label>
@@ -340,6 +340,7 @@
                                 class="w-full border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500 py-2.5 transition-all bg-slate-50/30 cursor-pointer">
                                 <option value="pilihan_ganda">Pilihan Ganda</option>
                                 <option value="pilihan_ganda_kompleks">Pilihan Ganda Kompleks</option>
+                                <option value="benar_salah">Benar / Salah</option>
                                 <option value="menjodohkan">Menjodohkan</option>
                                 <option value="isian_singkat">Isian Singkat</option>
                                 <option value="essai">Essai (Grading Manual)</option>
@@ -532,7 +533,11 @@
                 },
 
                 validateSelection() {
-                    this.hasCorrectSelection = this.options.some(opt => opt.is_correct);
+                    if (this.type === 'benar_salah') {
+                        this.hasCorrectSelection = true;
+                    } else {
+                        this.hasCorrectSelection = this.options.some(opt => opt.is_correct);
+                    }
                 },
 
                 addOption() {

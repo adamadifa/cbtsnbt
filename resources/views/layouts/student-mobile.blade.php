@@ -38,12 +38,19 @@
         <!-- Top Compact Header -->
         <header class="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-slate-100 h-14 flex items-center px-4 justify-between">
             <div class="flex items-center gap-2">
-                <div class="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center shadow-sm shadow-indigo-200">
-                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5s3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                    </svg>
-                </div>
-                @php $siteTitle = \App\Models\Setting::getValue('site_title', 'LULUS SNBT'); @endphp
+                @php 
+                    $siteTitle = \App\Models\Setting::getValue('site_title', 'LULUS SNBT'); 
+                    $siteLogo = \App\Models\Setting::getValue('site_logo');
+                @endphp
+                @if($siteLogo)
+                    <img src="{{ asset('storage/' . $siteLogo) }}" alt="Logo" class="w-7 h-7 rounded-lg object-contain bg-slate-50 p-0.5 shadow-xs">
+                @else
+                    <div class="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center shadow-sm shadow-indigo-200">
+                        <svg class="w-4.5 h-4.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5s3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                    </div>
+                @endif
                 <span class="font-bold text-sm text-slate-800 tracking-tight uppercase">
                     {{ explode(' ', $siteTitle)[0] }} <span class="text-indigo-600">{{ explode(' ', $siteTitle)[1] ?? '' }}</span>
                 </span>

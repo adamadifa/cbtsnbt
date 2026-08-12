@@ -60,7 +60,7 @@ class QuestionController extends Controller
             'type' => 'required',
             'content' => 'required',
             'points' => 'required|numeric|min:0',
-            'options.*.content' => 'required_if:type,pilihan_ganda,pilihan_ganda_kompleks',
+            'options.*.content' => 'required_if:type,pilihan_ganda,pilihan_ganda_kompleks,benar_salah',
             'match_options.*.right' => 'required_if:type,menjodohkan',
             'isian_answers.*' => 'required_if:type,isian_singkat',
         ]);
@@ -81,7 +81,7 @@ class QuestionController extends Controller
                 'created_by' => auth()->id(),
             ]);
 
-            if (in_array($request->type, ['pilihan_ganda', 'pilihan_ganda_kompleks'])) {
+            if (in_array($request->type, ['pilihan_ganda', 'pilihan_ganda_kompleks', 'benar_salah'])) {
                 foreach ($request->options as $label => $opt) {
                     $question->options()->create([
                         'label' => $label,
@@ -154,7 +154,7 @@ class QuestionController extends Controller
                 'is_active' => $request->has('is_active'),
             ]);
 
-            if (in_array($request->type, ['pilihan_ganda', 'pilihan_ganda_kompleks'])) {
+            if (in_array($request->type, ['pilihan_ganda', 'pilihan_ganda_kompleks', 'benar_salah'])) {
                 // For simplicity in this demo, delete and recreate options
                 $question->options()->delete();
                 foreach ($request->options as $label => $opt) {

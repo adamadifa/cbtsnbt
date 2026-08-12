@@ -66,10 +66,17 @@
             <!-- Sidebar Header -->
             <div class="h-16 flex items-center justify-between px-5 border-b border-white/10 shrink-0 relative z-10">
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-[#153c96] font-bold text-lg shadow-sm">
-                        A
-                    </div>
-                    @php $siteTitle = \App\Models\Setting::getValue('site_title', 'CBT SNBT'); @endphp
+                    @php 
+                        $siteTitle = \App\Models\Setting::getValue('site_title', 'CBT SNBT');
+                        $siteLogo = \App\Models\Setting::getValue('site_logo');
+                    @endphp
+                    @if($siteLogo)
+                        <img src="{{ asset('storage/' . $siteLogo) }}" alt="Logo" class="w-8 h-8 rounded-lg object-contain bg-white p-0.5 shadow-sm">
+                    @else
+                        <div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-[#153c96] font-bold text-lg shadow-sm">
+                            {{ substr($siteTitle, 0, 1) }}
+                        </div>
+                    @endif
                     <span class="text-base font-bold text-white tracking-tight" x-show="sidebarOpen" x-transition>
                         {{ explode(' ', $siteTitle)[0] }} <span class="text-blue-100">{{ explode(' ', $siteTitle)[1] ?? '' }}</span>
                     </span>
