@@ -72,17 +72,7 @@
                         <x-input-error :messages="$errors->get('school')" class="mt-1" />
                     </div>
 
-                    <!-- Pilihan Kampus Tujuan -->
-                    <div class="space-y-1">
-                        <label for="target_campus" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Pilihan Kampus Tujuan</label>
-                        <select id="target_campus" 
-                                name="target_campus"
-                                class="w-full px-4 py-3 bg-slate-50 border border-slate-100 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 rounded-2xl transition-all duration-200 text-slate-800 font-medium text-sm focus:outline-none"
-                                required>
-                            <option value="">Pilih Kampus</option>
-                        </select>
-                        <x-input-error :messages="$errors->get('target_campus')" class="mt-1" />
-                    </div>
+
 
                     <!-- Email Address -->
                     <div class="space-y-1">
@@ -221,33 +211,4 @@
         cursor: not-allowed;
     }
     .select2-results__option {
-        padding: 10px 16px !important;
-        font-size: 0.875rem !important;
-    }
-</style>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-<script>
-$(document).ready(function() {
-    // Initialize select2
-    $('#target_campus').select2({ placeholder: "Pilih Kampus" });
-
-    // Fetch and load all campuses directly
-    $.ajax({
-        url: '{{ route('api.campuses') }}',
-        success: function(res) {
-            if (res && res.data) {
-                res.data.forEach(function(campus) {
-                    const opt = $('<option></option>')
-                        .val(campus.name)
-                        .text(campus.name);
-                    $('#target_campus').append(opt);
-                });
-                $('#target_campus').trigger('change');
-            }
-        }
-    });
-});
-</script>
+</x-guest-layout>

@@ -35,7 +35,6 @@ class RegisteredUserController extends Controller
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'school' => ['required', 'string', 'max:255'],
-            'target_campus' => ['required', 'string', 'max:255'],
         ]);
 
         $user = User::create([
@@ -45,7 +44,7 @@ class RegisteredUserController extends Controller
             'school' => $request->school,
             'target_province' => '',
             'target_city' => '',
-            'target_campus' => $request->target_campus,
+            'target_campus' => '',
         ]);
 
         $user->assignRole('siswa');
