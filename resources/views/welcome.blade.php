@@ -6,6 +6,7 @@
     
     @php 
         $siteTitle = \App\Models\Setting::getValue('site_title', 'Lulus SNBT'); 
+        $siteLogo = \App\Models\Setting::getValue('site_logo');
         $contactWa = \App\Models\Setting::getValue('contact_whatsapp', '6281234567890');
         $adminEmail = \App\Models\Setting::getValue('admin_email', 'admin@cbt.test');
     @endphp
@@ -38,9 +39,13 @@
     <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/60">
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
             <a href="/" class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-extrabold text-xl shadow-md shadow-indigo-600/20">
-                    {{ substr($siteTitle, 0, 1) }}
-                </div>
+                @if($siteLogo)
+                    <img src="{{ asset('storage/' . $siteLogo) }}" alt="Logo" class="w-10 h-10 rounded-xl object-contain bg-slate-50 p-0.5 shadow-md">
+                @else
+                    <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-extrabold text-xl shadow-md shadow-indigo-600/20">
+                        {{ substr($siteTitle, 0, 1) }}
+                    </div>
+                @endif
                 <span class="text-lg font-black text-slate-900 tracking-tight">
                     {{ explode(' ', $siteTitle)[0] }} <span class="text-indigo-600">{{ explode(' ', $siteTitle)[1] ?? '' }}</span>
                 </span>
@@ -209,9 +214,13 @@
         <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-8">
             <div class="md:col-span-6 space-y-4">
                 <a href="/" class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-extrabold text-lg shadow-md">
-                        {{ substr($siteTitle, 0, 1) }}
-                    </div>
+                    @if($siteLogo)
+                        <img src="{{ asset('storage/' . $siteLogo) }}" alt="Logo" class="w-8 h-8 rounded-lg object-contain bg-slate-800 p-0.5 shadow-sm">
+                    @else
+                        <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-extrabold text-lg shadow-md">
+                            {{ substr($siteTitle, 0, 1) }}
+                        </div>
+                    @endif
                     <span class="text-base font-black text-white tracking-tight">
                         {{ $siteTitle }}
                     </span>
