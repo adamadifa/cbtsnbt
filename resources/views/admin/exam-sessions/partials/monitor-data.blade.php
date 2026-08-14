@@ -425,7 +425,7 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
                                     <div class="flex flex-col gap-1.5">
                                         @foreach($result->user->targets as $target)
                                             @if($target->campusProdi)
-                                                <span class="text-[9px] bg-slate-50 border border-slate-100 rounded px-2 py-0.5 text-slate-600 font-medium w-max block">
+                                                <span class="text-[9px] bg-slate-50 border border-slate-100 rounded px-2 py-0.5 text-slate-600 font-medium truncate block w-full" title="Pil {{ $target->order }}: {{ $target->campusProdi->campus_name }} - {{ $target->campusProdi->prodi_name }}">
                                                     Pil {{ $target->order }}: {{ $target->campusProdi->campus_name }} - {{ $target->campusProdi->prodi_name }}
                                                 </span>
                                             @endif
