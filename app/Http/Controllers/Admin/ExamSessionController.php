@@ -124,7 +124,7 @@ class ExamSessionController extends Controller
     {
         $examSession->load(['examPackage.subtests.subject', 'results.user']);
         
-        $results = \App\Models\ExamResult::with(['user', 'answers', 'violations'])
+        $results = \App\Models\ExamResult::with(['user.targets.campusProdi', 'answers', 'violations'])
             ->where('exam_session_id', $examSession->id)
             ->orderByRaw("FIELD(status, 'completed', 'in_progress')")
             ->orderByDesc('total_score')
@@ -226,7 +226,7 @@ class ExamSessionController extends Controller
 
     public function exportExcel(ExamSession $examSession)
     {
-        $results = \App\Models\ExamResult::with(['user', 'answers', 'violations'])
+        $results = \App\Models\ExamResult::with(['user.targets.campusProdi', 'answers', 'violations'])
             ->where('exam_session_id', $examSession->id)
             ->orderByDesc('total_score')
             ->get();
@@ -254,7 +254,7 @@ class ExamSessionController extends Controller
 
     public function exportPdf(ExamSession $examSession)
     {
-        $results = \App\Models\ExamResult::with(['user', 'violations'])
+        $results = \App\Models\ExamResult::with(['user.targets.campusProdi', 'violations'])
             ->where('exam_session_id', $examSession->id)
             ->orderByDesc('total_score')
             ->get();
@@ -264,6 +264,90 @@ class ExamSessionController extends Controller
             'results' => $results
         ]);
 
-        return $pdf->download('hasil_ujian_' . Str::slug($examSession->title) . '.pdf');
+        return $pdf->setPaper('a4', 'landscape')->download('hasil_ujian_' . Str::slug($examSession->title) . '.pdf');
+    }
+
+    public function studentResults(ExamSession $examSession, \App\Models\ExamResult $examResult)
+    {
+        if ($examResult->exam_session_id !== $examSession->id) {
+            abort(404);
+        }
+
+        $session = $examSession->load('examPackage.subtests.questions.options');
+        $package = $session->examPackage;
+
+        $subtests = $package->subtests;
+        $answers = \App\Models\StudentAnswer::where('exam_result_id', $examResult->id)->get();
+
+        // Calculate Stats
+        $stats = [
+            'total_questions' => $subtests->sum(fn($s) => min($s->total_questions, $s->questions->count())),
+            'answered' => $answers->count(),
+            'correct' => $answers->where('is_correct', true)->count(),
+            'wrong' => $answers->where('is_correct', false)->count(),
+            'empty' => 0,
+        ];
+        $stats['empty'] = $stats['total_questions'] - $stats['answered'];
+        $stats['empty'] = max(0, $stats['empty']);
+
+        // Accuracy Percentage
+        $stats['accuracy'] = $stats['total_questions'] > 0
+            ? round(($stats['correct'] / $stats['total_questions']) * 100, 1)
+            : 0;
+
+        // Subtest Breakdown
+        $breakdown = $subtests->map(function ($subtest) use ($answers) {
+            $validQuestions = $subtest->questions->sortBy('pivot.order')->take($subtest->total_questions);
+            $subtestQuestionIds = $validQuestions->pluck('id');
+            $subtestAnswers = $answers->whereIn('question_id', $subtestQuestionIds);
+
+            $correct = $subtestAnswers->where('is_correct', true)->count();
+            $total = $validQuestions->count();
+
+            return [
+                'id' => $subtest->id,
+                'title' => $subtest->title ?: ($subtest->subject->name ?? 'Subtest'),
+                'total' => $total,
+                'correct' => $correct,
+                'score' => $total > 0 ? round(($correct / $total) * 100, 1) : 0,
+            ];
+        });
+
+        // Time Spent
+        $duration = max(1, (int) $examResult->started_at->diffInMinutes($examResult->finished_at ?: now()));
+        $totalScore = $examResult->total_score;
+
+        return view('admin.exam-sessions.student-results', compact('examSession', 'examResult', 'session', 'package', 'stats', 'breakdown', 'duration', 'totalScore'));
+    }
+
+    public function studentExplanation(ExamSession $examSession, \App\Models\ExamResult $examResult)
+    {
+        if ($examResult->exam_session_id !== $examSession->id) {
+            abort(404);
+        }
+
+        $session = $examSession->load('examPackage.subtests.questions.options');
+        $package = $session->examPackage;
+
+        $subtests = $package->subtests->sortBy('order');
+        $allQuestions = collect();
+        foreach ($subtests as $subtest) {
+            $subQuestions = $subtest->questions->sortBy('pivot.order')
+                ->take($subtest->total_questions)
+                ->values()
+                ->map(function ($q) use ($subtest) {
+                    $q->subtest_id = $subtest->id;
+                    $q->subtest_title = $subtest->title ?: ($subtest->subject->name ?? 'Subtest');
+                    return $q;
+                });
+            $allQuestions = $allQuestions->concat($subQuestions);
+        }
+
+        // Fetch user's answers
+        $userAnswers = \App\Models\StudentAnswer::where('exam_result_id', $examResult->id)
+            ->get()
+            ->keyBy('question_id');
+
+        return view('admin.exam-sessions.student-explanation', compact('examSession', 'examResult', 'session', 'package', 'allQuestions', 'userAnswers', 'subtests'));
     }
 }

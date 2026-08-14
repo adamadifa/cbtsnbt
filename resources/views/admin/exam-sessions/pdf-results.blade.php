@@ -32,6 +32,10 @@
                 <th width="30" class="text-center">No</th>
                 <th>Nama Peserta</th>
                 <th>Asal Sekolah</th>
+                <th>Pilihan 1</th>
+                <th>Pilihan 2</th>
+                <th>Pilihan 3</th>
+                <th>Pilihan 4</th>
                 <th class="text-center">Status</th>
                 <th class="text-center">Pelanggaran</th>
                 <th class="text-right">Skor Total</th>
@@ -46,6 +50,14 @@
                         <span style="font-size: 9px; color: #94a3b8;">{{ $result->user->email }}</span>
                     </td>
                     <td>{{ $result->user->school ?? '-' }}</td>
+                    @for($i = 1; $i <= 4; $i++)
+                        @php
+                            $target = $result->user->targets->where('order', $i)->first();
+                        @endphp
+                        <td style="font-size: 9px;">
+                            {{ $target && $target->campusProdi ? $target->campusProdi->campus_name . ' - ' . $target->campusProdi->prodi_name : '-' }}
+                        </td>
+                    @endfor
                     <td class="text-center">
                         <span class="badge {{ $result->status === 'completed' ? 'badge-success' : 'badge-warning' }}">
                             {{ $result->status === 'completed' ? 'Selesai' : 'Mengerjakan' }}

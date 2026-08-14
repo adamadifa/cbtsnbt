@@ -5,6 +5,10 @@
             <th rowspan="2" style="font-weight: bold; border: 1px solid #000000; text-align: center; vertical-align: middle;">Nama Peserta</th>
             <th rowspan="2" style="font-weight: bold; border: 1px solid #000000; text-align: center; vertical-align: middle;">Email</th>
             <th rowspan="2" style="font-weight: bold; border: 1px solid #000000; text-align: center; vertical-align: middle;">Sekolah</th>
+            <th rowspan="2" style="font-weight: bold; border: 1px solid #000000; text-align: center; vertical-align: middle;">Pilihan 1</th>
+            <th rowspan="2" style="font-weight: bold; border: 1px solid #000000; text-align: center; vertical-align: middle;">Pilihan 2</th>
+            <th rowspan="2" style="font-weight: bold; border: 1px solid #000000; text-align: center; vertical-align: middle;">Pilihan 3</th>
+            <th rowspan="2" style="font-weight: bold; border: 1px solid #000000; text-align: center; vertical-align: middle;">Pilihan 4</th>
             <th rowspan="2" style="font-weight: bold; border: 1px solid #000000; text-align: center; vertical-align: middle;">Total Skor</th>
             @foreach($matrixSubtests as $subtest)
                 @if($subtest['questions']->count() > 0)
@@ -34,6 +38,14 @@
                 <td style="border: 1px solid #000000; vertical-align: middle;">{{ $result->user->name }}</td>
                 <td style="border: 1px solid #000000; vertical-align: middle;">{{ $result->user->email }}</td>
                 <td style="border: 1px solid #000000; vertical-align: middle;">{{ $result->user->school ?? '-' }}</td>
+                @for($i = 1; $i <= 4; $i++)
+                    @php
+                        $target = $result->user->targets->where('order', $i)->first();
+                    @endphp
+                    <td style="border: 1px solid #000000; vertical-align: middle;">
+                        {{ $target && $target->campusProdi ? $target->campusProdi->campus_name . ' - ' . $target->campusProdi->prodi_name : '-' }}
+                    </td>
+                @endfor
                 <td style="border: 1px solid #000000; text-align: center; font-weight: bold; vertical-align: middle;">{{ $result->total_score }}</td>
                 @foreach($matrixSubtests as $subtest)
                     @foreach($subtest['questions'] as $q)

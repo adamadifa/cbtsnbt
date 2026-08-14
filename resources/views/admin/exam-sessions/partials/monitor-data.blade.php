@@ -64,164 +64,185 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
 
     {{-- Stats Row --}}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
-        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
+        <!-- Card 1: Total Peserta -->
+        <div class="bg-[#153c96] p-5 rounded-2xl border border-[#153c96] shadow-sm flex flex-col justify-between transition-all hover:shadow-md text-white">
             <div class="flex items-start justify-between">
-                <h3 class="text-[10px] font-black text-slate-400 tracking-widest uppercase">Total Peserta</h3>
-                <div class="p-2 bg-blue-50 text-[#153c96] rounded-xl">
+                <h3 class="text-xs font-bold text-blue-100">Total Peserta</h3>
+                <div class="p-2 bg-white/20 text-white rounded-xl">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
                 </div>
             </div>
-            <p class="mt-4 text-3xl font-black text-slate-800">{{ $stats['total_participants'] }}</p>
+            <p class="mt-4 text-3xl font-black">{{ $stats['total_participants'] }}</p>
         </div>
         
-        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
+        <!-- Card 2: Sedang Ujian -->
+        <div class="bg-amber-500 p-5 rounded-2xl border border-amber-500 shadow-sm flex flex-col justify-between transition-all hover:shadow-md text-white">
             <div class="flex items-start justify-between">
-                <h3 class="text-[10px] font-black text-slate-400 tracking-widest uppercase">Sedang Ujian</h3>
-                <div class="p-2 bg-amber-50 text-amber-600 rounded-xl @if($stats['in_progress'] > 0) animate-pulse @endif">
+                <h3 class="text-xs font-bold text-amber-50">Sedang Ujian</h3>
+                <div class="p-2 bg-white/20 text-white rounded-xl @if($stats['in_progress'] > 0) animate-pulse @endif">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
             </div>
-            <p class="mt-4 text-3xl font-black text-slate-800">{{ $stats['in_progress'] }}</p>
+            <p class="mt-4 text-3xl font-black">{{ $stats['in_progress'] }}</p>
         </div>
 
-        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
+        <!-- Card 3: Telah Selesai -->
+        <div class="bg-emerald-600 p-5 rounded-2xl border border-emerald-600 shadow-sm flex flex-col justify-between transition-all hover:shadow-md text-white">
             <div class="flex items-start justify-between">
-                <h3 class="text-[10px] font-black text-slate-400 tracking-widest uppercase">Telah Selesai</h3>
-                <div class="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
+                <h3 class="text-xs font-bold text-emerald-50">Telah Selesai</h3>
+                <div class="p-2 bg-white/20 text-white rounded-xl">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
             </div>
-            <p class="mt-4 text-3xl font-black text-slate-800">{{ $stats['completed'] }}</p>
+            <p class="mt-4 text-3xl font-black">{{ $stats['completed'] }}</p>
         </div>
 
-        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
+        <!-- Card 4: Rata-rata Skor -->
+        <div class="bg-indigo-600 p-5 rounded-2xl border border-indigo-600 shadow-sm flex flex-col justify-between transition-all hover:shadow-md text-white">
             <div class="flex items-start justify-between">
-                <h3 class="text-[10px] font-black text-slate-400 tracking-widest uppercase">Rata-rata Skor</h3>
-                <div class="p-2 bg-blue-50 text-blue-600 rounded-xl">
+                <h3 class="text-xs font-bold text-indigo-50">Rata-rata Skor</h3>
+                <div class="p-2 bg-white/20 text-white rounded-xl">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
                 </div>
             </div>
-            <p class="mt-4 text-3xl font-black text-slate-800">{{ number_format($stats['avg_score'], 1) }}</p>
+            <p class="mt-4 text-3xl font-black">{{ number_format($stats['avg_score'], 1) }}</p>
         </div>
     </div>
 
-    {{-- Participant List --}}
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <!-- Card Header (Unified Blue Bar) -->
-        <div class="bg-[#153c96] text-white px-6 py-4 flex items-center justify-between gap-4">
-            <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M17 20h5v-2a3 3 0 0 0 -5.356 -1.857m-4.644 -2.143a4 4 0 1 0 -4 -4"></path>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                        <path d="M21 20H2v-2a3 3 0 0 1 5.356 -1.857M7 20v-2c0 -.656 .126 -1.283 .356 -1.857m0 0a5.002 5.002 0 0 1 9.288 0M15 7a3 3 0 1 1 -6 0a3 3 0 0 1 6 0"></path>
-                    </svg>
+    {{-- Participant List Header --}}
+    <div class="mb-4 mt-6">
+        <h3 class="font-bold text-base text-slate-800">Daftar Peserta Ujian</h3>
+        <p class="text-xs text-slate-500">Pemantauan aktivitas siswa secara langsung</p>
+    </div>
+
+    <div class="space-y-4">
+        @forelse($results as $result)
+            <div class="bg-white border border-slate-150/80 rounded-2xl p-5 hover:shadow-md transition-all flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
+                <!-- Left: Participant info & avatar -->
+                <div class="flex items-center gap-4 min-w-0 md:w-1/4">
+                    <div class="w-11 h-11 rounded-2xl bg-blue-50/70 border border-blue-100 flex items-center justify-center shrink-0">
+                        <span class="text-lg font-black text-[#153c96]">{{ substr($result->user->name, 0, 1) }}</span>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-base font-bold text-slate-800 truncate" title="{{ $result->user->name }}">{{ $result->user->name }}</p>
+                        <p class="text-xs font-bold text-slate-450 truncate mt-0.5 flex items-center gap-1" title="{{ $result->user->email }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                            {{ $result->user->email }}
+                        </p>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="font-bold text-sm tracking-wide">Daftar Peserta Ujian</h3>
-                    <p class="text-[10px] text-white/70">Pemantauan aktivitas siswa secara langsung</p>
+
+                <!-- Columns on desktop: status, log waktu, pelanggaran, skor -->
+                <div class="grid grid-cols-2 md:flex md:items-center md:flex-1 md:justify-between gap-4 pt-4 md:pt-0">
+                    <!-- Status -->
+                    <div class="flex flex-col md:items-start gap-1">
+                        <span class="text-xs font-bold text-slate-400 block md:hidden">Status</span>
+                        <div>
+                            @if($result->status === 'in_progress')
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-amber-50 text-amber-600 border border-amber-100">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                    Mengerjakan
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-100">
+                                    <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
+                                    Selesai
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Log Waktu -->
+                    <div class="flex flex-col gap-0.5">
+                        <span class="text-xs font-bold text-slate-400 block md:hidden">Log Waktu</span>
+                        <div class="flex flex-col gap-1 text-xs font-semibold text-slate-500">
+                            <span class="flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                Mulai: {{ $result->started_at->format('d M, H:i') }}
+                            </span>
+                            @if($result->finished_at)
+                                <span class="flex items-center gap-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-emerald-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                    Selesai: {{ $result->finished_at->format('d M, H:i') }}
+                                </span>
+                            @else
+                                <span class="flex items-center gap-1 text-slate-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-300 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                    Belum selesai
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Pelanggaran -->
+                    <div class="flex flex-col md:items-center gap-1">
+                        <span class="text-xs font-bold text-slate-400 block md:hidden">Pelanggaran</span>
+                        <div>
+                            @if($result->violations->count() > 0)
+                                <div class="inline-flex flex-col items-center">
+                                    <button @click="$dispatch('open-violation-modal', { 
+                                        name: '{{ $result->user->name }}', 
+                                        violations: {{ $result->violations->map(fn($v) => [
+                                            'type' => $v->type === 'tab_switch' ? 'Pindah Tab' : 'Kehilangan Fokus',
+                                            'time' => $v->created_at->format('H:i:s'),
+                                            'details' => $v->details ?? '-'
+                                        ])->toJson() }} 
+                                    })" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-sm font-bold ring-1 ring-rose-100 hover:bg-rose-600 hover:text-white transition-all shadow-sm">
+                                        {{ $result->violations->count() }}
+                                    </button>
+                                    <span class="text-xs font-semibold text-rose-550 mt-1 flex items-center gap-0.5 justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-rose-500 animate-bounce" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                        Detail
+                                    </span>
+                                </div>
+                            @else
+                                <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-lg flex items-center gap-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-emerald-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                    Aman
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Skor Akhir -->
+                    <div class="flex flex-col md:items-center gap-1">
+                        <span class="text-xs font-bold text-slate-400 block md:hidden">Skor Akhir</span>
+                        <div class="inline-flex flex-col items-start md:items-center justify-center">
+                            <div class="flex items-baseline gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 {{ $result->status === 'completed' ? 'text-amber-500' : 'text-slate-450' }} shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><path d="M8.21 13.89 7 23l5-3 5 3-1.21-9.12"/></svg>
+                                <span class="text-xl font-black {{ $result->status === 'completed' ? 'text-[#153c96]' : 'text-amber-500' }}">{{ $result->total_score }}</span>
+                                <span class="text-xs font-bold text-slate-400">Poin</span>
+                            </div>
+                            @if($result->status === 'in_progress')
+                                <span class="text-xs font-bold text-amber-500 mt-0.5 animate-pulse">Live Tracker</span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right/Action button -->
+                <div class="flex items-center justify-end pt-4 md:pt-0 shrink-0 gap-2">
+                    @if($result->status === 'completed')
+                        <a href="{{ route('admin.exam-sessions.student-results', [$examSession, $result]) }}" class="w-full md:w-auto px-4 py-2 bg-[#153c96] hover:bg-[#11307a] text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="M14.83 9.17a4 4 0 0 0-5.66 5.66"/><path d="M14.17 14.17l4.9 4.9"/></svg>
+                            Lihat Hasil
+                        </a>
+                    @endif
+                    <form action="{{ route('admin.exam-sessions.reset-student', [$examSession, $result]) }}" method="POST" class="w-full md:w-auto" 
+                          @submit.prevent="if (confirm('Yakin ingin me-reset progress siswa ini? Semua jawabannya akan dihapus permanen!')) $el.submit()">
+                        @csrf
+                        <button type="submit" class="w-full md:w-auto px-4 py-2 bg-white border border-rose-200 text-rose-500 hover:bg-rose-50 hover:text-rose-600 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                            Reset Ujian
+                        </button>
+                    </form>
                 </div>
             </div>
-        </div>
-
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-[#153c96] text-white select-none">
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95">Nama Peserta</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95">Status</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95">Log Waktu</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95 text-center">Pelanggaran</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95 text-center">Skor Akhir</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95 text-right">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-50">
-                    @forelse($results as $result)
-                        <tr class="hover:bg-slate-50/50 transition-colors">
-                            <td class="px-6 py-5 border-b border-slate-50">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">
-                                        <span class="text-sm font-black text-slate-600">{{ substr($result->user->name, 0, 1) }}</span>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-bold text-slate-800">{{ $result->user->name }}</p>
-                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ $result->user->email }}</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-5 border-b border-slate-50">
-                                @if($result->status === 'in_progress')
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-black bg-amber-50 text-amber-600 uppercase tracking-widest border border-amber-100">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                                        Mengerjakan
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-black bg-emerald-50 text-emerald-600 uppercase tracking-widest border border-emerald-100">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
-                                        Selesai
-                                    </span>
-                                @endif
-                            </td>
-                            <td class="px-6 py-5 border-b border-slate-50">
-                                <div class="flex flex-col gap-0.5">
-                                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Mulai: {{ $result->started_at->format('d M, H:i') }}</span>
-                                    @if($result->finished_at)
-                                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Selesai: {{ $result->finished_at->format('d M, H:i') }}</span>
-                                    @else
-                                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">-</span>
-                                    @endif
-                                </div>
-                            </td>
-                            <td class="px-6 py-5 border-b border-slate-50 text-center">
-                                @if($result->violations->count() > 0)
-                                    <div class="inline-flex flex-col items-center">
-                                        <button @click="$dispatch('open-violation-modal', { 
-                                            name: '{{ $result->user->name }}', 
-                                            violations: {{ $result->violations->map(fn($v) => [
-                                                'type' => $v->type === 'tab_switch' ? 'Pindah Tab' : 'Kehilangan Fokus',
-                                                'time' => $v->created_at->format('H:i:s'),
-                                                'details' => $v->details ?? '-'
-                                            ])->toJson() }} 
-                                        })" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-xs font-black ring-1 ring-rose-100 hover:bg-rose-600 hover:text-white transition-all shadow-sm">
-                                            {{ $result->violations->count() }}
-                                        </button>
-                                        <span class="text-[7px] font-black text-rose-400 uppercase tracking-widest mt-1">Klik Detail</span>
-                                    </div>
-                                @else
-                                    <span class="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Aman</span>
-                                @endif
-                            </td>
-                            <td class="px-6 py-5 border-b border-slate-50 text-center">
-                                <div class="inline-flex flex-col items-center justify-center">
-                                    <span class="text-base font-black {{ $result->status === 'completed' ? 'text-[#153c96]' : 'text-amber-500' }}">{{ $result->total_score }}</span>
-                                    <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest -mt-0.5">Poin</span>
-                                    @if($result->status === 'in_progress')
-                                        <span class="text-[7px] font-black text-amber-500 uppercase tracking-widest mt-0.5 animate-pulse">Live Tracker</span>
-                                    @endif
-                                </div>
-                            </td>
-                            <td class="px-6 py-5 border-b border-slate-50 text-right">
-                                <form action="{{ route('admin.exam-sessions.reset-student', [$examSession, $result]) }}" method="POST" class="inline-block" 
-                                      @submit.prevent="if (confirm('Yakin ingin me-reset progress siswa ini? Semua jawabannya akan dihapus permanen!')) $el.submit()">
-                                    @csrf
-                                    <button type="submit" class="px-3 py-1.5 bg-white border border-rose-200 text-rose-500 hover:bg-rose-50 hover:text-rose-600 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all shadow-sm">
-                                        Reset Ujian
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="px-6 py-16 text-center">
-                                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Belum ada peserta yang mengikuti sesi ujian ini.</p>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+        @empty
+            <div class="py-16 text-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+                <p class="text-xs font-bold text-slate-400">Belum ada peserta yang mengikuti sesi ujian ini.</p>
+            </div>
+        @endforelse
     </div>
 </div>
 
@@ -366,7 +387,8 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
                 <thead>
                     <!-- Row 1: Subtest Names -->
                     <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
-                        <th rowspan="2" class="px-6 py-4 font-bold border-r border-slate-200 align-middle">Nama Peserta</th>
+                        <th rowspan="2" class="px-6 py-4 font-bold border-r border-slate-200 align-middle sticky left-0 bg-slate-100 z-30 w-48 min-w-[12rem] max-w-[12rem]">Nama Peserta</th>
+                        <th rowspan="2" class="px-6 py-4 font-bold border-r border-slate-200 align-middle sticky left-[12rem] bg-slate-100 z-30 w-64 min-w-[16rem] max-w-[16rem]">Pilihan Kampus</th>
                         @foreach($matrixSubtests as $subtest)
                             <th colspan="{{ $subtest['questions']->count() }}" class="px-3 py-2 text-center font-bold border-r border-slate-200">
                                 {{ $subtest['title'] }}
@@ -389,13 +411,29 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
                         @php
                             $studentAnswers = $result->answers->keyBy('question_id');
                         @endphp
-                        <tr class="hover:bg-slate-50/50 transition-colors">
+                        <tr class="group hover:bg-slate-50/50 transition-colors">
                             <!-- Student Name -->
-                            <td class="px-6 py-3 border-r border-slate-200 font-medium text-slate-800">
+                            <td class="px-6 py-3 border-r border-slate-200 font-medium text-slate-800 sticky left-0 bg-white group-hover:bg-slate-50 transition-colors z-10 w-48 min-w-[12rem] max-w-[12rem]">
                                 <div class="flex flex-col">
                                     <span class="font-bold text-sm">{{ $result->user->name }}</span>
-                                    <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">{{ $result->user->school ?? 'N/A' }}</span>
+                                    <span class="text-[9px] text-slate-450 block">{{ $result->user->school ?? 'N/A' }}</span>
                                 </div>
+                            </td>
+                            <!-- Pilihan Kampus -->
+                            <td class="px-6 py-3 border-r border-slate-200 font-medium text-slate-800 sticky left-[12rem] bg-white group-hover:bg-slate-50 transition-colors z-10 w-64 min-w-[16rem] max-w-[16rem]">
+                                @if($result->user->targets->count() > 0)
+                                    <div class="flex flex-col gap-1.5">
+                                        @foreach($result->user->targets as $target)
+                                            @if($target->campusProdi)
+                                                <span class="text-[9px] bg-slate-50 border border-slate-100 rounded px-2 py-0.5 text-slate-600 font-medium w-max block">
+                                                    Pil {{ $target->order }}: {{ $target->campusProdi->campus_name }} - {{ $target->campusProdi->prodi_name }}
+                                                </span>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <span class="text-[9px] text-slate-400 italic">Belum memilih</span>
+                                @endif
                             </td>
                             <!-- Student Answers -->
                             @foreach($matrixSubtests as $subtest)
