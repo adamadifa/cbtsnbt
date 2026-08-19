@@ -10,7 +10,7 @@ import { sleep, check } from 'k6';
 const BASE_URL = 'https://snbt.gaweid.my.id';
 
 // 2. ID Sesi Ujian aktif di database server Anda (cek tabel `exam_sessions`)
-const EXAM_SESSION_ID = 1;
+const EXAM_SESSION_ID = 7;
 
 // 3. Token ujian aktif untuk sesi di atas (agar robot lolos validasi token)
 const EXAM_TOKEN = 'MANSACIS';
@@ -60,9 +60,41 @@ export default function () {
         '1. Register Berhasil (302/200)': (r) => r.status === 200 || r.status === 302,
     });
 
-    sleep(3); // Siswa membaca panduan dashboard selama 3 detik
+    sleep(2); // Siswa menunggu halaman dashboard memuat modal target kampus
 
-    // ---- B. PROSES MULAI UJIAN ----
+    // ---- B. PROSES SIMULASI PILIH KAMPUS ----
+    // 1. Simulasi ketik mencari nama kampus "Universitas" di Select2
+    let resSearchCampus = http.get(`${BASE_URL}/api/campuses-list?q=Universitas`);
+    check(resSearchCampus, {
+        'Pencarian Kampus Berhasil (200)': (r) => r.status === 200,
+    });
+
+    // 2. Simulasi mengambil daftar prodi dari salah satu kampus (contoh: Universitas Indonesia)
+    let resSearchProdi = http.get(`${BASE_URL}/api/campus-prodis-list?campus=Universitas+Indonesia`);
+    check(resSearchProdi, {
+        'Pemuatan Prodi Berhasil (200)': (r) => r.status === 200,
+    });
+
+    // 3. Simpan Kampus Tujuan (POST payload berupa JSON)
+    // *Catatan: Pastikan database Anda memiliki record prodi dengan ID 1, atau sesuaikan ID-nya.
+    let targetPayload = JSON.stringify({
+        targets: [
+            { campus_prodi_id: 1 }
+        ]
+    });
+
+    let targetHeaders = {
+        headers: { 'Content-Type': 'application/json' }
+    };
+
+    let resSaveTargets = http.post(`${BASE_URL}/student/targets`, targetPayload, targetHeaders);
+    check(resSaveTargets, {
+        'Penyimpanan Kampus Tujuan Berhasil (200)': (r) => r.status === 200,
+    });
+
+    sleep(3); // Siswa membaca panduan dashboard selama 3 detik sebelum mulai ujian
+
+    // ---- C. PROSES MULAI UJIAN ----
     let startPayload = {
         exam_session_id: EXAM_SESSION_ID,
         token: EXAM_TOKEN,
