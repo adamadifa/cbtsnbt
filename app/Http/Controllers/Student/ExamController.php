@@ -72,7 +72,7 @@ class ExamController extends Controller
         if ($examResult->status !== 'in_progress')
             return redirect()->route('dashboard');
 
-        $session = $examResult->examSession()->with('examPackage.subtests.questions.options')->first();
+        $session = $examResult->examSession()->with('examPackage.subtests')->first();
 
         $metadata = $examResult->metadata ?? [
             'current_subtest_id' => $session->examPackage->subtests->first()->id ?? null,
@@ -83,6 +83,11 @@ class ExamController extends Controller
         $currentSubtestId = $metadata['current_subtest_id'];
         $currentSubtest = $session->examPackage->subtests->find($currentSubtestId)
             ?? $session->examPackage->subtests->first();
+
+        // Load questions with options ONLY for the current subtest (not all subtests)
+        if ($currentSubtest) {
+            $currentSubtest->load('questions.options');
+        }
 
         // Filter questions for the current subtest from the EAGER LOADED collection
         $questions = $currentSubtest
@@ -123,7 +128,7 @@ class ExamController extends Controller
         }
 
         $request->validate([
-            'question_id' => 'required|exists:questions,id',
+            'question_id' => 'required|integer',
             'option_id' => 'nullable|integer',
             'option_ids' => 'nullable|array',
             'matching_answers' => 'nullable|array',
@@ -200,13 +205,6 @@ class ExamController extends Controller
                 'points' => $points
             ]
         );
-
-        // Update live score
-        $totalScore = StudentAnswer::where('exam_result_id', $examResult->id)->sum('points');
-        $examResult->update(['total_score' => $totalScore]);
-
-        // Broadcast to update admin dashboard live
-        event(new MonitorExamUpdated($examResult->exam_session_id));
 
         return response()->json([
             'success' => true,
@@ -379,22 +377,7 @@ class ExamController extends Controller
 
     public function logViolation(Request $request, ExamResult $examResult)
     {
-        if ($examResult->user_id !== Auth::id() || $examResult->status !== 'in_progress') {
-            return response()->json(['success' => false], 403);
-        }
-
-        $request->validate([
-            'type' => 'required|string|in:tab_switch,focus_lost',
-        ]);
-
-        $examResult->violations()->create([
-            'type' => $request->type,
-            'details' => $request->details,
-        ]);
-
-        // Broadcast to admin dashboard
-        event(new \App\Events\MonitorExamUpdated($examResult->exam_session_id));
-
+        // Fitur pelanggaran dinonaktifkan sementara untuk performa optimal
         return response()->json(['success' => true]);
     }
 

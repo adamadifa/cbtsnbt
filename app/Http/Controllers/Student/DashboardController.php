@@ -83,12 +83,24 @@ class DashboardController extends Controller
         ]);
     }
 
-    public function getCampusesList()
+    public function getCampusesList(Request $request)
     {
-        $campuses = CampusProdi::select('campus_name')
-            ->distinct()
-            ->orderBy('campus_name')
-            ->pluck('campus_name');
+        $search = $request->query('q');
+
+        // Cache lists depending on search query for 1 hour (3600 seconds)
+        $cacheKey = 'campuses_list_' . md5($search);
+
+        $campuses = \Illuminate\Support\Facades\Cache::remember($cacheKey, 3600, function () use ($search) {
+            $query = CampusProdi::select('campus_name')->distinct();
+
+            if (!empty($search)) {
+                $query->where('campus_name', 'like', '%' . $search . '%');
+            }
+
+            return $query->orderBy('campus_name')
+                ->limit(30) // Batasi maksimal 30 hasil agar load cepat
+                ->pluck('campus_name');
+        });
 
         return response()->json([
             'success' => true,
@@ -102,10 +114,15 @@ class DashboardController extends Controller
             'campus' => 'required|string'
         ]);
 
-        $prodis = CampusProdi::where('campus_name', $request->query('campus'))
-            ->select('id', 'prodi_name', 'jenjang')
-            ->orderBy('prodi_name')
-            ->get();
+        $campus = $request->query('campus');
+        $cacheKey = 'prodis_list_' . md5($campus);
+
+        $prodis = \Illuminate\Support\Facades\Cache::remember($cacheKey, 86400, function () use ($campus) {
+            return CampusProdi::where('campus_name', $campus)
+                ->select('id', 'prodi_name', 'jenjang')
+                ->orderBy('prodi_name')
+                ->get();
+        });
 
         return response()->json([
             'success' => true,

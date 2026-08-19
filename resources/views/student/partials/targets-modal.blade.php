@@ -245,47 +245,41 @@
     }
 
     function initTargetsModal() {
-        showModalLoader('Memuat data kampus tujuan...');
-        
-        // Fetch campuses list
-        $.ajax({
-            url: "{{ route('api.campuses-list') }}",
-            type: 'GET',
-            success: function(res) {
-                isInitialized = true;
-                if (res.success && res.campuses.length > 0) {
-                    globalCampuses = res.campuses;
-                    
-                    for (let i = 1; i <= 4; i++) {
-                        populateCampusesDropdown(i);
-                    }
+        isInitialized = true;
+        initializeSelect2();
 
-                    // Initialize Select2 after options are populated (allowClear set to false to remove internal x icons)
-                    initializeSelect2();
-
-                    // Load saved targets if exists
-                    if (savedTargets && savedTargets.length > 0) {
-                        applySavedTargets();
-                    } else {
-                        hideModalLoader();
-                    }
-                } else {
-                    hideModalLoader();
-                    alert('Gagal mengambil data kampus. Pastikan data kampus sudah diimport oleh admin.');
-                }
-            },
-            error: function() {
-                hideModalLoader();
-                alert('Terjadi kesalahan memuat data kampus.');
-            }
-        });
+        // Load saved targets if exists
+        if (savedTargets && savedTargets.length > 0) {
+            showModalLoader('Memuat data kampus tujuan...');
+            applySavedTargets();
+        } else {
+            hideModalLoader();
+        }
     }
 
     function initializeSelect2() {
         for (let i = 1; i <= 4; i++) {
             $(`#campus_${i}`).select2({
-                placeholder: "Pilih Kampus",
-                allowClear: false,
+                placeholder: "Ketik nama kampus (min. 1 huruf)",
+                minimumInputLength: 1,
+                ajax: {
+                    url: "{{ route('api.campuses-list') }}",
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return {
+                            q: params.term
+                        };
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: data.campuses.map(function(name) {
+                                return { id: name, text: name };
+                            })
+                        };
+                    },
+                    cache: true
+                },
                 width: '100%'
             }).on('change', function() {
                 loadProdis(i, this.value);
@@ -297,17 +291,6 @@
                 width: '100%'
             });
         }
-    }
-
-    function populateCampusesDropdown(choiceIdx) {
-        const select = document.getElementById(`campus_${choiceIdx}`);
-        select.innerHTML = '<option value="">Pilih Kampus</option>';
-        globalCampuses.forEach(campus => {
-            const opt = document.createElement('option');
-            opt.value = campus;
-            opt.text = campus;
-            select.appendChild(opt);
-        });
     }
 
     function loadProdis(choiceIdx, campusName, callback = null) {
@@ -347,7 +330,7 @@
     }
 
     function clearChoice(choiceIdx) {
-        $(`#campus_${choiceIdx}`).val('').trigger('change');
+        $(`#campus_${choiceIdx}`).val(null).trigger('change');
         $(`#prodi_${choiceIdx}`).html('<option value="">Pilih Program Studi</option>').prop('disabled', true).trigger('change');
         $(`#clear_btn_${choiceIdx}`).addClass('hidden');
     }
@@ -361,7 +344,13 @@
             const campusName = target.campus_prodi.campus_name;
             const targetProdiId = target.campus_prodi_id;
 
-            $(`#campus_${idx}`).val(campusName).trigger('change');
+            const campusSelect = $(`#campus_${idx}`);
+            if (campusSelect.find("option[value='" + campusName + "']").length === 0) {
+                var newOption = new Option(campusName, campusName, true, true);
+                campusSelect.append(newOption).trigger('change');
+            } else {
+                campusSelect.val(campusName).trigger('change');
+            }
             
             loadProdis(idx, campusName, () => {
                 $(`#prodi_${idx}`).val(targetProdiId).trigger('change');

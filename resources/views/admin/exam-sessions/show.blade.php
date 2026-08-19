@@ -109,6 +109,9 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        let fetchTimeout = null;
+        const THROTTLE_MS = 10000; // Minimal 10 detik antar request AJAX
+
         const fetchMonitorData = () => {
             fetch(window.location.href, {
                 headers: {
@@ -125,11 +128,20 @@
             .catch(error => console.error('Error fetching monitor data:', error));
         };
 
+        // Throttled version: hanya eksekusi sekali per THROTTLE_MS
+        const throttledFetch = () => {
+            if (fetchTimeout) return; // Abaikan jika sudah ada antrean
+            fetchTimeout = setTimeout(() => {
+                fetchMonitorData();
+                fetchTimeout = null;
+            }, THROTTLE_MS);
+        };
+
         // Listen to Reverb WebSockets
         if (typeof window.Echo !== 'undefined') {
             window.Echo.channel('exam-session.{{ $examSession->id }}')
                 .listen('MonitorExamUpdated', (e) => {
-                    fetchMonitorData();
+                    throttledFetch();
                 });
         }
     });
