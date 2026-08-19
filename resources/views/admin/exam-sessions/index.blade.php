@@ -98,7 +98,10 @@
                     <tr class="hover:bg-slate-50/20 transition-colors group">
                         <td class="px-6 py-4">
                             <div>
-                                <p class="text-sm font-bold text-slate-800 leading-tight">{{ $session->title }}</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="px-1.5 py-0.5 bg-slate-100 border border-slate-200 text-slate-600 rounded text-[9px] font-bold">ID: {{ $session->id }}</span>
+                                    <p class="text-sm font-bold text-slate-800 leading-tight">{{ $session->title }}</p>
+                                </div>
                                 <p class="text-[10px] text-[#153c96] font-bold mt-0.5">{{ $session->examPackage->title }}</p>
                             </div>
                         </td>

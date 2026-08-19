@@ -19,6 +19,11 @@
         </div>
         <div class="flex items-center gap-3.5 mt-1.5 ml-11 text-xs font-semibold text-slate-500">
             <div class="flex items-center gap-1.5">
+                <span>ID Sesi:</span>
+                <span class="text-slate-700 bg-slate-100 px-2 py-0.5 rounded-lg font-bold select-all tracking-wider">{{ $examSession->id }}</span>
+            </div>
+            <div class="w-1 h-1 rounded-full bg-slate-300"></div>
+            <div class="flex items-center gap-1.5">
                 <span>Token:</span>
                 <span class="text-[#153c96] bg-blue-50 px-2 py-0.5 rounded-lg font-bold select-all tracking-wider">{{ $examSession->token }}</span>
             </div>
