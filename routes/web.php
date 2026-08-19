@@ -69,6 +69,9 @@ Route::middleware(['auth', 'verified', 'redirect_role'])->group(function () {
         Route::get('exam-sessions/{examSession}/export-excel', [\App\Http\Controllers\Admin\ExamSessionController::class, 'exportExcel'])->name('exam-sessions.export-excel');
         Route::get('exam-sessions/{examSession}/export-pdf', [\App\Http\Controllers\Admin\ExamSessionController::class, 'exportPdf'])->name('exam-sessions.export-pdf');
         Route::post('exam-sessions/{examSession}/reset-student/{examResult}', [\App\Http\Controllers\Admin\ExamSessionController::class, 'resetStudent'])->name('exam-sessions.reset-student');
+        Route::post('exam-sessions/{examSession}/force-finish/{examResult}', [\App\Http\Controllers\Admin\ExamSessionController::class, 'forceFinishStudent'])->name('exam-sessions.force-finish');
+        Route::post('exam-sessions/{examSession}/bulk-force-finish', [\App\Http\Controllers\Admin\ExamSessionController::class, 'bulkForceFinish'])->name('exam-sessions.bulk-force-finish');
+        Route::post('exam-sessions/{examSession}/bulk-reset', [\App\Http\Controllers\Admin\ExamSessionController::class, 'bulkReset'])->name('exam-sessions.bulk-reset');
         Route::get('exam-sessions/{examSession}/results/{examResult}', [\App\Http\Controllers\Admin\ExamSessionController::class, 'studentResults'])->name('exam-sessions.student-results');
         Route::get('exam-sessions/{examSession}/results/{examResult}/explanation', [\App\Http\Controllers\Admin\ExamSessionController::class, 'studentExplanation'])->name('exam-sessions.student-explanation');
         Route::resource('exam-sessions', \App\Http\Controllers\Admin\ExamSessionController::class);

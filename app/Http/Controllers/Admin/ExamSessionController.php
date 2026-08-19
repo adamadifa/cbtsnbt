@@ -224,6 +224,89 @@ class ExamSessionController extends Controller
         return back()->with('success', 'Ujian siswa berhasil di-reset. Siswa dapat login kembali dengan token yang sama.');
     }
 
+    public function forceFinishStudent(ExamSession $examSession, \App\Models\ExamResult $examResult)
+    {
+        if ($examResult->exam_session_id !== $examSession->id) {
+            return back()->with('error', 'Data tidak valid.');
+        }
+
+        if ($examResult->status === 'completed') {
+            return back()->with('error', 'Siswa sudah menyelesaikan ujian.');
+        }
+
+        DB::transaction(function () use ($examResult) {
+            $totalScore = \App\Models\StudentAnswer::where('exam_result_id', $examResult->id)->sum('points');
+
+            $examResult->update([
+                'status' => 'completed',
+                'finished_at' => now(),
+                'total_score' => $totalScore
+            ]);
+        });
+
+        event(new MonitorExamUpdated($examSession->id));
+
+        return back()->with('success', 'Ujian siswa berhasil diselesaikan secara paksa.');
+    }
+
+    public function bulkForceFinish(Request $request, ExamSession $examSession)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:exam_results,id'
+        ]);
+
+        $ids = $request->input('ids');
+
+        DB::transaction(function () use ($ids, $examSession) {
+            foreach ($ids as $id) {
+                $examResult = \App\Models\ExamResult::where('id', $id)
+                    ->where('exam_session_id', $examSession->id)
+                    ->where('status', 'in_progress')
+                    ->first();
+
+                if ($examResult) {
+                    $totalScore = \App\Models\StudentAnswer::where('exam_result_id', $examResult->id)->sum('points');
+                    $examResult->update([
+                        'status' => 'completed',
+                        'finished_at' => now(),
+                        'total_score' => $totalScore
+                    ]);
+                }
+            }
+        });
+
+        event(new MonitorExamUpdated($examSession->id));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Ujian siswa terpilih berhasil diselesaikan.'
+        ]);
+    }
+
+    public function bulkReset(Request $request, ExamSession $examSession)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:exam_results,id'
+        ]);
+
+        $ids = $request->input('ids');
+
+        DB::transaction(function () use ($ids, $examSession) {
+            \App\Models\ExamResult::whereIn('id', $ids)
+                ->where('exam_session_id', $examSession->id)
+                ->delete();
+        });
+
+        event(new MonitorExamUpdated($examSession->id));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Ujian siswa terpilih berhasil di-reset.'
+        ]);
+    }
+
     public function exportExcel(ExamSession $examSession)
     {
         $results = \App\Models\ExamResult::with(['user.targets.campusProdi', 'answers', 'violations'])

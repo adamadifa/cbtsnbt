@@ -1,7 +1,68 @@
 {{-- Wrap everything in Alpine.js detection from parent --}}
 <div x-data="{ 
     showModal: false, 
-    modalData: { name: '', violations: [] } 
+    modalData: { name: '', violations: [] },
+    selectedIds: [],
+    selectAll: false,
+    allIds: {{ $results->pluck('id')->toJson() }},
+    
+    toggleAll() {
+        if (this.selectAll) {
+            this.selectedIds = [...this.allIds];
+        } else {
+            this.selectedIds = [];
+        }
+    },
+    
+    updateSelectAll() {
+        this.selectAll = this.selectedIds.length === this.allIds.length;
+    },
+    
+    bulkForceFinish() {
+        if (!confirm('Yakin ingin menyelesaikan secara paksa semua siswa terpilih?')) return;
+        
+        $.ajax({
+            url: '{{ route('admin.exam-sessions.bulk-force-finish', $examSession) }}',
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                ids: this.selectedIds
+            },
+            success: function(res) {
+                if (res.success) {
+                    window.location.reload();
+                } else {
+                    alert('Gagal memproses tindakan massal.');
+                }
+            },
+            error: function() {
+                alert('Terjadi kesalahan memproses tindakan massal.');
+            }
+        });
+    },
+    
+    bulkReset() {
+        if (!confirm('PERINGATAN! Yakin ingin me-reset ujian semua siswa terpilih? Semua jawaban mereka akan dihapus permanen!')) return;
+        
+        $.ajax({
+            url: '{{ route('admin.exam-sessions.bulk-reset', $examSession) }}',
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                ids: this.selectedIds
+            },
+            success: function(res) {
+                if (res.success) {
+                    window.location.reload();
+                } else {
+                    alert('Gagal memproses tindakan massal.');
+                }
+            },
+            error: function() {
+                alert('Terjadi kesalahan memproses tindakan massal.');
+            }
+        });
+    }
 }" 
 x-show="activeTab === 'monitor'" 
 @open-violation-modal.window="showModal = true; modalData = $event.detail"
@@ -109,15 +170,49 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
         </div>
     </div>
 
-    {{-- Participant List Header --}}
-    <div class="mb-4 mt-6">
-        <h3 class="font-bold text-base text-slate-800">Daftar Peserta Ujian</h3>
-        <p class="text-xs text-slate-500">Pemantauan aktivitas siswa secara langsung</p>
+    {{-- Participant List Header with Select All --}}
+    <div class="mb-4 mt-6 flex items-center justify-between">
+        <div>
+            <h3 class="font-bold text-base text-slate-800">Daftar Peserta Ujian</h3>
+            <p class="text-xs text-slate-500">Pemantauan aktivitas siswa secara langsung</p>
+        </div>
+        @if($results->count() > 0)
+            <label class="inline-flex items-center gap-2 text-xs font-bold text-slate-655 cursor-pointer select-none">
+                <input type="checkbox" x-model="selectAll" @change="toggleAll()" class="rounded border-slate-300 text-[#153c96] focus:ring-[#153c96] w-4 h-4">
+                Pilih Semua
+            </label>
+        @endif
+    </div>
+
+    {{-- Bulk Action Bar --}}
+    <div x-show="selectedIds.length > 0" 
+         x-transition
+         style="display: none;"
+         class="bg-indigo-50/70 border border-indigo-100 p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 shadow-sm">
+        <div class="flex items-center gap-2 text-xs font-bold text-indigo-900">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#153c96]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+            </svg>
+            <span x-text="selectedIds.length + ' siswa terpilih'"></span>
+        </div>
+        <div class="flex items-center gap-2">
+            <button @click="bulkForceFinish()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 border border-amber-600">
+                Selesaikan Terpilih
+            </button>
+            <button @click="bulkReset()" class="px-4 py-2 bg-white hover:bg-rose-50 text-rose-600 border border-rose-250 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5">
+                Reset Terpilih
+            </button>
+        </div>
     </div>
 
     <div class="space-y-4">
         @forelse($results as $result)
             <div class="bg-white border border-slate-150/80 rounded-2xl p-5 hover:shadow-md transition-all flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
+                <!-- Checkbox Selection -->
+                <div class="flex items-center shrink-0">
+                    <input type="checkbox" :value="{{ $result->id }}" x-model="selectedIds" @change="updateSelectAll()" class="rounded border-slate-300 text-[#153c96] focus:ring-[#153c96] w-4 h-4">
+                </div>
+                
                 <!-- Left: Participant info & avatar -->
                 <div class="flex items-center gap-4 min-w-0 md:w-1/4">
                     <div class="w-11 h-11 rounded-2xl bg-blue-50/70 border border-blue-100 flex items-center justify-center shrink-0">
@@ -227,6 +322,16 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="M14.83 9.17a4 4 0 0 0-5.66 5.66"/><path d="M14.17 14.17l4.9 4.9"/></svg>
                             Lihat Hasil
                         </a>
+                    @endif
+                    @if($result->status === 'in_progress')
+                        <form action="{{ route('admin.exam-sessions.force-finish', [$examSession, $result]) }}" method="POST" class="w-full md:w-auto" 
+                              @submit.prevent="if (confirm('Yakin ingin menyelesaikan ujian siswa ini secara paksa?')) $el.submit()">
+                            @csrf
+                            <button type="submit" class="w-full md:w-auto px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5l10 -10"/></svg>
+                                Selesaikan
+                            </button>
+                        </form>
                     @endif
                     <form action="{{ route('admin.exam-sessions.reset-student', [$examSession, $result]) }}" method="POST" class="w-full md:w-auto" 
                           @submit.prevent="if (confirm('Yakin ingin me-reset progress siswa ini? Semua jawabannya akan dihapus permanen!')) $el.submit()">
