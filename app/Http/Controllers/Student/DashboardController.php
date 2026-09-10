@@ -47,13 +47,14 @@ class DashboardController extends Controller
 
         $agent = new Agent();
         
-        // Preload all campuses and prodis (Cached 24 hours) for instant zero-lag client-side selection
-        $campusProdiData = \Illuminate\Support\Facades\Cache::remember('all_campuses_prodis_grouped', 86400, function () {
+        // Preload all campuses and prodis (Cached 24 hours as plain array) for instant zero-lag client-side selection
+        $campusProdiData = \Illuminate\Support\Facades\Cache::remember('all_campuses_prodis_grouped_v2', 86400, function () {
             return CampusProdi::select('id', 'campus_name', 'prodi_name', 'jenjang')
                 ->orderBy('campus_name')
                 ->orderBy('prodi_name')
                 ->get()
-                ->groupBy('campus_name');
+                ->groupBy('campus_name')
+                ->toArray();
         });
 
         $viewData = compact('sessions', 'completedResults', 'targets', 'mustSelectTargets', 'campusProdiData');
