@@ -31,8 +31,7 @@ class MonitorExamUpdated implements ShouldBroadcast
      */
     public function broadcastOn(): array
     {
-        return [
-            new Channel('exam-session.' . $this->examSessionId),
-        ];
+        // Live monitoring dinonaktifkan sementara untuk meringankan beban server
+        return [];
     }
 }

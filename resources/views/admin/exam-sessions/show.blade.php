@@ -142,13 +142,16 @@
             }, THROTTLE_MS);
         };
 
-        // Listen to Reverb WebSockets
+        // Realtime WebSockets listener dinonaktifkan sementara untuk performa server
+        // Admin dapat menggunakan tombol Refresh Manual
+        /*
         if (typeof window.Echo !== 'undefined') {
             window.Echo.channel('exam-session.{{ $examSession->id }}')
                 .listen('MonitorExamUpdated', (e) => {
                     throttledFetch();
                 });
         }
+        */
     });
 </script>
 @endpush
