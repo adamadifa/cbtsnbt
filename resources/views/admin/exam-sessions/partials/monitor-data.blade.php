@@ -6,6 +6,9 @@
     selectAll: false,
     allIds: {{ $results->pluck('id')->toJson() }},
     
+    searchQuery: '',
+    statusFilter: 'all',
+    
     toggleAll() {
         if (this.selectAll) {
             this.selectedIds = [...this.allIds];
@@ -16,6 +19,13 @@
     
     updateSelectAll() {
         this.selectAll = this.selectedIds.length === this.allIds.length;
+    },
+    
+    matchesFilter(name, email, status) {
+        const query = this.searchQuery.toLowerCase().trim();
+        const matchesQuery = !query || name.toLowerCase().includes(query) || email.toLowerCase().includes(query);
+        const matchesStatus = this.statusFilter === 'all' || status === this.statusFilter;
+        return matchesQuery && matchesStatus;
     },
     
     bulkForceFinish() {
@@ -170,18 +180,43 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
         </div>
     </div>
 
-    {{-- Participant List Header with Select All --}}
-    <div class="mb-4 mt-6 flex items-center justify-between">
+    {{-- Participant List Header with Filters & Search --}}
+    <div class="mb-4 mt-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <h3 class="font-bold text-base text-slate-800">Daftar Peserta Ujian</h3>
             <p class="text-xs text-slate-500">Pemantauan aktivitas siswa secara langsung</p>
         </div>
-        @if($results->count() > 0)
-            <label class="inline-flex items-center gap-2 text-xs font-bold text-slate-655 cursor-pointer select-none">
-                <input type="checkbox" x-model="selectAll" @change="toggleAll()" class="rounded border-slate-300 text-orange-500 focus:ring-orange-500 w-4 h-4">
-                Pilih Semua
-            </label>
-        @endif
+
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+            {{-- Search by Name / Email --}}
+            <div class="relative min-w-[220px]">
+                <i class="ti ti-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="text" 
+                       x-model="searchQuery" 
+                       placeholder="Cari nama / email peserta..." 
+                       class="w-full pl-9 pr-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 placeholder-slate-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 shadow-2xs transition-all">
+                <button type="button" 
+                        x-show="searchQuery.length > 0" 
+                        @click="searchQuery = ''" 
+                        class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+
+            {{-- Filter by Status --}}
+            <select x-model="statusFilter" class="py-2 px-3 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 shadow-2xs transition-all">
+                <option value="all">Semua Status</option>
+                <option value="in_progress">Sedang Mengerjakan</option>
+                <option value="completed">Selesai</option>
+            </select>
+
+            @if($results->count() > 0)
+                <label class="inline-flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-655 cursor-pointer select-none shadow-2xs hover:bg-slate-50 transition-all">
+                    <input type="checkbox" x-model="selectAll" @change="toggleAll()" class="rounded border-slate-300 text-orange-500 focus:ring-orange-500 w-4 h-4">
+                    Pilih Semua
+                </label>
+            @endif
+        </div>
     </div>
 
     {{-- Bulk Action Bar --}}
@@ -205,7 +240,9 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
 
     <div class="space-y-4">
         @forelse($results as $result)
-            <div class="bg-white border border-slate-150/80 rounded-2xl p-5 hover:shadow-md transition-all flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
+            <div x-show="matchesFilter('{{ addslashes($result->user->name) }}', '{{ addslashes($result->user->email) }}', '{{ $result->status }}')" 
+                 x-transition
+                 class="bg-white border border-slate-150/80 rounded-2xl p-5 hover:shadow-md transition-all flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
                 <!-- Checkbox Selection -->
                 <div class="flex items-center shrink-0">
                     <input type="checkbox" :value="{{ $result->id }}" x-model="selectedIds" @change="updateSelectAll()" class="rounded border-slate-300 text-orange-500 focus:ring-orange-500 w-4 h-4">
@@ -273,25 +310,42 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
                             <div class="flex items-center gap-1.5 px-3 py-1 bg-rose-50 border border-rose-150 rounded-xl text-rose-600">
                                 <i class="ti ti-alert-triangle text-sm"></i>
                                 <span class="text-xs font-black">{{ $violationCount }}x Pelanggaran</span>
+                                <button type="button" 
+                                        @click="$dispatch('open-violation-modal', {
+                                            name: '{{ addslashes($result->user->name) }}',
+                                            violations: {{ json_encode($result->violations->map(function($v) {
+                                                return [
+                                                    'type' => ucfirst(str_replace('_', ' ', $v->violation_type)),
+                                                    'time' => $v->created_at->format('H:i:s'),
+                                                    'details' => $v->details
+                                                ];
+                                            })) }}
+                                        })"
+                                        class="ml-1 text-[10px] underline font-bold hover:text-rose-700">
+                                    Detail
+                                </button>
                             </div>
                         @else
-                            <div class="flex items-center gap-1.5 px-3 py-1 bg-slate-50 rounded-xl text-slate-450">
+                            <div class="flex items-center gap-1.5 px-3 py-1 bg-slate-50 rounded-xl text-slate-400 border border-slate-100">
                                 <i class="ti ti-shield-check text-sm text-emerald-500"></i>
-                                <span class="text-xs font-bold">Tertib / Aman</span>
+                                <span class="text-xs font-bold text-slate-500">Tertib</span>
                             </div>
                         @endif
                     </div>
 
-                    <!-- Skor Akhir -->
-                    <div class="flex flex-col md:items-center gap-1">
-                        <span class="text-xs font-bold text-slate-400 block md:hidden">Skor Akhir</span>
-                        <div class="inline-flex flex-col items-start md:items-center justify-center">
-                            <div class="flex items-baseline gap-1">
-                                <i class="ti ti-award text-base {{ $result->status === 'completed' ? 'text-amber-500' : 'text-slate-400' }}"></i>
-                                <span class="text-xl font-black {{ $result->status === 'completed' ? 'text-orange-600' : 'text-amber-500' }}">{{ $result->total_score }}</span>
-                                <span class="text-xs font-bold text-slate-400">Poin</span>
-                            </div>
-                            @if($result->status === 'in_progress')
+                    <!-- Total Skor Sementara / Akhir -->
+                    <div class="flex flex-col md:items-end gap-1">
+                        <span class="text-xs font-bold text-slate-400 block md:hidden">Perolehan Nilai</span>
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-lg font-black {{ $result->status === 'completed' ? 'text-slate-800' : 'text-slate-400' }}">
+                                {{ $result->total_score ?? '0' }}
+                            </span>
+                            <span class="text-[10px] font-bold text-slate-400">Poin</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            @if($result->status === 'completed')
+                                <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">Nilai Akhir</span>
+                            @else
                                 <span class="text-xs font-bold text-amber-500 mt-0.5 animate-pulse">Live Tracker</span>
                             @endif
                         </div>
@@ -327,7 +381,7 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
                 </div>
             </div>
         @empty
-            <div class="py-16 text-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+            <div class="py-16 text-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200" x-show="filteredResultsCount === 0">
                 <p class="text-xs font-bold text-slate-400">Belum ada peserta yang mengikuti sesi ujian ini.</p>
             </div>
         @endforelse

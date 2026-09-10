@@ -141,6 +141,27 @@ class UserController extends Controller
         }
     }
 
+    public function export(Request $request)
+    {
+        $query = User::with('roles');
+
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('email', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        if ($request->filled('role')) {
+            $query->role($request->role);
+        }
+
+        $users = $query->latest()->get();
+        $fileName = 'data_pengguna_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\UsersExport($users), $fileName);
+    }
+
     public function downloadTemplate()
     {
         $headers = [

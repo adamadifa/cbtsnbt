@@ -137,6 +137,11 @@
                     <span>Hapus (<span x-text="selectedUsers.length"></span>)</span>
                 </button>
 
+                <a href="{{ route('admin.users.export', request()->query()) }}" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white/15 hover:bg-white/25 text-white rounded-xl font-bold text-xs border border-white/20 transition-all active:scale-95">
+                    <i class="ti ti-download text-sm"></i>
+                    Export
+                </a>
+
                 <button @click="showImportModal = true" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white/15 hover:bg-white/25 text-white rounded-xl font-bold text-xs border border-white/20 transition-all active:scale-95">
                     <i class="ti ti-file-import text-sm"></i>
                     Import
