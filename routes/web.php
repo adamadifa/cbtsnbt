@@ -64,6 +64,7 @@ Route::middleware(['auth', 'verified', 'redirect_role'])->group(function () {
         Route::post('settings', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('settings.update');
 
         // Exam Packages
+        Route::post('exam-packages/bulk-delete', [\App\Http\Controllers\Admin\ExamPackageController::class, 'bulkDelete'])->name('exam-packages.bulk-delete');
         Route::resource('exam-packages', \App\Http\Controllers\Admin\ExamPackageController::class);
         Route::get('exam-packages/{examPackage}/subtests/{examSubtest}/manage-questions', [\App\Http\Controllers\Admin\ExamPackageController::class, 'manageQuestions'])->name('exam-packages.subtests.manage-questions');
         Route::post('exam-packages/{examPackage}/subtests/{examSubtest}/update-questions', [\App\Http\Controllers\Admin\ExamPackageController::class, 'updateQuestions'])->name('exam-packages.subtests.update-questions');

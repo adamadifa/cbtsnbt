@@ -161,6 +161,19 @@ class ExamPackageController extends Controller
         return redirect()->route('admin.exam-packages.index')->with('success', 'Paket Tryout berhasil dihapus.');
     }
 
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'package_ids' => 'required|array',
+            'package_ids.*' => 'exists:exam_packages,id'
+        ]);
+
+        $count = count($request->package_ids);
+        ExamPackage::whereIn('id', $request->package_ids)->delete();
+
+        return redirect()->route('admin.exam-packages.index')->with('success', "{$count} paket tryout berhasil dihapus.");
+    }
+
     public function manageQuestions(ExamPackage $examPackage, ExamSubtest $examSubtest)
     {
         $examSubtest->load('subject', 'questions');
