@@ -47,7 +47,16 @@ class DashboardController extends Controller
 
         $agent = new Agent();
         
-        $viewData = compact('sessions', 'completedResults', 'targets', 'mustSelectTargets');
+        // Preload all campuses and prodis (Cached 24 hours) for instant zero-lag client-side selection
+        $campusProdiData = \Illuminate\Support\Facades\Cache::remember('all_campuses_prodis_grouped', 86400, function () {
+            return CampusProdi::select('id', 'campus_name', 'prodi_name', 'jenjang')
+                ->orderBy('campus_name')
+                ->orderBy('prodi_name')
+                ->get()
+                ->groupBy('campus_name');
+        });
+
+        $viewData = compact('sessions', 'completedResults', 'targets', 'mustSelectTargets', 'campusProdiData');
         
         if ($agent->isMobile() || $agent->isTablet()) {
             return view('student.dashboard-mobile', $viewData);

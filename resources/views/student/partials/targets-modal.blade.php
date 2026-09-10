@@ -218,8 +218,9 @@
 
 <script>
     let isInitialized = false;
-    let globalCampuses = [];
     let savedTargets = @json($targets ?? []);
+    const campusProdiData = @json($campusProdiData ?? []);
+    const campusNames = Object.keys(campusProdiData);
 
     function openTargetsModal() {
         document.getElementById('targetsModal').classList.remove('hidden');
@@ -250,7 +251,6 @@
 
         // Load saved targets if exists
         if (savedTargets && savedTargets.length > 0) {
-            showModalLoader('Memuat data kampus tujuan...');
             applySavedTargets();
         } else {
             hideModalLoader();
@@ -258,28 +258,16 @@
     }
 
     function initializeSelect2() {
+        // Build campus option data once for instant client-side rendering
+        const campusOptions = [
+            { id: '', text: 'Pilih Kampus' },
+            ...campusNames.map(name => ({ id: name, text: name }))
+        ];
+
         for (let i = 1; i <= 4; i++) {
             $(`#campus_${i}`).select2({
-                placeholder: "Ketik nama kampus (min. 1 huruf)",
-                minimumInputLength: 1,
-                ajax: {
-                    url: "{{ route('api.campuses-list') }}",
-                    dataType: 'json',
-                    delay: 250,
-                    data: function (params) {
-                        return {
-                            q: params.term
-                        };
-                    },
-                    processResults: function (data) {
-                        return {
-                            results: data.campuses.map(function(name) {
-                                return { id: name, text: name };
-                            })
-                        };
-                    },
-                    cache: true
-                },
+                placeholder: "Ketik / Pilih nama kampus",
+                data: campusOptions,
                 width: '100%'
             }).on('change', function() {
                 loadProdis(i, this.value);
@@ -293,73 +281,50 @@
         }
     }
 
-    function loadProdis(choiceIdx, campusName, callback = null) {
+    function loadProdis(choiceIdx, campusName, selectedProdiId = null) {
         const prodiSelect = $(`#prodi_${choiceIdx}`);
-        prodiSelect.html('<option value="">Pilih Program Studi</option>').trigger('change');
+        prodiSelect.empty().html('<option value="">Pilih Program Studi</option>');
         
-        if (!campusName) {
+        if (!campusName || !campusProdiData[campusName]) {
             prodiSelect.prop('disabled', true).trigger('change');
-            $(`#clear_btn_${choiceIdx}`).addClass('hidden');
-            if (callback) callback();
+            if (choiceIdx > 1) {
+                $(`#clear_btn_${choiceIdx}`).addClass('hidden');
+            }
             return;
         }
 
+        const prodis = campusProdiData[campusName] || [];
+        prodis.forEach(prodi => {
+            const isSelected = selectedProdiId && prodi.id == selectedProdiId;
+            const opt = new Option(`${prodi.prodi_name} (${prodi.jenjang})`, prodi.id, isSelected, isSelected);
+            prodiSelect.append(opt);
+        });
+
         prodiSelect.prop('disabled', false).trigger('change');
+
         if (choiceIdx > 1) {
             $(`#clear_btn_${choiceIdx}`).removeClass('hidden');
         }
-
-        $.ajax({
-            url: "{{ route('api.campus-prodis-list') }}",
-            type: 'GET',
-            data: { campus: campusName },
-            success: function(res) {
-                if (res.success && res.prodis.length > 0) {
-                    res.prodis.forEach(prodi => {
-                        const opt = $('<option></option>').val(prodi.id).text(`${prodi.prodi_name} (${prodi.jenjang})`);
-                        prodiSelect.append(opt);
-                    });
-                }
-                prodiSelect.trigger('change');
-                if (callback) callback();
-            },
-            error: function() {
-                if (callback) callback();
-            }
-        });
     }
 
     function clearChoice(choiceIdx) {
-        $(`#campus_${choiceIdx}`).val(null).trigger('change');
-        $(`#prodi_${choiceIdx}`).html('<option value="">Pilih Program Studi</option>').prop('disabled', true).trigger('change');
+        $(`#campus_${choiceIdx}`).val('').trigger('change');
+        $(`#prodi_${choiceIdx}`).empty().html('<option value="">Pilih Program Studi</option>').prop('disabled', true).trigger('change');
         $(`#clear_btn_${choiceIdx}`).addClass('hidden');
     }
 
     function applySavedTargets() {
-        let loadedCount = 0;
-        const totalToLoad = savedTargets.length;
-
         savedTargets.forEach((target, index) => {
             const idx = index + 1;
-            const campusName = target.campus_prodi.campus_name;
-            const targetProdiId = target.campus_prodi_id;
+            if (target.campus_prodi) {
+                const campusName = target.campus_prodi.campus_name;
+                const targetProdiId = target.campus_prodi_id;
 
-            const campusSelect = $(`#campus_${idx}`);
-            if (campusSelect.find("option[value='" + campusName + "']").length === 0) {
-                var newOption = new Option(campusName, campusName, true, true);
-                campusSelect.append(newOption).trigger('change');
-            } else {
-                campusSelect.val(campusName).trigger('change');
+                $(`#campus_${idx}`).val(campusName).trigger('change');
+                loadProdis(idx, campusName, targetProdiId);
             }
-            
-            loadProdis(idx, campusName, () => {
-                $(`#prodi_${idx}`).val(targetProdiId).trigger('change');
-                loadedCount++;
-                if (loadedCount === totalToLoad) {
-                    hideModalLoader();
-                }
-            });
         });
+        hideModalLoader();
     }
 
     function submitTargets(e) {
