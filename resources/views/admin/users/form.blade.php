@@ -78,14 +78,10 @@
                     <!-- Name -->
                     <div class="relative">
                         <div class="group border rounded-xl px-3 py-1.5 flex items-center gap-2 transition-all duration-200"
-                             :class="touched.name && errors.name ? 'border-rose-400 focus-within:border-rose-500 focus-within:ring-2 focus-within:ring-rose-100/50' : 'border-slate-200 focus-within:border-[#153c96] focus-within:ring-2 focus-within:ring-blue-100/50'">
+                             :class="touched.name && errors.name ? 'border-rose-400 focus-within:border-rose-500 focus-within:ring-2 focus-within:ring-rose-100/50' : 'border-slate-200 focus-within:border-orange-500 focus-within:ring-2 focus-within:ring-orange-100/50'">
                             <label for="name" class="absolute -top-2.5 left-3 px-1.5 bg-white text-[10px] font-bold transition-all duration-200"
-                                   :class="touched.name && errors.name ? 'text-rose-500 group-focus-within:text-rose-600' : 'text-slate-500 group-focus-within:text-[#153c96]'">Nama Lengkap <span class="text-rose-500 font-bold">*</span></label>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 shrink-0" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0"></path>
-                                <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"></path>
-                            </svg>
+                                   :class="touched.name && errors.name ? 'text-rose-500 group-focus-within:text-rose-600' : 'text-slate-500 group-focus-within:text-orange-600'">Nama Lengkap <span class="text-rose-500 font-bold">*</span></label>
+                            <i class="ti ti-user text-slate-400 text-sm shrink-0"></i>
                             <input id="name" name="name" type="text" autofocus
                                    x-model="name"
                                    @input="validateName"
@@ -100,14 +96,10 @@
                     <!-- Email -->
                     <div class="relative">
                         <div class="group border rounded-xl px-3 py-1.5 flex items-center gap-2 transition-all duration-200"
-                             :class="touched.email && errors.email ? 'border-rose-400 focus-within:border-rose-500 focus-within:ring-2 focus-within:ring-rose-100/50' : 'border-slate-200 focus-within:border-[#153c96] focus-within:ring-2 focus-within:ring-blue-100/50'">
+                             :class="touched.email && errors.email ? 'border-rose-400 focus-within:border-rose-500 focus-within:ring-2 focus-within:ring-rose-100/50' : 'border-slate-200 focus-within:border-orange-500 focus-within:ring-2 focus-within:ring-orange-100/50'">
                             <label for="email" class="absolute -top-2.5 left-3 px-1.5 bg-white text-[10px] font-bold transition-all duration-200"
-                                   :class="touched.email && errors.email ? 'text-rose-500 group-focus-within:text-rose-600' : 'text-slate-500 group-focus-within:text-[#153c96]'">Alamat Email <span class="text-rose-500 font-bold">*</span></label>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 shrink-0" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z"></path>
-                                <path d="M3 7l9 6l9 -6"></path>
-                            </svg>
+                                   :class="touched.email && errors.email ? 'text-rose-500 group-focus-within:text-rose-600' : 'text-slate-500 group-focus-within:text-orange-600'">Alamat Email <span class="text-rose-500 font-bold">*</span></label>
+                            <i class="ti ti-mail text-slate-400 text-sm shrink-0"></i>
                             <input id="email" name="email" type="email"
                                    x-model="email"
                                    @input="validateEmail"
@@ -122,13 +114,9 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Role -->
-                    <div class="group relative border border-slate-200 focus-within:border-[#153c96] focus-within:ring-2 focus-within:ring-blue-100/50 rounded-xl px-3 py-1.5 flex items-center gap-2 transition-all">
-                        <label for="role" class="absolute -top-2.5 left-3 px-1.5 bg-white text-[10px] font-bold text-slate-400 group-focus-within:text-[#153c96] transition-all duration-200">Role User</label>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 shrink-0" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M9 12l2 2l4 -4"></path>
-                            <path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3"></path>
-                        </svg>
+                    <div class="group relative border border-slate-200 focus-within:border-orange-500 focus-within:ring-2 focus-within:ring-orange-100/50 rounded-xl px-3 py-1.5 flex items-center gap-2 transition-all">
+                        <label for="role" class="absolute -top-2.5 left-3 px-1.5 bg-white text-[10px] font-bold text-slate-400 group-focus-within:text-orange-600 transition-all duration-200">Role User</label>
+                        <i class="ti ti-shield-check text-slate-400 text-sm shrink-0"></i>
                         <select name="role" id="role" x-model="role" class="w-full bg-transparent border-0 p-0 text-xs text-slate-600 focus:ring-0 focus:outline-none py-1">
                             @foreach($roles as $role)
                                 <option value="{{ $role->name }}">
@@ -140,16 +128,9 @@
                     </div>
 
                     <!-- School -->
-                    <div class="group relative border border-slate-200 focus-within:border-[#153c96] focus-within:ring-2 focus-within:ring-blue-100/50 rounded-xl px-3 py-1.5 flex items-center gap-2 transition-all">
-                        <label for="school" class="absolute -top-2.5 left-3 px-1.5 bg-white text-[10px] font-bold text-slate-400 group-focus-within:text-[#153c96] transition-all duration-200">Asal Sekolah (Opsional)</label>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 shrink-0" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M3 21l18 0"></path>
-                            <path d="M5 21v-14a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v14"></path>
-                            <path d="M9 21v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4"></path>
-                            <path d="M10 9l4 0"></path>
-                            <path d="M10 12l4 0"></path>
-                        </svg>
+                    <div class="group relative border border-slate-200 focus-within:border-orange-500 focus-within:ring-2 focus-within:ring-orange-100/50 rounded-xl px-3 py-1.5 flex items-center gap-2 transition-all">
+                        <label for="school" class="absolute -top-2.5 left-3 px-1.5 bg-white text-[10px] font-bold text-slate-400 group-focus-within:text-orange-600 transition-all duration-200">Asal Sekolah (Opsional)</label>
+                        <i class="ti ti-school text-slate-400 text-sm shrink-0"></i>
                         <input id="school" name="school" type="text" x-model="school"
                                class="w-full bg-transparent border-0 p-0 text-xs text-slate-800 placeholder-slate-300 focus:ring-0 focus:outline-none py-1"
                                placeholder="Contoh: SMAN 1 Jakarta" />
@@ -167,15 +148,10 @@
             <div class="p-6 md:p-8">
                 <div class="max-w-md">
                     <div class="group border rounded-xl px-3 py-1.5 flex items-center gap-2 transition-all duration-200"
-                         :class="touched.password && errors.password ? 'border-rose-400 focus-within:border-rose-500 focus-within:ring-2 focus-within:ring-rose-100/50' : 'border-slate-200 focus-within:border-[#153c96] focus-within:ring-2 focus-within:ring-blue-100/50'">
+                         :class="touched.password && errors.password ? 'border-rose-400 focus-within:border-rose-500 focus-within:ring-2 focus-within:ring-rose-100/50' : 'border-slate-200 focus-within:border-orange-500 focus-within:ring-2 focus-within:ring-orange-100/50'">
                         <label for="password" class="absolute -top-2.5 left-3 px-1.5 bg-white text-[10px] font-bold transition-all duration-200"
-                               :class="touched.password && errors.password ? 'text-rose-500 group-focus-within:text-rose-600' : 'text-slate-500 group-focus-within:text-[#153c96]'">Password <span class="text-rose-500 font-bold" x-show="!isEdit">*</span></label>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 shrink-0" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M5 11m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z"></path>
-                            <path d="M12 16m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
-                            <path d="M8 11v-4a4 4 0 0 1 8 0v4"></path>
-                        </svg>
+                               :class="touched.password && errors.password ? 'text-rose-500 group-focus-within:text-rose-600' : 'text-slate-500 group-focus-within:text-orange-600'">Password <span class="text-rose-500 font-bold" x-show="!isEdit">*</span></label>
+                        <i class="ti ti-lock text-slate-400 text-sm shrink-0"></i>
                         <input id="password" name="password" type="password"
                                x-model="password"
                                @input="validatePassword"
@@ -193,7 +169,8 @@
         </div>
 
         <div class="flex items-center gap-3">
-            <button type="submit" class="px-6 py-3 bg-[#153c96] hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-500/10 text-xs tracking-wider">
+            <button type="submit" class="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-orange-500/20 text-xs tracking-wider flex items-center gap-2">
+                <i class="ti ti-device-floppy text-sm"></i>
                 {{ isset($user) ? 'SIMPAN PERUBAHAN' : 'BUAT USER' }}
             </button>
             <a href="{{ route('admin.users.index') }}" class="px-5 py-3 border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-bold rounded-xl text-xs transition-colors">

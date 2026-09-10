@@ -20,10 +20,10 @@
     </div>
     
     <div class="flex items-center gap-4 text-xs text-slate-400 self-start sm:self-center">
-        <div class="px-4 py-2 bg-blue-50/50 border border-blue-100 rounded-xl flex items-center gap-3">
-            <span class="text-[10px] font-bold text-[#153c96] uppercase tracking-wider">Terpilih: <span x-text="selectedCount()"></span> / {{ $examSubtest->total_questions }}</span>
-            <div class="w-20 h-1.5 bg-blue-100 rounded-full overflow-hidden shrink-0">
-                <div class="h-full bg-[#153c96] transition-all duration-500" :style="`width: ${Math.min((selectedCount() / {{ $examSubtest->total_questions }}) * 100, 100)}%`"></div>
+        <div class="px-4 py-2 bg-orange-50/50 border border-orange-100 rounded-xl flex items-center gap-3">
+            <span class="text-[10px] font-bold text-orange-600 uppercase tracking-wider">Terpilih: <span x-text="selectedCount()"></span> / {{ $examSubtest->total_questions }}</span>
+            <div class="w-20 h-1.5 bg-orange-100 rounded-full overflow-hidden shrink-0">
+                <div class="h-full bg-orange-500 transition-all duration-500" :style="`width: ${Math.min((selectedCount() / {{ $examSubtest->total_questions }}) * 100, 100)}%`"></div>
             </div>
         </div>
     </div>
@@ -33,18 +33,14 @@
     <form action="{{ route('admin.exam-packages.subtests.update-questions', [$examPackage, $examSubtest]) }}" method="POST">
         @csrf
         
-        <!-- Filters & Search Toolbar (Outside the Card) -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm mb-6 flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div class="w-full md:max-w-md relative">
+        <!-- Search Bar -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="w-full sm:w-96 relative">
                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path>
-                        <path d="M21 21l-6 -6"></path>
-                    </svg>
+                    <i class="ti ti-search text-base"></i>
                 </div>
                 <input type="text" x-model="search" 
-                    class="block w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-xl text-slate-800 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-100 text-xs transition-all focus:outline-none" 
+                    class="block w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-xl text-slate-800 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-orange-100 text-xs transition-all focus:outline-none" 
                     placeholder="Cari konten soal...">
             </div>
             
@@ -55,20 +51,15 @@
 
         <!-- Questions Table Card -->
         <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-            <!-- Card Header (Unified Blue Bar) -->
-            <div class="bg-[#153c96] text-white px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <!-- Card Header (Unified Orange Bar) -->
+            <div class="bg-orange-500 text-white px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="flex items-center gap-2.5">
                     <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2"></path>
-                            <path d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z"></path>
-                            <path d="M9 14l2 2l4 -4"></path>
-                        </svg>
+                        <i class="ti ti-clipboard-list text-lg text-white"></i>
                     </div>
                     <div>
                         <h3 class="font-bold text-sm tracking-wide">Pilih Soal Subtest</h3>
-                        <p class="text-[10px] text-white/70">Centang kotak untuk memasukkan soal ke dalam subtest ini</p>
+                        <p class="text-[10px] text-white/80">Centang kotak untuk memasukkan soal ke dalam subtest ini</p>
                     </div>
                 </div>
             </div>
@@ -77,14 +68,14 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-[#153c96] text-white select-none">
-                            <th class="px-6 py-4 w-12 text-center text-white/95">
-                                <input type="checkbox" @change="toggleAll($event)" class="w-4.5 h-4.5 text-[#153c96] border-white/25 rounded-md focus:ring-0 focus:outline-none cursor-pointer bg-white/10">
+                        <tr class="bg-orange-500 text-white select-none">
+                            <th class="px-6 py-3.5 w-12 text-center text-white">
+                                <input type="checkbox" @change="toggleAll($event)" class="w-4.5 h-4.5 text-orange-500 border-white/25 rounded-md focus:ring-0 focus:outline-none cursor-pointer bg-white/15">
                             </th>
-                            <th class="px-6 py-4 w-20 text-xs font-bold uppercase tracking-wider text-white/95">ID</th>
-                            <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95">Konten Soal</th>
-                            <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95">Tipe</th>
-                            <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95 text-right">Bobot Poin</th>
+                            <th class="px-6 py-3.5 w-20 text-xs font-bold uppercase tracking-wider text-white">ID</th>
+                            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-white">Konten Soal</th>
+                            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-white">Tipe</th>
+                            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-white text-right">Bobot Poin</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-50">
@@ -93,7 +84,7 @@
                             <td class="px-6 py-4 text-center">
                                 <input type="checkbox" name="question_ids[]" value="{{ $question->id }}" 
                                        x-model="selectedQuestions"
-                                       class="w-4.5 h-4.5 text-[#153c96] border-slate-200 rounded-md focus:ring-4 focus:ring-blue-100 cursor-pointer">
+                                       class="w-4.5 h-4.5 text-orange-500 border-slate-200 rounded-md focus:ring-4 focus:ring-orange-100 cursor-pointer">
                             </td>
                             <td class="px-6 py-4 text-xs font-bold text-slate-400">#{{ $question->id }}</td>
                             <td class="px-6 py-4 max-w-xl">
@@ -114,10 +105,10 @@
                         <tr>
                             <td colspan="5" class="px-6 py-16 text-center">
                                 <div class="flex flex-col items-center gap-2">
-                                    <div class="p-4 bg-slate-50 text-slate-300 rounded-2xl">
-                                        📭
+                                    <div class="p-4 bg-orange-50 text-orange-400 rounded-2xl">
+                                        <i class="ti ti-inbox-off text-3xl"></i>
                                     </div>
-                                    <p class="text-slate-400 font-bold">Tidak ada bank soal yang tersedia untuk materi uji ini.</p>
+                                    <p class="text-slate-400 font-bold text-xs">Tidak ada bank soal yang tersedia untuk materi uji ini.</p>
                                 </div>
                             </td>
                         </tr>
@@ -137,11 +128,8 @@
                     </template>
                 </div>
                 
-                <button type="submit" class="w-full sm:w-auto px-8 py-3 bg-[#153c96] hover:bg-blue-800 text-white rounded-2xl text-xs font-bold uppercase tracking-wider shadow-lg shadow-blue-500/10 active:scale-95 transition-all flex items-center justify-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M5 12l5 5l10 -10"></path>
-                    </svg>
+                <button type="submit" class="w-full sm:w-auto px-8 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-2xl text-xs font-bold uppercase tracking-wider shadow-lg shadow-orange-500/20 active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <i class="ti ti-device-floppy text-base"></i>
                     Simpan Pilihan Soal
                 </button>
             </div>

@@ -85,13 +85,8 @@
 
     <!-- Page Header with Back Button -->
     <div class="mb-6">
-        <a href="{{ route('admin.questions.index') }}" class="inline-flex items-center gap-2 text-xs font-bold text-[#153c96] hover:underline mb-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-               <path d="M5 12l14 0"></path>
-               <path d="M5 12l6 6"></path>
-               <path d="M5 12l6 -6"></path>
-            </svg>
+        <a href="{{ route('admin.questions.index') }}" class="inline-flex items-center gap-2 text-xs font-bold text-orange-600 hover:text-orange-700 hover:underline mb-3">
+            <i class="ti ti-arrow-left text-sm"></i>
             Kembali ke Materi Uji
         </a>
 
@@ -115,195 +110,205 @@
         </div>
     </div>
 
-    <div x-data="{ showImportWordModal: false }">
-        <!-- Filters & Search Toolbar (Outside the Card) -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm mb-6">
-            <form action="{{ route('admin.questions.index') }}" method="GET" class="flex flex-col md:flex-row gap-4 items-center justify-between">
+    <div x-data="{
+        showImportWordModal: false,
+        selectedQuestions: [],
+        allQuestionIds: {{ json_encode($questions->pluck('id')->toArray()) }},
+        get allSelected() {
+            return this.allQuestionIds.length > 0 && this.allQuestionIds.every(id => this.selectedQuestions.includes(id));
+        },
+        toggleSelectAll() {
+            if (this.allSelected) {
+                this.selectedQuestions = [];
+            } else {
+                this.selectedQuestions = [...this.allQuestionIds];
+            }
+        }
+    }">
+        <!-- Filters & Search Toolbar (Cardless) -->
+        <div class="mb-4">
+            <form action="{{ route('admin.questions.index') }}" method="GET" class="flex flex-col md:flex-row gap-2.5 items-center justify-between">
                 <input type="hidden" name="subject_id" value="{{ request('subject_id') }}">
                 
                 <div class="w-full md:flex-1 relative">
                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path>
-                            <path d="M21 21l-6 -6"></path>
-                        </svg>
+                        <i class="ti ti-search text-base"></i>
                     </div>
                     <input type="text" name="search" id="search" value="{{ request('search') }}" 
-                        class="block w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-xl text-slate-800 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-100 text-xs transition-all focus:outline-none" 
+                        class="block w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200/80 rounded-xl text-slate-800 placeholder-slate-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-100/50 text-xs transition-all focus:outline-none shadow-2xs" 
                         placeholder="Cari konten soal...">
                 </div>
 
-                <div class="flex items-center gap-3 w-full md:w-auto">
-                    <select name="type" onchange="this.form.submit()" class="block w-full md:w-44 py-2 bg-slate-50 border-none rounded-xl text-slate-600 focus:bg-white focus:ring-2 focus:ring-blue-100 text-xs transition-all focus:outline-none">
+                <div class="flex items-center gap-2.5 w-full md:w-auto shrink-0">
+                    <select name="type" onchange="this.form.submit()" class="py-2.5 pl-3 pr-8 bg-white border border-slate-200/80 rounded-xl text-slate-700 focus:border-orange-500 focus:ring-2 focus:ring-orange-100/50 text-xs transition-all shadow-2xs">
                         <option value="">Semua Tipe</option>
                         <option value="pilihan_ganda" @selected(request('type') == 'pilihan_ganda')>Pilihan Ganda</option>
                         <option value="pilihan_ganda_kompleks" @selected(request('type') == 'pilihan_ganda_kompleks')>PG Kompleks</option>
                         <option value="essai" @selected(request('type') == 'essai')>Essai</option>
                     </select>
 
-                    <button type="submit" class="w-full md:w-auto px-5 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold text-xs transition-colors shrink-0">
-                        Filter
+                    <button type="submit" class="w-full md:w-auto px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold text-xs transition-colors shadow-2xs flex items-center justify-center gap-1.5">
+                        <i class="ti ti-filter text-sm"></i>
+                        <span>Filter</span>
                     </button>
+
+                    @if(request('search') || request('type'))
+                        <a href="{{ route('admin.questions.index', ['subject_id' => request('subject_id')]) }}" class="px-4 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-xs rounded-xl transition-all shadow-2xs">Reset</a>
+                    @endif
                 </div>
             </form>
         </div>
 
-        <!-- Questions Table Card -->
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-            <!-- Card Header (Unified Blue Bar) -->
-            <div class="bg-[#153c96] text-white px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M8 8m-5 0a5 5 0 1 0 10 0a5 5 0 1 0 -10 0"></path>
-                            <path d="M8 8m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
-                            <path d="M2 8h4"></path>
-                            <path d="M10 8h4"></path>
-                            <path d="M8 2h1"></path>
-                            <path d="M8 10h1"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-sm tracking-wide">Daftar Soal: {{ $selectedSubj->name ?? '' }}</h3>
-                        <p class="text-[10px] text-white/70">Kelola bank soal ujian secara detail dan sistematis</p>
-                    </div>
-                </div>
-                
+        <!-- Questions Cards Container -->
+        <div class="space-y-2.5">
+            <!-- Top Action & Selection Bar -->
+            <div class="bg-orange-500 text-white px-5 py-3.5 rounded-2xl shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
-                    <!-- Bulk Delete Button (hidden by default) -->
-                    <button id="bulk-delete-btn" style="display: none;" onclick="confirmBulkDelete()" class="inline-flex items-center gap-1.5 px-4 py-2 bg-rose-600 hover:bg-rose-750 text-white rounded-xl font-bold text-xs shadow-sm transition-all animate-pulse">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M4 7l16 0"></path>
-                            <path d="M10 11l0 6"></path>
-                            <path d="M14 11l0 6"></path>
-                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
-                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
-                        </svg>
-                        Hapus Terpilih (<span id="bulk-delete-count">0</span>)
+                    <!-- Select All Checkbox -->
+                    <label class="flex items-center gap-2.5 cursor-pointer select-none">
+                        <input type="checkbox" 
+                               @change="toggleSelectAll()" 
+                               :checked="allSelected" 
+                               class="w-4 h-4 rounded border-white/40 text-orange-600 focus:ring-0 focus:ring-offset-0 bg-white/20 checked:bg-white checked:border-white transition-all cursor-pointer">
+                        <span class="text-xs font-bold tracking-wide">Pilih Semua</span>
+                    </label>
+                    <span class="text-white/40">|</span>
+                    <span class="text-[11px] text-white/85 font-medium">
+                        Total: <strong class="text-white">{{ $questions->total() }}</strong> soal
+                    </span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <!-- Bulk Delete Button (appears when items are selected) -->
+                    <button type="button" 
+                            x-show="selectedQuestions.length > 0" 
+                            @click="confirmBulkDeleteQuestions(selectedQuestions)"
+                            x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0 scale-95"
+                            x-transition:enter-end="opacity-100 scale-100"
+                            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold text-xs shadow-sm transition-all"
+                            x-cloak>
+                        <i class="ti ti-trash text-sm"></i>
+                        <span>Hapus (<span x-text="selectedQuestions.length"></span>)</span>
                     </button>
 
-                    <button @click="showImportWordModal = true" class="inline-flex items-center gap-1.5 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold text-xs border border-white/15 transition-all">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
-                            <path d="M7 9l5 -5l5 5"></path>
-                            <path d="M12 4l0 12"></path>
-                        </svg>
-                        Import Word
+                    <button @click="showImportWordModal = true" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white/15 hover:bg-white/25 text-white rounded-xl font-bold text-xs border border-white/20 transition-all">
+                        <i class="ti ti-file-text text-sm"></i>
+                        <span>Import Word</span>
                     </button>
 
-                    <a href="{{ route('admin.questions.create', ['subject_id' => request('subject_id')]) }}" class="inline-flex items-center gap-1.5 px-4 py-2 bg-white hover:bg-blue-50 text-[#153c96] rounded-xl font-bold text-xs shadow-sm transition-all">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M12 5l0 14"></path>
-                            <path d="M5 12l14 0"></path>
-                        </svg>
-                        Tambah Soal
+                    <a href="{{ route('admin.questions.create', ['subject_id' => request('subject_id')]) }}" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white hover:bg-orange-50 text-orange-600 rounded-xl font-bold text-xs shadow-sm transition-all">
+                        <i class="ti ti-plus text-sm"></i>
+                        <span>Tambah Soal</span>
                     </a>
                 </div>
             </div>
 
-            <!-- Questions Table -->
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-[#153c96] text-white select-none">
-                            <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95 w-24 text-center">
-                                <div class="flex items-center justify-center gap-2">
-                                    <input type="checkbox" id="select-all-checkbox" class="rounded border-slate-300 text-[#153c96] focus:ring-[#153c96] w-4 h-4 cursor-pointer bg-white/10">
-                                    <span>No</span>
-                                </div>
-                            </th>
-                            <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95">Konten Soal</th>
-                            <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95">Materi Uji</th>
-                            <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95">Tipe & Bobot</th>
-                            <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95 text-right">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-50">
-                        @forelse($questions as $question)
-                        <tr class="hover:bg-slate-50/20 transition-colors group">
-                            <td class="px-6 py-4 text-center w-24">
-                                <div class="flex items-center justify-center gap-2">
-                                    <input type="checkbox" value="{{ $question->id }}" class="question-checkbox rounded border-slate-300 text-[#153c96] focus:ring-[#153c96] w-4 h-4 cursor-pointer">
-                                    <span class="text-xs font-bold text-slate-500">{{ ($questions->currentPage() - 1) * $questions->perPage() + $loop->iteration }}</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 max-w-xl">
-                                <div class="text-sm font-medium text-slate-700 line-clamp-2 leading-relaxed">
-                                    {!! strip_tags($question->content) !!}
-                                </div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white text-[10px]" style="background-color: {{ $question->subject->color ?? '#6366f1' }}">
-                                        {{ substr($question->subject->name, 0, 1) }}
-                                    </div>
-                                    <span class="text-xs font-bold text-slate-800">{{ $question->subject->name }}</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="flex flex-col gap-1">
-                                    <span class="px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-tight w-fit bg-slate-100 text-slate-500">
-                                        {{ str_replace('_', ' ', $question->type) }}
+            <!-- List of Questions (Compact Full-Width Cards) -->
+            <div class="space-y-2">
+                @forelse($questions as $question)
+                @php
+                    $itemIndex = ($questions->currentPage() - 1) * $questions->perPage() + $loop->iteration;
+                @endphp
+                <div class="bg-white rounded-xl border border-slate-200/80 shadow-2xs hover:shadow-sm hover:border-orange-300 transition-all px-4 py-3 flex flex-col md:flex-row md:items-center justify-between gap-3 group"
+                     :class="selectedQuestions.includes({{ $question->id }}) ? 'border-orange-400 bg-orange-50/20 ring-1 ring-orange-200' : ''">
+                    
+                    <!-- Left: Checkbox, Number & Question Content -->
+                    <div class="flex items-start gap-3 flex-1 min-w-0">
+                        <div class="flex items-center gap-2.5 pt-0.5 shrink-0">
+                            <input type="checkbox" 
+                                   value="{{ $question->id }}" 
+                                   x-model.number="selectedQuestions"
+                                   class="w-4 h-4 rounded border-slate-300 text-orange-600 focus:ring-orange-400 transition-all cursor-pointer">
+                            <span class="w-6 h-6 rounded-lg bg-slate-100 text-slate-500 font-bold text-[11px] flex items-center justify-center shrink-0">
+                                {{ $itemIndex }}
+                            </span>
+                        </div>
+
+                        <!-- Question Content Snippet -->
+                        <div class="min-w-0 flex-1">
+                            <a href="{{ route('admin.questions.show', $question) }}" class="text-xs font-semibold text-slate-800 hover:text-orange-600 transition-colors line-clamp-2 leading-relaxed">
+                                {!! strip_tags($question->content) !!}
+                            </a>
+                            <div class="flex flex-wrap items-center gap-2 mt-1.5">
+                                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-tight bg-slate-100 text-slate-600">
+                                    {{ str_replace('_', ' ', $question->type) }}
+                                </span>
+                                <span class="text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">
+                                    +{{ $question->points }} Poin
+                                </span>
+                                @if($question->difficulty)
+                                    @php
+                                        $diffColors = [
+                                            'mudah' => 'text-emerald-700 bg-emerald-50',
+                                            'sedang' => 'text-amber-700 bg-amber-50',
+                                            'sulit' => 'text-rose-700 bg-rose-50',
+                                        ];
+                                    @endphp
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-md capitalize {{ $diffColors[$question->difficulty] ?? 'text-slate-600 bg-slate-100' }}">
+                                        {{ $question->difficulty }}
                                     </span>
-                                    <span class="text-[10px] font-bold text-[#153c96] bg-blue-50 px-2 py-0.5 rounded-md w-fit">{{ $question->points }} Poin</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 text-right">
-                                <div class="flex items-center justify-end gap-1.5">
-                                    <a href="{{ route('admin.questions.show', $question) }}" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all" title="Detail">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                            <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>
-                                            <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"></path>
-                                        </svg>
-                                    </a>
-                                    <a href="{{ route('admin.questions.edit', $question) }}" class="p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-all" title="Edit">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                            <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4"></path>
-                                            <path d="M13.5 6.5l4 4"></path>
-                                        </svg>
-                                    </a>
-                                    <form id="delete-form-{{ $question->id }}" action="{{ route('admin.questions.destroy', $question) }}" method="POST" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="button" @click="confirmDelete({{ $question->id }})" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all" title="Delete">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                                <path d="M4 7l16 0"></path>
-                                                <path d="M10 11l0 6"></path>
-                                                <path d="M14 11l0 6"></path>
-                                                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
-                                                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
-                                            </svg>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="5" class="px-6 py-16 text-center">
-                                <div class="flex flex-col items-center gap-2">
-                                    <div class="p-4 bg-slate-50 text-slate-300 rounded-2xl">
-                                        📭
-                                    </div>
-                                    <p class="text-slate-400 font-bold">Belum ada soal ditemukan untuk materi uji ini.</p>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                                @endif
+                                @if($question->passageGroup)
+                                    <span class="text-[10px] text-blue-600 bg-blue-50 font-semibold px-2 py-0.5 rounded-md flex items-center gap-1">
+                                        <i class="ti ti-files text-xs"></i>
+                                        {{ Str::limit($question->passageGroup->title, 20) }}
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Subject Indicator & Action Buttons -->
+                    <div class="flex items-center justify-between md:justify-end gap-3 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100">
+                        <div class="flex items-center gap-2">
+                            <div class="w-6 h-6 rounded-md flex items-center justify-center font-bold text-white text-[9px] shrink-0" 
+                                 style="background-color: {{ $question->subject->color ?? '#6366f1' }}">
+                                {{ substr($question->subject->name ?? 'S', 0, 1) }}
+                            </div>
+                            <span class="text-xs font-bold text-slate-700 truncate max-w-[130px]">{{ $question->subject->name ?? '' }}</span>
+                        </div>
+
+                        <div class="flex items-center gap-1">
+                            <a href="{{ route('admin.questions.show', $question) }}" 
+                               class="w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:text-orange-600 hover:bg-orange-50 transition-colors" 
+                               title="Lihat Detail">
+                                <i class="ti ti-eye text-base"></i>
+                            </a>
+
+                            <a href="{{ route('admin.questions.edit', $question) }}" 
+                               class="w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-colors" 
+                               title="Edit Soal">
+                                <i class="ti ti-edit text-base"></i>
+                            </a>
+
+                            <form id="delete-form-{{ $question->id }}" action="{{ route('admin.questions.destroy', $question) }}" method="POST" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="button" 
+                                        @click="confirmDelete({{ $question->id }})" 
+                                        class="w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors" 
+                                        title="Hapus Soal">
+                                    <i class="ti ti-trash text-base"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                @empty
+                <div class="bg-white rounded-2xl border border-slate-100 p-12 text-center">
+                    <div class="w-12 h-12 rounded-2xl bg-orange-50 text-orange-500 flex items-center justify-center mx-auto mb-3">
+                        <i class="ti ti-notes-off text-2xl"></i>
+                    </div>
+                    <h4 class="text-sm font-bold text-slate-800">Belum ada soal ditemukan</h4>
+                    <p class="text-xs text-slate-400 mt-1">Silakan tambahkan butir soal atau lakukan import file Word.</p>
+                </div>
+                @endforelse
             </div>
-            
+
+            <!-- Pagination -->
             @if($questions->hasPages())
-            <div class="p-4 border-t border-slate-50">
+            <div class="pt-3">
                 {{ $questions->links() }}
             </div>
             @endif
@@ -353,18 +358,14 @@
                             </div>
 
                             <div class="mt-2 text-left">
-                                <a href="{{ route('admin.questions.download-template') }}" class="text-[10px] font-bold text-[#153c96] hover:underline uppercase tracking-wider inline-flex items-center gap-1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                        <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
-                                        <path d="M7 11l5 5l5 -5"></path>
-                                        <path d="M12 4l0 12"></path>
-                                    </svg>
+                                <a href="{{ route('admin.questions.download-template') }}" class="text-[10px] font-bold text-orange-600 hover:text-orange-700 hover:underline uppercase tracking-wider inline-flex items-center gap-1">
+                                    <i class="ti ti-download text-sm"></i>
                                     UNDUH TEMPLATE WORD (.DOCX)
                                 </a>
                             </div>
                             
-                            <button type="submit" class="w-full py-3 bg-[#153c96] hover:bg-blue-700 text-white rounded-2xl font-bold text-xs uppercase tracking-wider shadow-lg shadow-blue-500/25 transition-all">
+                            <button type="submit" class="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-2xl font-bold text-xs uppercase tracking-wider shadow-lg shadow-orange-500/20 transition-all flex items-center justify-center gap-2">
+                                <i class="ti ti-cloud-upload text-base"></i>
                                 Mulai Proses Import
                             </button>
                         </div>
@@ -420,18 +421,17 @@
         }
     });
 
-    function confirmBulkDelete() {
-        const checkedBoxes = document.querySelectorAll('.question-checkbox:checked');
-        const count = checkedBoxes.length;
+    function confirmBulkDeleteQuestions(questionIds) {
+        if (!questionIds || questionIds.length === 0) return;
 
         Swal.fire({
-            title: 'Apakah Anda yakin?',
-            text: `${count} soal yang dipilih akan dihapus secara permanen!`,
+            title: 'Hapus ' + questionIds.length + ' Soal Terpilih?',
+            text: "Semua soal yang Anda pilih akan dihapus secara permanen dari sistem!",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#e11d48',
-            cancelButtonColor: '#64748b',
-            confirmButtonText: 'Ya, hapus semua!',
+            confirmButtonColor: '#f97316',
+            cancelButtonColor: '#ef4444',
+            confirmButtonText: 'Ya, hapus terpilih!',
             cancelButtonText: 'Batal',
             customClass: {
                 popup: 'rounded-3xl border border-slate-100',
@@ -441,19 +441,14 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 const form = document.getElementById('bulk-delete-form');
-                
-                // Clear any existing dynamically added inputs
-                form.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
-
-                // Append selected question IDs
-                checkedBoxes.forEach(cb => {
+                form.innerHTML = '@csrf';
+                questionIds.forEach(id => {
                     const input = document.createElement('input');
                     input.type = 'hidden';
-                    input.name = 'ids[]';
-                    input.value = cb.value;
+                    input.name = 'question_ids[]';
+                    input.value = id;
                     form.appendChild(input);
                 });
-
                 form.submit();
             }
         });
@@ -465,7 +460,7 @@
             text: "Soal ini akan dihapus secara permanen!",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#153c96',
+            confirmButtonColor: '#f97316',
             cancelButtonColor: '#ef4444',
             confirmButtonText: 'Ya, hapus!',
             cancelButtonText: 'Batal',
@@ -487,7 +482,7 @@
             title: 'Berhasil!',
             text: "{{ session('success') }}",
             icon: 'success',
-            confirmButtonColor: '#153c96',
+            confirmButtonColor: '#f97316',
             confirmButtonText: 'OK',
             customClass: {
                 popup: 'rounded-3xl border border-slate-100',
@@ -501,7 +496,7 @@
             title: 'Gagal!',
             text: "{{ session('error') }}",
             icon: 'error',
-            confirmButtonColor: '#153c96',
+            confirmButtonColor: '#f97316',
             confirmButtonText: 'OK',
             customClass: {
                 popup: 'rounded-3xl border border-slate-100',

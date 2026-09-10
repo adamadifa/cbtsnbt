@@ -25,7 +25,7 @@
             <div class="w-1 h-1 rounded-full bg-slate-300"></div>
             <div class="flex items-center gap-1.5">
                 <span>Token:</span>
-                <span class="text-[#153c96] bg-blue-50 px-2 py-0.5 rounded-lg font-bold select-all tracking-wider">{{ $examSession->token }}</span>
+                <span class="text-orange-600 bg-orange-50 px-2 py-0.5 rounded-lg font-bold select-all tracking-wider">{{ $examSession->token }}</span>
             </div>
             <div class="w-1 h-1 rounded-full bg-slate-300"></div>
             <div class="flex items-center gap-1.5">
@@ -78,17 +78,17 @@
 }" class="space-y-6">
     <div class="flex items-center gap-1.5 p-1 bg-white border border-slate-100 rounded-2xl w-fit shadow-xs">
         <button @click="activeTab = 'monitor'" 
-                :class="activeTab === 'monitor' ? 'bg-[#153c96] text-white shadow-sm' : 'text-slate-655 hover:bg-slate-50'"
+                :class="activeTab === 'monitor' ? 'bg-orange-500 text-white shadow-sm' : 'text-slate-655 hover:bg-slate-50'"
                 class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all">
             Live Monitoring
         </button>
         <button @click="activeTab = 'analytics'" 
-                :class="activeTab === 'analytics' ? 'bg-[#153c96] text-white shadow-sm' : 'text-slate-655 hover:bg-slate-50'"
+                :class="activeTab === 'analytics' ? 'bg-orange-500 text-white shadow-sm' : 'text-slate-655 hover:bg-slate-50'"
                 class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all">
             Analisis & Statistik
         </button>
         <button @click="activeTab = 'matrix'" 
-                :class="activeTab === 'matrix' ? 'bg-[#153c96] text-white shadow-sm' : 'text-slate-655 hover:bg-slate-50'"
+                :class="activeTab === 'matrix' ? 'bg-orange-500 text-white shadow-sm' : 'text-slate-655 hover:bg-slate-50'"
                 class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all">
             Matriks Hasil Soal
         </button>

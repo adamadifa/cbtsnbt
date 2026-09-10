@@ -83,6 +83,18 @@ class SubjectController extends Controller
         return redirect()->route('admin.subjects.index')->with('success', 'Mata Pelajaran berhasil dihapus.');
     }
 
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:subjects,id',
+        ]);
+
+        $deletedCount = Subject::whereIn('id', $request->ids)->delete();
+
+        return redirect()->route('admin.subjects.index')->with('success', "{$deletedCount} materi uji berhasil dihapus secara massal.");
+    }
+
     public function import(Request $request)
     {
         $request->validate([

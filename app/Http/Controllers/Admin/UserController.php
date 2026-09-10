@@ -100,6 +100,33 @@ class UserController extends Controller
         $user->delete();
         return redirect()->route('admin.users.index')->with('success', 'User berhasil dihapus.');
     }
+
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:users,id',
+        ]);
+
+        $currentUserId = auth()->id();
+        $usersToDelete = User::whereIn('id', $request->ids)->get();
+        $deletedCount = 0;
+
+        foreach ($usersToDelete as $user) {
+            // Protect super_admin and currently logged-in user
+            if ($user->hasRole('super_admin') || $user->id === $currentUserId) {
+                continue;
+            }
+            $user->delete();
+            $deletedCount++;
+        }
+
+        if ($deletedCount === 0) {
+            return back()->with('error', 'Tidak ada pengguna yang dapat dihapus (Super Admin atau akun aktif terlindungi).');
+        }
+
+        return redirect()->route('admin.users.index')->with('success', "{$deletedCount} pengguna berhasil dihapus secara massal.");
+    }
     public function import(Request $request)
     {
         $request->validate([

@@ -36,6 +36,11 @@ class User extends Authenticatable
         return $this->hasMany(ExamAttempt::class);
     }
 
+    public function examResults()
+    {
+        return $this->hasMany(ExamResult::class);
+    }
+
     public function targets()
     {
         return $this->hasMany(StudentTarget::class, 'user_id')->orderBy('order');

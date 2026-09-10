@@ -120,6 +120,19 @@ class ExamSessionController extends Controller
         return back()->with('success', 'Sesi ujian berhasil dihapus.');
     }
 
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'session_ids' => 'required|array',
+            'session_ids.*' => 'exists:exam_sessions,id'
+        ]);
+
+        $count = count($request->session_ids);
+        ExamSession::whereIn('id', $request->session_ids)->delete();
+
+        return redirect()->route('admin.exam-sessions.index')->with('success', "{$count} sesi ujian berhasil dihapus.");
+    }
+
     public function show(ExamSession $examSession)
     {
         $examSession->load(['examPackage.subtests.subject', 'results.user']);

@@ -126,11 +126,11 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
     {{-- Stats Row --}}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
         <!-- Card 1: Total Peserta -->
-        <div class="bg-[#153c96] p-5 rounded-2xl border border-[#153c96] shadow-sm flex flex-col justify-between transition-all hover:shadow-md text-white">
+        <div class="bg-orange-500 p-5 rounded-2xl border border-orange-500 shadow-sm flex flex-col justify-between transition-all hover:shadow-md text-white">
             <div class="flex items-start justify-between">
-                <h3 class="text-xs font-bold text-blue-100">Total Peserta</h3>
+                <h3 class="text-xs font-bold text-orange-100">Total Peserta</h3>
                 <div class="p-2 bg-white/20 text-white rounded-xl">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                    <i class="ti ti-users text-base"></i>
                 </div>
             </div>
             <p class="mt-4 text-3xl font-black">{{ $stats['total_participants'] }}</p>
@@ -178,7 +178,7 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
         </div>
         @if($results->count() > 0)
             <label class="inline-flex items-center gap-2 text-xs font-bold text-slate-655 cursor-pointer select-none">
-                <input type="checkbox" x-model="selectAll" @change="toggleAll()" class="rounded border-slate-300 text-[#153c96] focus:ring-[#153c96] w-4 h-4">
+                <input type="checkbox" x-model="selectAll" @change="toggleAll()" class="rounded border-slate-300 text-orange-500 focus:ring-orange-500 w-4 h-4">
                 Pilih Semua
             </label>
         @endif
@@ -188,11 +188,9 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
     <div x-show="selectedIds.length > 0" 
          x-transition
          style="display: none;"
-         class="bg-indigo-50/70 border border-indigo-100 p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 shadow-sm">
-        <div class="flex items-center gap-2 text-xs font-bold text-indigo-900">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#153c96]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-            </svg>
+         class="bg-orange-50/70 border border-orange-100 p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 shadow-sm">
+        <div class="flex items-center gap-2 text-xs font-bold text-orange-900">
+            <i class="ti ti-users-group text-base text-orange-600"></i>
             <span x-text="selectedIds.length + ' siswa terpilih'"></span>
         </div>
         <div class="flex items-center gap-2">
@@ -210,93 +208,78 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
             <div class="bg-white border border-slate-150/80 rounded-2xl p-5 hover:shadow-md transition-all flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
                 <!-- Checkbox Selection -->
                 <div class="flex items-center shrink-0">
-                    <input type="checkbox" :value="{{ $result->id }}" x-model="selectedIds" @change="updateSelectAll()" class="rounded border-slate-300 text-[#153c96] focus:ring-[#153c96] w-4 h-4">
+                    <input type="checkbox" :value="{{ $result->id }}" x-model="selectedIds" @change="updateSelectAll()" class="rounded border-slate-300 text-orange-500 focus:ring-orange-500 w-4 h-4">
                 </div>
                 
                 <!-- Left: Participant info & avatar -->
                 <div class="flex items-center gap-4 min-w-0 md:w-1/4">
-                    <div class="w-11 h-11 rounded-2xl bg-blue-50/70 border border-blue-100 flex items-center justify-center shrink-0">
-                        <span class="text-lg font-black text-[#153c96]">{{ substr($result->user->name, 0, 1) }}</span>
+                    <div class="w-11 h-11 rounded-2xl bg-orange-50 border border-orange-100 flex items-center justify-center shrink-0">
+                        <span class="text-lg font-black text-orange-600">{{ substr($result->user->name, 0, 1) }}</span>
                     </div>
                     <div class="min-w-0">
                         <p class="text-base font-bold text-slate-800 truncate" title="{{ $result->user->name }}">{{ $result->user->name }}</p>
                         <p class="text-xs font-bold text-slate-450 truncate mt-0.5 flex items-center gap-1" title="{{ $result->user->email }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                            <i class="ti ti-mail text-slate-400"></i>
                             {{ $result->user->email }}
                         </p>
                     </div>
                 </div>
 
                 <!-- Columns on desktop: status, log waktu, pelanggaran, skor -->
-                <div class="grid grid-cols-2 md:flex md:items-center md:flex-1 md:justify-between gap-4 pt-4 md:pt-0">
-                    <!-- Status -->
-                    <div class="flex flex-col md:items-start gap-1">
-                        <span class="text-xs font-bold text-slate-400 block md:hidden">Status</span>
-                        <div>
-                            @if($result->status === 'in_progress')
-                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-amber-50 text-amber-600 border border-amber-100">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                                    Mengerjakan
-                                </span>
-                            @else
-                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-100">
-                                    <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
-                                    Selesai
-                                </span>
-                            @endif
-                        </div>
-                    </div>
-
-                    <!-- Log Waktu -->
-                    <div class="flex flex-col gap-0.5">
-                        <span class="text-xs font-bold text-slate-400 block md:hidden">Log Waktu</span>
-                        <div class="flex flex-col gap-1 text-xs font-semibold text-slate-500">
-                            <span class="flex items-center gap-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                                Mulai: {{ $result->started_at->format('d M, H:i') }}
-                            </span>
-                            @if($result->finished_at)
-                                <span class="flex items-center gap-1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-emerald-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                                    Selesai: {{ $result->finished_at->format('d M, H:i') }}
-                                </span>
-                            @else
-                                <span class="flex items-center gap-1 text-slate-400">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-300 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                    Belum selesai
-                                </span>
-                            @endif
-                        </div>
-                    </div>
-
-                    <!-- Pelanggaran -->
+                <div class="flex flex-1 flex-wrap md:flex-nowrap items-center justify-between gap-4 md:gap-6 border-y md:border-y-0 border-slate-100 py-3 md:py-0">
+                    
+                    <!-- Status Badge -->
                     <div class="flex flex-col md:items-center gap-1">
-                        <span class="text-xs font-bold text-slate-400 block md:hidden">Pelanggaran</span>
-                        <div>
-                            @if($result->violations->count() > 0)
-                                <div class="inline-flex flex-col items-center">
-                                    <button @click="$dispatch('open-violation-modal', { 
-                                        name: '{{ $result->user->name }}', 
-                                        violations: {{ $result->violations->map(fn($v) => [
-                                            'type' => $v->type === 'tab_switch' ? 'Pindah Tab' : 'Kehilangan Fokus',
-                                            'time' => $v->created_at->format('H:i:s'),
-                                            'details' => $v->details ?? '-'
-                                        ])->toJson() }} 
-                                    })" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-sm font-bold ring-1 ring-rose-100 hover:bg-rose-600 hover:text-white transition-all shadow-sm">
-                                        {{ $result->violations->count() }}
-                                    </button>
-                                    <span class="text-xs font-semibold text-rose-550 mt-1 flex items-center gap-0.5 justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-rose-500 animate-bounce" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                                        Detail
-                                    </span>
-                                </div>
-                            @else
-                                <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-lg flex items-center gap-1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-emerald-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                                    Aman
-                                </span>
-                            @endif
+                        <span class="text-xs font-bold text-slate-400 block md:hidden">Status Pengerjaan</span>
+                        @if($result->status === 'completed')
+                            <span class="px-3 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                Selesai
+                            </span>
+                        @elseif($result->status === 'in_progress')
+                            <span class="px-3 py-1 rounded-xl text-xs font-bold bg-amber-50 text-amber-600 border border-amber-100 flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
+                                Mengerjakan
+                            </span>
+                        @else
+                            <span class="px-3 py-1 rounded-xl text-xs font-bold bg-slate-100 text-slate-500 flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                Belum Mulai
+                            </span>
+                        @endif
+                    </div>
+
+                    <!-- Progress Subtest / Waktu Mulai -->
+                    <div class="flex flex-col md:items-center gap-1">
+                        <span class="text-xs font-bold text-slate-400 block md:hidden">Riwayat Waktu</span>
+                        <div class="text-xs font-bold text-slate-655 flex items-center gap-1.5">
+                            <i class="ti ti-clock text-sm text-slate-400"></i>
+                            <span>{{ $result->started_at ? $result->started_at->format('H:i:s') : '-' }}</span>
+                            <span class="text-slate-350">→</span>
+                            <span>{{ $result->completed_at ? $result->completed_at->format('H:i:s') : '...' }}</span>
                         </div>
+                        <span class="text-[10px] font-bold text-slate-400">
+                            {{ $result->started_at ? $result->started_at->format('d M Y') : 'Belum Mulai' }}
+                        </span>
+                    </div>
+
+                    <!-- Pelanggaran Terdeteksi -->
+                    <div class="flex flex-col md:items-center gap-1">
+                        <span class="text-xs font-bold text-slate-400 block md:hidden">Pelanggaran Sistem</span>
+                        @php
+                            $violationCount = $result->violations->count();
+                        @endphp
+                        @if($violationCount > 0)
+                            <div class="flex items-center gap-1.5 px-3 py-1 bg-rose-50 border border-rose-150 rounded-xl text-rose-600">
+                                <i class="ti ti-alert-triangle text-sm"></i>
+                                <span class="text-xs font-black">{{ $violationCount }}x Pelanggaran</span>
+                            </div>
+                        @else
+                            <div class="flex items-center gap-1.5 px-3 py-1 bg-slate-50 rounded-xl text-slate-450">
+                                <i class="ti ti-shield-check text-sm text-emerald-500"></i>
+                                <span class="text-xs font-bold">Tertib / Aman</span>
+                            </div>
+                        @endif
                     </div>
 
                     <!-- Skor Akhir -->
@@ -304,8 +287,8 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
                         <span class="text-xs font-bold text-slate-400 block md:hidden">Skor Akhir</span>
                         <div class="inline-flex flex-col items-start md:items-center justify-center">
                             <div class="flex items-baseline gap-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 {{ $result->status === 'completed' ? 'text-amber-500' : 'text-slate-450' }} shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><path d="M8.21 13.89 7 23l5-3 5 3-1.21-9.12"/></svg>
-                                <span class="text-xl font-black {{ $result->status === 'completed' ? 'text-[#153c96]' : 'text-amber-500' }}">{{ $result->total_score }}</span>
+                                <i class="ti ti-award text-base {{ $result->status === 'completed' ? 'text-amber-500' : 'text-slate-400' }}"></i>
+                                <span class="text-xl font-black {{ $result->status === 'completed' ? 'text-orange-600' : 'text-amber-500' }}">{{ $result->total_score }}</span>
                                 <span class="text-xs font-bold text-slate-400">Poin</span>
                             </div>
                             @if($result->status === 'in_progress')
@@ -318,8 +301,8 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
                 <!-- Right/Action button -->
                 <div class="flex items-center justify-end pt-4 md:pt-0 shrink-0 gap-2">
                     @if($result->status === 'completed')
-                        <a href="{{ route('admin.exam-sessions.student-results', [$examSession, $result]) }}" class="w-full md:w-auto px-4 py-2 bg-[#153c96] hover:bg-[#11307a] text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="M14.83 9.17a4 4 0 0 0-5.66 5.66"/><path d="M14.17 14.17l4.9 4.9"/></svg>
+                        <a href="{{ route('admin.exam-sessions.student-results', [$examSession, $result]) }}" class="w-full md:w-auto px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5">
+                            <i class="ti ti-eye text-sm"></i>
                             Lihat Hasil
                         </a>
                     @endif
@@ -379,17 +362,17 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         @foreach($subtestStats as $subtest)
             <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-xs hover:shadow-md transition-all flex items-center gap-4 group">
-                <div class="p-3 bg-blue-50/50 text-[#153c96] rounded-xl shrink-0 group-hover:bg-[#153c96] group-hover:text-white transition-all">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2" /></svg>
+                <div class="p-3 bg-orange-50 text-orange-600 rounded-xl shrink-0 group-hover:bg-orange-500 group-hover:text-white transition-all">
+                    <i class="ti ti-chart-bar text-xl"></i>
                 </div>
                 <div class="min-w-0 flex-1">
                     <h4 class="text-xs font-bold text-slate-800 leading-snug truncate" title="{{ $subtest['title'] }}">{{ $subtest['title'] }}</h4>
                     <div class="flex items-center justify-between gap-2 mt-1.5">
-                        <span class="text-[11px] font-bold text-[#153c96]">{{ $subtest['percentage'] }}% Benar</span>
+                        <span class="text-[11px] font-bold text-orange-600">{{ $subtest['percentage'] }}% Benar</span>
                         <span class="text-[10px] font-semibold text-slate-400">{{ $subtest['avg_correct'] }}/{{ $subtest['total_questions'] }} Soal</span>
                     </div>
                     <div class="mt-2 w-full h-1 bg-slate-50 rounded-full overflow-hidden border border-slate-100/50">
-                        <div class="bg-[#153c96] h-full rounded-full" style="width: {{ $subtest['percentage'] }}%"></div>
+                        <div class="bg-orange-500 h-full rounded-full" style="width: {{ $subtest['percentage'] }}%"></div>
                     </div>
                 </div>
             </div>
@@ -402,10 +385,7 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
         <div class="bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between gap-4">
             <div class="flex items-center gap-2.5">
                 <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center text-amber-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path>
-                    </svg>
+                    <i class="ti ti-trophy text-lg"></i>
                 </div>
                 <div>
                     <h3 class="font-bold text-sm text-slate-800">Leaderboard (Peringkat Teratas)</h3>
@@ -416,16 +396,16 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="bg-slate-50 border-b border-slate-100 text-slate-500 select-none">
-                        <th class="px-6 py-3.5 text-xs font-bold text-slate-700 w-20">Peringkat</th>
-                        <th class="px-6 py-3.5 text-xs font-bold text-slate-700">Peserta</th>
-                        <th class="px-6 py-3.5 text-xs font-bold text-slate-700">Sekolah</th>
-                        <th class="px-6 py-3.5 text-xs font-bold text-slate-700 text-right">Skor Total</th>
+                    <tr class="bg-orange-500 text-white select-none">
+                        <th class="px-6 py-3.5 text-xs font-bold text-white w-20">Peringkat</th>
+                        <th class="px-6 py-3.5 text-xs font-bold text-white">Peserta</th>
+                        <th class="px-6 py-3.5 text-xs font-bold text-white">Sekolah</th>
+                        <th class="px-6 py-3.5 text-xs font-bold text-white text-right">Skor Total</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50">
                     @foreach($results->where('status', 'completed')->take(10) as $index => $res)
-                        <tr class="hover:bg-blue-50/10 transition-all">
+                        <tr class="hover:bg-orange-50/20 transition-all">
                             <td class="px-6 py-4">
                                 <div class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm
                                     @if($index === 0) bg-amber-400 text-white shadow-lg shadow-amber-200
@@ -437,7 +417,7 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
-                                    <img src="https://ui-avatars.com/api/?name={{ urlencode($res->user->name) }}&background=6366f1&color=fff&bold=true" class="w-7 h-7 rounded-lg ring-2 ring-slate-50">
+                                    <img src="https://ui-avatars.com/api/?name={{ urlencode($res->user->name) }}&background=f97316&color=fff&bold=true" class="w-7 h-7 rounded-lg ring-2 ring-slate-50">
                                     <span class="text-sm font-bold text-slate-800">{{ $res->user->name }}</span>
                                 </div>
                             </td>
@@ -445,7 +425,7 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
                                 {{ $res->user->school ?? 'N/A' }}
                             </td>
                             <td class="px-6 py-4 text-right">
-                                <span class="text-lg font-black text-[#153c96]">{{ $res->total_score }}</span>
+                                <span class="text-sm font-black text-orange-600">{{ $res->total_score }}</span>
                             </td>
                         </tr>
                     @endforeach
@@ -461,10 +441,8 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
         <!-- Card Header -->
         <div class="bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between gap-4">
             <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-[#153c96]">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
-                    </svg>
+                <div class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center text-orange-600">
+                    <i class="ti ti-table text-lg"></i>
                 </div>
                 <div>
                     <h3 class="font-bold text-sm text-slate-800">Matriks Jawaban Siswa (Analisis Butir Soal)</h3>
@@ -476,12 +454,12 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
         <!-- Sub-tabs navigation -->
         <div class="flex items-center gap-1.5 p-4 border-b border-slate-100 bg-slate-50/30">
             <button @click="matrixTab = 'table'"
-                :class="matrixTab === 'table' ? 'bg-[#153c96] text-white shadow-xs' : 'text-slate-655 hover:bg-slate-100'"
+                :class="matrixTab === 'table' ? 'bg-orange-500 text-white shadow-xs' : 'text-slate-655 hover:bg-slate-100'"
                 class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all">
                 Tabel Matriks
             </button>
             <button @click="matrixTab = 'questions'"
-                :class="matrixTab === 'questions' ? 'bg-[#153c96] text-white shadow-xs' : 'text-slate-655 hover:bg-slate-100'"
+                :class="matrixTab === 'questions' ? 'bg-orange-500 text-white shadow-xs' : 'text-slate-655 hover:bg-slate-100'"
                 class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all">
                 Daftar Soal
             </button>
@@ -583,11 +561,11 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
             <div class="space-y-4">
                 @foreach($matrixSubtests as $subtest)
                     <div class="bg-white rounded-xl border border-slate-100 p-4">
-                        <h5 class="text-xs font-bold text-[#153c96] mb-3">{{ $subtest['title'] }}</h5>
+                        <h5 class="text-xs font-bold text-orange-600 mb-3">{{ $subtest['title'] }}</h5>
                         <div class="divide-y divide-slate-100">
                             @foreach($subtest['questions'] as $index => $q)
                                 <div class="py-3.5 flex gap-3 text-xs leading-relaxed">
-                                    <span class="w-6 h-6 rounded bg-[#153c96]/10 text-[#153c96] flex items-center justify-center text-[10px] font-bold shrink-0">{{ $index + 1 }}</span>
+                                    <span class="w-6 h-6 rounded bg-orange-50 text-orange-600 flex items-center justify-center text-[10px] font-bold shrink-0">{{ $index + 1 }}</span>
                                     <div class="flex-1 min-w-0">
                                         <div class="text-slate-700 font-semibold prose prose-sm max-w-none">{!! $q->content !!}</div>
                                     </div>
@@ -616,11 +594,11 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
                         datasets: [{
                             label: 'Jumlah Peserta',
                             data: {!! json_encode(array_values($distribution)) !!},
-                            backgroundColor: 'rgba(21, 60, 150, 0.1)',
-                            borderColor: '#153c96',
+                            backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                            borderColor: '#f97316',
                             borderWidth: 2,
                             borderRadius: 8,
-                            hoverBackgroundColor: '#153c96'
+                            hoverBackgroundColor: '#f97316'
                         }]
                     },
                     options: {

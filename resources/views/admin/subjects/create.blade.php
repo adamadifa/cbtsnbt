@@ -54,15 +54,10 @@
                     <!-- Name -->
                     <div class="relative">
                         <div class="group border rounded-xl px-3 py-1.5 flex items-center gap-2 transition-all duration-200"
-                             :class="touched.name && errors.name ? 'border-rose-400 focus-within:border-rose-500 focus-within:ring-2 focus-within:ring-rose-100/50' : 'border-slate-200 focus-within:border-[#153c96] focus-within:ring-2 focus-within:ring-blue-100/50'">
+                             :class="touched.name && errors.name ? 'border-rose-400 focus-within:border-rose-500 focus-within:ring-2 focus-within:ring-rose-100/50' : 'border-slate-200 focus-within:border-orange-500 focus-within:ring-2 focus-within:ring-orange-100/50'">
                             <label for="create_name" class="absolute -top-2.5 left-3 px-1.5 bg-white text-[10px] font-bold transition-all duration-200"
-                                   :class="touched.name && errors.name ? 'text-rose-500 group-focus-within:text-rose-600' : 'text-slate-500 group-focus-within:text-[#153c96]'">Nama Materi Uji <span class="text-rose-500 font-bold">*</span></label>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 shrink-0" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path d="M19 4v16h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12z"></path>
-                                <path d="M19 16h-12a2 2 0 0 0 -2 2"></path>
-                                <path d="M9 8h6"></path>
-                            </svg>
+                                   :class="touched.name && errors.name ? 'text-rose-500 group-focus-within:text-rose-600' : 'text-slate-500 group-focus-within:text-orange-600'">Nama Materi Uji <span class="text-rose-500 font-bold">*</span></label>
+                            <i class="ti ti-book text-slate-400 shrink-0 text-base"></i>
                             <input id="create_name" name="name" type="text"
                                    x-model="name"
                                    @input="validateName"
@@ -77,15 +72,10 @@
                     <!-- Code -->
                     <div class="relative">
                         <div class="group border rounded-xl px-3 py-1.5 flex items-center gap-2 transition-all duration-200"
-                             :class="touched.code && errors.code ? 'border-rose-400 focus-within:border-rose-500 focus-within:ring-2 focus-within:ring-rose-100/50' : 'border-slate-200 focus-within:border-[#153c96] focus-within:ring-2 focus-within:ring-blue-100/50'">
+                             :class="touched.code && errors.code ? 'border-rose-400 focus-within:border-rose-500 focus-within:ring-2 focus-within:ring-rose-100/50' : 'border-slate-200 focus-within:border-orange-500 focus-within:ring-2 focus-within:ring-orange-100/50'">
                             <label for="create_code" class="absolute -top-2.5 left-3 px-1.5 bg-white text-[10px] font-bold transition-all duration-200"
-                                   :class="touched.code && errors.code ? 'text-rose-500 group-focus-within:text-rose-600' : 'text-slate-500 group-focus-within:text-[#153c96]'">Kode Materi <span class="text-rose-500 font-bold">*</span></label>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 shrink-0" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path d="M3 5h18v14h-18z"></path>
-                                <path d="M9 9h6"></path>
-                                <path d="M9 13h6"></path>
-                            </svg>
+                                   :class="touched.code && errors.code ? 'text-rose-500 group-focus-within:text-rose-600' : 'text-slate-500 group-focus-within:text-orange-600'">Kode Materi <span class="text-rose-500 font-bold">*</span></label>
+                            <i class="ti ti-id text-slate-400 shrink-0 text-base"></i>
                             <input id="create_code" name="code" type="text"
                                    x-model="code"
                                    @input="isCodeManual = true; validateCode()"
@@ -100,15 +90,9 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Component -->
-                    <div class="group relative border border-slate-200 focus-within:border-[#153c96] focus-within:ring-2 focus-within:ring-blue-100/50 rounded-xl px-3 py-1.5 flex items-center gap-2 transition-all">
-                        <label for="create_component" class="absolute -top-2.5 left-3 px-1.5 bg-white text-[10px] font-bold text-slate-500 group-focus-within:text-[#153c96] transition-all duration-200">Komponen</label>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 shrink-0" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M4 4h6v6h-6z"></path>
-                            <path d="M14 4h6v6h-6z"></path>
-                            <path d="M4 14h6v6h-6z"></path>
-                            <path d="M17 17m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path>
-                        </svg>
+                    <div class="group relative border border-slate-200 focus-within:border-orange-500 focus-within:ring-2 focus-within:ring-orange-100/50 rounded-xl px-3 py-1.5 flex items-center gap-2 transition-all">
+                        <label for="create_component" class="absolute -top-2.5 left-3 px-1.5 bg-white text-[10px] font-bold text-slate-500 group-focus-within:text-orange-600 transition-all duration-200">Komponen</label>
+                        <i class="ti ti-category text-slate-400 shrink-0 text-base"></i>
                         <select id="create_component" name="component" x-model="component" class="w-full bg-transparent border-0 p-0 text-xs text-slate-600 focus:ring-0 focus:outline-none py-1">
                             <option value="TPS">TPS</option>
                             <option value="Literasi">Literasi</option>
@@ -116,28 +100,18 @@
                     </div>
 
                     <!-- Order -->
-                    <div class="group relative border border-slate-200 focus-within:border-[#153c96] focus-within:ring-2 focus-within:ring-blue-100/50 rounded-xl px-3 py-1.5 flex items-center gap-2 transition-all">
-                        <label for="create_order" class="absolute -top-2.5 left-3 px-1.5 bg-white text-[10px] font-bold text-slate-500 group-focus-within:text-[#153c96] transition-all duration-200">Urutan Tampilan</label>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 shrink-0" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M11 11.5v-2a1.5 1.5 0 0 1 3 0v2a1.5 1.5 0 0 1 -3 0z"></path>
-                            <path d="M11 15v2h3v-2h-3z"></path>
-                            <path d="M15 3v18"></path>
-                        </svg>
+                    <div class="group relative border border-slate-200 focus-within:border-orange-500 focus-within:ring-2 focus-within:ring-orange-100/50 rounded-xl px-3 py-1.5 flex items-center gap-2 transition-all">
+                        <label for="create_order" class="absolute -top-2.5 left-3 px-1.5 bg-white text-[10px] font-bold text-slate-500 group-focus-within:text-orange-600 transition-all duration-200">Urutan Tampilan</label>
+                        <i class="ti ti-sort-ascending-numbers text-slate-400 shrink-0 text-base"></i>
                         <input id="create_order" name="order" type="number" x-model="order"
                                class="w-full bg-transparent border-0 p-0 text-xs text-slate-800 placeholder-slate-300 focus:ring-0 focus:outline-none py-1" />
                     </div>
                 </div>
 
                 <!-- Description -->
-                <div class="group relative border border-slate-200 focus-within:border-[#153c96] focus-within:ring-2 focus-within:ring-blue-100/50 rounded-xl px-3 py-1.5 flex items-start gap-2 transition-all">
-                    <label for="create_description" class="absolute -top-2.5 left-3 px-1.5 bg-white text-[10px] font-bold text-slate-500 group-focus-within:text-[#153c96] transition-all duration-200">Deskripsi</label>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 shrink-0 mt-1" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M4 21v-13a3 3 0 0 1 3 -3h10a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-9l-4 4"></path>
-                        <path d="M8 9h8"></path>
-                        <path d="M8 13h6"></path>
-                    </svg>
+                <div class="group relative border border-slate-200 focus-within:border-orange-500 focus-within:ring-2 focus-within:ring-orange-100/50 rounded-xl px-3 py-1.5 flex items-start gap-2 transition-all">
+                    <label for="create_description" class="absolute -top-2.5 left-3 px-1.5 bg-white text-[10px] font-bold text-slate-500 group-focus-within:text-orange-600 transition-all duration-200">Deskripsi</label>
+                    <i class="ti ti-notes text-slate-400 shrink-0 text-base mt-1"></i>
                     <textarea id="create_description" name="description" rows="3" x-model="description"
                               class="w-full bg-transparent border-0 p-0 text-xs text-slate-800 placeholder-slate-300 focus:ring-0 focus:outline-none py-1 resize-none"
                               placeholder="Penjelasan singkat mengenai materi uji ini..."></textarea>
@@ -149,6 +123,7 @@
                     <div class="flex flex-wrap items-center gap-4 py-1.5">
                         @php
                             $colors = [
+                                'orange' => '#f97316',
                                 'indigo' => '#6366f1',
                                 'blue' => '#3b82f6',
                                 'emerald' => '#10b981',
@@ -162,9 +137,9 @@
                         <input type="hidden" name="color" :value="color">
                         @foreach ($colors as $name => $hex)
                             <button type="button" @click="color = '{{ $hex }}'" 
-                                    class="w-8 h-8 rounded-xl border-2 transition-all hover:scale-110 flex items-center justify-center" 
-                                    :class="color === '{{ $hex }}' ? 'border-[#153c96] scale-105 shadow-sm' : 'border-transparent'"
-                                    style="background-color: {{ $hex }}">
+                                     class="w-8 h-8 rounded-xl border-2 transition-all hover:scale-110 flex items-center justify-center" 
+                                     :class="color === '{{ $hex }}' ? 'border-orange-500 scale-105 shadow-sm ring-2 ring-orange-200' : 'border-transparent'"
+                                     style="background-color: {{ $hex }}">
                                 <span x-show="color === '{{ $hex }}'" class="text-white text-[10px]">✓</span>
                             </button>
                         @endforeach
@@ -172,7 +147,8 @@
                 </div>
 
                 <div class="flex items-center gap-3 pt-3">
-                    <button type="submit" class="px-6 py-2.5 bg-[#153c96] hover:bg-blue-800 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-500/10 text-xs tracking-wider">
+                    <button type="submit" class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-orange-500/20 text-xs tracking-wider flex items-center gap-2">
+                        <i class="ti ti-check text-sm"></i>
                         SIMPAN MATERI UJI
                     </button>
                     <button type="button" @click="showCreateModal = false" class="px-5 py-2.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-bold rounded-xl text-xs transition-colors">

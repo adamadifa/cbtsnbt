@@ -30,189 +30,224 @@
     editId: null,
     editName: '',
     editCode: '',
-    editComponent: 'umum',
+    editComponent: 'TPS',
     editOrder: 0,
     editDescription: '',
     editColor: '#6366f1',
-    editAction: ''
+    editAction: '',
+    selectedSubjects: [],
+    allSubjectIds: {{ json_encode($subjects->pluck('id')->toArray()) }},
+    get allSelected() {
+        return this.allSubjectIds.length > 0 && this.allSubjectIds.every(id => this.selectedSubjects.includes(id));
+    },
+    toggleSelectAll() {
+        if (this.allSelected) {
+            this.selectedSubjects = [];
+        } else {
+            this.selectedSubjects = [...this.allSubjectIds];
+        }
+    },
+    confirmBulkDelete() {
+        if (this.selectedSubjects.length === 0) return;
+        Swal.fire({
+            title: 'Hapus ' + this.selectedSubjects.length + ' Materi Uji?',
+            text: 'Semua materi uji yang dipilih akan dihapus secara permanen!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#f97316',
+            cancelButtonColor: '#ef4444',
+            confirmButtonText: 'Ya, Hapus Terpilih!',
+            cancelButtonText: 'Batal',
+            customClass: {
+                popup: 'rounded-3xl shadow-2xl border border-slate-100',
+                confirmButton: 'rounded-xl font-bold text-xs px-5 py-2.5 shadow-md shadow-orange-500/20',
+                cancelButton: 'rounded-xl font-bold text-xs px-5 py-2.5'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('bulk-delete-form').submit();
+            }
+        });
+    }
 }">
-    <!-- Filters & Search Toolbar (Outside the Card) -->
-    <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm mb-6">
-        <form action="{{ route('admin.subjects.index') }}" method="GET" class="flex flex-col md:flex-row gap-4 items-center justify-between">
+    <!-- Filters & Search Toolbar (Cardless) -->
+    <div class="mb-4">
+        <form action="{{ route('admin.subjects.index') }}" method="GET" class="flex flex-col md:flex-row gap-2.5 items-center justify-between">
             <div class="w-full md:flex-1 relative">
                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path>
-                        <path d="M21 21l-6 -6"></path>
-                    </svg>
+                    <i class="ti ti-search text-base"></i>
                 </div>
                 <input type="text" name="search" id="search" value="{{ request('search') }}" 
-                    class="block w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-xl text-slate-800 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-100 text-xs transition-all focus:outline-none" 
+                    class="block w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200/80 rounded-xl text-slate-800 placeholder-slate-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-100/50 text-xs transition-all focus:outline-none shadow-2xs" 
                     placeholder="Cari materi uji berdasarkan nama atau kode...">
             </div>
 
-            <div class="flex items-center gap-3 w-full md:w-auto">
-                <button type="submit" class="w-full md:w-auto px-5 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold text-xs transition-colors shrink-0">
-                    Cari
+            <div class="flex items-center gap-2.5 w-full md:w-auto">
+                <button type="submit" class="w-full md:w-auto px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold text-xs transition-colors shrink-0 flex items-center justify-center gap-1.5 shadow-2xs">
+                    <i class="ti ti-filter text-sm"></i>
+                    <span>Cari</span>
                 </button>
             </div>
         </form>
     </div>
 
-    <!-- Subjects Table Card -->
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <!-- Card Header (Unified Blue Bar) -->
-        <div class="bg-[#153c96] text-white px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M19 4v16h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12z"></path>
-                        <path d="M19 16h-12a2 2 0 0 0 -2 2"></path>
-                        <path d="M9 8h6"></path>
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="font-bold text-sm tracking-wide">Daftar Materi Uji</h3>
-                    <p class="text-[10px] text-white/70">Kelola kategori materi ujian yang tersedia di sistem</p>
-                </div>
+    <!-- Subjects Cards Container -->
+    <div class="space-y-2.5">
+        <!-- Top Action & Selection Bar -->
+        <div class="bg-orange-500 text-white px-5 py-3.5 rounded-2xl shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <!-- Select All Checkbox -->
+                <label class="flex items-center gap-2.5 cursor-pointer select-none">
+                    <input type="checkbox" 
+                           @change="toggleSelectAll()" 
+                           :checked="allSelected" 
+                           class="w-4 h-4 rounded border-white/40 text-orange-600 focus:ring-0 focus:ring-offset-0 bg-white/20 checked:bg-white checked:border-white transition-all cursor-pointer">
+                    <span class="text-xs font-bold tracking-wide">Pilih Semua</span>
+                </label>
+                <span class="text-white/40">|</span>
+                <span class="text-[11px] text-white/85 font-medium">
+                    Total: <strong class="text-white">{{ $subjects->total() ?? count($subjects) }}</strong> materi uji
+                </span>
             </div>
             
-            <div class="flex items-center gap-3">
-                <button @click="showImportModal = true" class="inline-flex items-center gap-1.5 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold text-xs border border-white/15 transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
-                        <path d="M7 9l5 -5l5 5"></path>
-                        <path d="M12 4l0 12"></path>
-                    </svg>
+            <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                <!-- Bulk Delete Action Trigger -->
+                <button type="button" 
+                        x-show="selectedSubjects.length > 0" 
+                        x-transition 
+                        @click="confirmBulkDelete()" 
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold text-xs shadow-sm transition-all animate-pulse" 
+                        x-cloak>
+                    <i class="ti ti-trash text-sm"></i>
+                    <span>Hapus (<span x-text="selectedSubjects.length"></span>)</span>
+                </button>
+
+                <button @click="showImportModal = true" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white/15 hover:bg-white/25 text-white rounded-xl font-bold text-xs border border-white/20 transition-all active:scale-95">
+                    <i class="ti ti-file-import text-sm"></i>
                     Import Excel
                 </button>
 
-                <button @click="showCreateModal = true" class="inline-flex items-center gap-1.5 px-4 py-2 bg-white hover:bg-blue-50 text-[#153c96] rounded-xl font-bold text-xs shadow-sm transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M12 5l0 14"></path>
-                        <path d="M5 12l14 0"></path>
-                    </svg>
+                <button @click="showCreateModal = true" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white hover:bg-orange-50 text-orange-600 rounded-xl font-bold text-xs shadow-sm transition-all active:scale-95">
+                    <i class="ti ti-plus text-sm"></i>
                     Tambah Materi Uji
                 </button>
             </div>
         </div>
 
-        <!-- Subjects Table -->
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-[#153c96] text-white select-none">
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95">Urutan</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95">Materi Uji</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95">Komponen</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95">Kode</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95 text-right">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-50">
-                    @forelse($subjects as $subject)
-                    <tr class="hover:bg-slate-50/20 transition-colors group">
-                        <td class="px-6 py-4 text-xs font-bold text-slate-400">
-                            #{{ $subject->order }}
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-white text-xs shadow-sm" style="background-color: {{ $subject->color ?? '#6366f1' }}">
-                                    {{ substr($subject->name, 0, 1) }}
-                                </div>
-                                <div>
-                                    <p class="text-sm font-bold text-slate-800 leading-tight">{{ $subject->name }}</p>
-                                    <p class="text-[11px] text-slate-400 mt-0.5">{{ Str::limit($subject->description, 50) ?? 'Tidak ada deskripsi' }}</p>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter bg-slate-100 text-slate-600">
+        <!-- Compact Subject Cards List -->
+        <div class="space-y-2">
+            @forelse($subjects as $subject)
+            <div class="bg-white px-4 py-3 rounded-xl border border-slate-100 shadow-2xs hover:border-orange-200 transition-all flex flex-col md:flex-row md:items-center justify-between gap-3 group"
+                 :class="selectedSubjects.includes({{ $subject->id }}) ? 'border-orange-400 bg-orange-50/20 ring-1 ring-orange-200' : ''">
+                
+                <!-- Left Section: Checkbox, Order, Icon & Name -->
+                <div class="flex items-center gap-3 min-w-0 flex-1">
+                    <!-- Row Checkbox -->
+                    <input type="checkbox" 
+                           :value="{{ $subject->id }}" 
+                           x-model="selectedSubjects" 
+                           class="w-4 h-4 rounded border-slate-300 text-orange-500 focus:ring-orange-100 cursor-pointer shrink-0">
+                    
+                    <!-- Order Badge -->
+                    <span class="w-6 h-6 rounded-md bg-slate-100 border border-slate-200 text-slate-500 flex items-center justify-center text-[10px] font-bold shrink-0">
+                        #{{ $subject->order }}
+                    </span>
+
+                    <!-- Color Accent Box -->
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white text-xs shadow-2xs shrink-0" 
+                         style="background-color: {{ $subject->color ?? '#f97316' }}">
+                        {{ substr($subject->name, 0, 1) }}
+                    </div>
+                    
+                    <!-- Title & Description -->
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-xs font-bold text-slate-800 group-hover:text-orange-600 transition-colors truncate">{{ $subject->name }}</span>
+                            <span class="px-2 py-0.2 text-[9px] font-extrabold uppercase tracking-tight rounded-md bg-slate-100 text-slate-600">
                                 {{ $subject->component }}
                             </span>
-                        </td>
-                        <td class="px-6 py-4">
-                            <code class="text-[11px] font-bold text-[#153c96] bg-blue-50 px-2 py-1 rounded-md">{{ $subject->code }}</code>
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            <div class="flex items-center justify-end gap-1.5">
-                                <button type="button" @click="showEditModal = true; 
-                                                              editId = {{ $subject->id }}; 
-                                                              editName = '{{ addslashes($subject->name) }}'; 
-                                                              editCode = '{{ addslashes($subject->code) }}'; 
-                                                              editComponent = '{{ $subject->component }}'; 
-                                                              editOrder = {{ $subject->order ?? 0 }};
-                                                              editDescription = '{{ addslashes($subject->description ?? '') }}';
-                                                              editColor = '{{ $subject->color ?? '#6366f1' }}';
-                                                              editAction = '{{ route('admin.subjects.update', $subject) }}';" 
-                                        class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all" title="Edit">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                        <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4"></path>
-                                        <path d="M13.5 6.5l4 4"></path>
-                                    </svg>
-                                </button>
-                                <form id="delete-form-{{ $subject->id }}" action="{{ route('admin.subjects.destroy', $subject) }}" method="POST" class="inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="button" @click="confirmDelete({{ $subject->id }})" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all" title="Delete">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                            <path d="M4 7l16 0"></path>
-                                            <path d="M10 11l0 6"></path>
-                                            <path d="M14 11l0 6"></path>
-                                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
-                                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
-                                        </svg>
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="5" class="px-6 py-16 text-center">
-                            <div class="flex flex-col items-center gap-2">
-                                <div class="p-4 bg-slate-50 text-slate-300 rounded-2xl">
-                                    📭
-                                </div>
-                                <p class="text-slate-400 font-bold">Belum ada materi uji yang ditambahkan.</p>
-                            </div>
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                        </div>
+                        <p class="text-[11px] text-slate-400 truncate mt-0.5">
+                            {{ Str::limit($subject->description, 65) ?? 'Tidak ada deskripsi' }}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Middle Section: Subject Code Badge -->
+                <div class="flex items-center gap-4 px-2 md:px-0 shrink-0">
+                    <div class="flex items-center gap-1.5" title="Kode Materi">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Kode:</span>
+                        <code class="text-[11px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-100/60">{{ $subject->code }}</code>
+                    </div>
+                </div>
+
+                <!-- Right Section: Action Buttons -->
+                <div class="flex items-center justify-end gap-1 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-50">
+                    <button type="button" @click="showEditModal = true; 
+                                                  editId = {{ $subject->id }}; 
+                                                  editName = '{{ addslashes($subject->name) }}'; 
+                                                  editCode = '{{ addslashes($subject->code) }}'; 
+                                                  editComponent = '{{ addslashes($subject->component) }}'; 
+                                                  editOrder = {{ $subject->order }}; 
+                                                  editColor = '{{ $subject->color ?? '#6366f1' }}'; 
+                                                  editDescription = '{{ addslashes($subject->description ?? '') }}'; 
+                                                  editAction = '{{ route('admin.subjects.update', $subject) }}';" 
+                            class="p-1.5 text-slate-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-all" title="Edit Materi Uji">
+                        <i class="ti ti-edit text-base"></i>
+                    </button>
+                    
+                    <form id="delete-form-{{ $subject->id }}" action="{{ route('admin.subjects.destroy', $subject) }}" method="POST" class="inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="button" @click="confirmDelete({{ $subject->id }})" 
+                                class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all" title="Hapus Materi Uji">
+                            <i class="ti ti-trash text-base"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            @empty
+            <div class="bg-white p-8 rounded-2xl border border-slate-100 text-center">
+                <div class="flex flex-col items-center justify-center gap-2">
+                    <div class="p-3 bg-orange-50 text-orange-500 rounded-xl">
+                        <i class="ti ti-inbox-off text-2xl"></i>
+                    </div>
+                    <h4 class="text-xs font-bold text-slate-700">Tidak Ada Materi Uji Ditemukan</h4>
+                    <p class="text-[11px] text-slate-400">Silakan ubah kata kunci pencarian atau tambahkan materi uji baru.</p>
+                </div>
+            </div>
+            @endforelse
         </div>
         
+        <!-- Pagination -->
         @if($subjects->hasPages())
-        <div class="p-4 border-t border-slate-50">
+        <div class="bg-white px-4 py-3 rounded-xl border border-slate-100 shadow-2xs mt-3">
             {{ $subjects->links() }}
         </div>
         @endif
     </div>
+
+    <!-- Hidden Bulk Delete Form -->
+    <form id="bulk-delete-form" action="{{ route('admin.subjects.bulk-delete') }}" method="POST" style="display: none;">
+        @csrf
+        <template x-for="id in selectedSubjects" :key="id">
+            <input type="hidden" name="ids[]" :value="id">
+        </template>
+    </form>
 
     <!-- Import Modal -->
     <div x-show="showImportModal" x-transition.opacity class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm" x-cloak>
         <div @click.away="showImportModal = false" class="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden border border-slate-100 transform transition-all">
             <div class="p-6">
                 <div class="flex items-center justify-between mb-5">
-                    <h3 class="text-base font-bold text-slate-800 uppercase tracking-wider">Import Materi Uji</h3>
+                    <h3 class="text-base font-bold text-slate-800 tracking-wide">Import Masal Materi Uji</h3>
                     <button @click="showImportModal = false" class="text-slate-400 hover:text-slate-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M18 6l-12 12"></path>
-                            <path d="M6 6l12 12"></path>
-                        </svg>
+                        <i class="ti ti-x text-lg"></i>
                     </button>
                 </div>
 
-                <div class="p-4 bg-blue-50 border border-blue-100 rounded-2xl mb-5">
-                    <p class="text-[11px] font-semibold text-blue-700 leading-relaxed uppercase tracking-wider">
+                <div class="p-4 bg-orange-50/70 border border-orange-100 rounded-2xl mb-5">
+                    <p class="text-[11px] font-semibold text-orange-800 leading-relaxed">
                         Pilih berkas Excel (.xlsx, .xls) untuk mengunggah dan meng-import materi uji secara masal ke sistem.
                     </p>
                 </div>
@@ -222,21 +257,17 @@
                     <div class="space-y-4">
                         <div class="relative group">
                             <input type="file" name="file" id="import_file" required class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-                            <div class="p-6 border-2 border-dashed border-slate-200 group-hover:border-blue-400 group-hover:bg-blue-50/20 rounded-2xl transition-all text-center">
-                                <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center mx-auto mb-3 text-slate-400 group-hover:bg-blue-100 group-hover:text-blue-600 transition-all">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                        <path d="M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1"></path>
-                                        <path d="M9 15l3 -3l3 3"></path>
-                                        <path d="M12 12l0 9"></path>
-                                    </svg>
+                            <div class="p-6 border-2 border-dashed border-slate-200 group-hover:border-orange-400 group-hover:bg-orange-50/20 rounded-2xl transition-all text-center">
+                                <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center mx-auto mb-3 text-slate-400 group-hover:bg-orange-100 group-hover:text-orange-600 transition-all">
+                                    <i class="ti ti-upload text-xl"></i>
                                 </div>
                                 <p class="text-xs font-bold text-slate-600">Klik atau seret file ke sini</p>
                                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Format file: xlsx, xls, csv</p>
                             </div>
                         </div>
                         
-                        <button type="submit" class="w-full py-3 bg-[#153c96] hover:bg-blue-700 text-white rounded-2xl font-bold text-xs uppercase tracking-wider shadow-lg shadow-blue-500/25 transition-all">
+                        <button type="submit" class="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-2xl font-bold text-xs uppercase tracking-wider shadow-lg shadow-orange-500/20 transition-all flex items-center justify-center gap-2">
+                            <i class="ti ti-cloud-upload text-base"></i>
                             Mulai Proses Import
                         </button>
                     </div>
@@ -261,7 +292,7 @@
             text: "Materi uji ini akan dihapus secara permanen beserta data terkait!",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#153c96',
+            confirmButtonColor: '#f97316',
             cancelButtonColor: '#ef4444',
             confirmButtonText: 'Ya, hapus!',
             cancelButtonText: 'Batal',
@@ -283,7 +314,7 @@
             title: 'Berhasil!',
             text: "{{ session('success') }}",
             icon: 'success',
-            confirmButtonColor: '#153c96',
+            confirmButtonColor: '#f97316',
             confirmButtonText: 'OK',
             customClass: {
                 popup: 'rounded-3xl border border-slate-100',
@@ -297,7 +328,7 @@
             title: 'Gagal!',
             text: "{{ session('error') }}",
             icon: 'error',
-            confirmButtonColor: '#153c96',
+            confirmButtonColor: '#f97316',
             confirmButtonText: 'OK',
             customClass: {
                 popup: 'rounded-3xl border border-slate-100',

@@ -38,6 +38,7 @@ Route::middleware(['auth', 'verified', 'redirect_role'])->group(function () {
 
         Route::get('users/download-template', [\App\Http\Controllers\Admin\UserController::class, 'downloadTemplate'])->name('users.download-template');
         Route::post('users/import', [\App\Http\Controllers\Admin\UserController::class, 'import'])->name('users.import');
+        Route::post('users/bulk-delete', [\App\Http\Controllers\Admin\UserController::class, 'bulkDelete'])->name('users.bulk-delete');
         Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
         
         // Campus & Prodi management
@@ -45,10 +46,12 @@ Route::middleware(['auth', 'verified', 'redirect_role'])->group(function () {
         Route::post('campus-prodis/upload', [\App\Http\Controllers\Admin\CampusProdiController::class, 'upload'])->name('campus-prodis.upload');
         Route::post('campus-prodis/import', [\App\Http\Controllers\Admin\CampusProdiController::class, 'import'])->name('campus-prodis.import');
         Route::get('campus-prodis/prodis', [\App\Http\Controllers\Admin\CampusProdiController::class, 'getProdisByCampus'])->name('campus-prodis.prodis');
+        Route::post('campus-prodis/bulk-delete', [\App\Http\Controllers\Admin\CampusProdiController::class, 'bulkDelete'])->name('campus-prodis.bulk-delete');
         Route::delete('campus-prodis/destroy-all', [\App\Http\Controllers\Admin\CampusProdiController::class, 'destroyAll'])->name('campus-prodis.destroy-all');
 
-        Route::resource('subjects', \App\Http\Controllers\Admin\SubjectController::class);
+        Route::post('subjects/bulk-delete', [\App\Http\Controllers\Admin\SubjectController::class, 'bulkDelete'])->name('subjects.bulk-delete');
         Route::post('subjects/import', [\App\Http\Controllers\Admin\SubjectController::class, 'import'])->name('subjects.import');
+        Route::resource('subjects', \App\Http\Controllers\Admin\SubjectController::class);
 
         Route::get('questions/download-template', [\App\Http\Controllers\Admin\QuestionController::class, 'downloadTemplate'])->name('questions.download-template');
         Route::post('questions/upload-image', [\App\Http\Controllers\Admin\QuestionImageController::class, 'upload'])->name('questions.upload-image');
@@ -66,6 +69,7 @@ Route::middleware(['auth', 'verified', 'redirect_role'])->group(function () {
         Route::post('exam-packages/{examPackage}/subtests/{examSubtest}/update-questions', [\App\Http\Controllers\Admin\ExamPackageController::class, 'updateQuestions'])->name('exam-packages.subtests.update-questions');
 
         // Exam Sessions
+        Route::post('exam-sessions/bulk-delete', [\App\Http\Controllers\Admin\ExamSessionController::class, 'bulkDelete'])->name('exam-sessions.bulk-delete');
         Route::get('exam-sessions/{examSession}/export-excel', [\App\Http\Controllers\Admin\ExamSessionController::class, 'exportExcel'])->name('exam-sessions.export-excel');
         Route::get('exam-sessions/{examSession}/export-pdf', [\App\Http\Controllers\Admin\ExamSessionController::class, 'exportPdf'])->name('exam-sessions.export-pdf');
         Route::post('exam-sessions/{examSession}/reset-student/{examResult}', [\App\Http\Controllers\Admin\ExamSessionController::class, 'resetStudent'])->name('exam-sessions.reset-student');

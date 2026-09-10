@@ -38,7 +38,16 @@ class CampusProdiController extends Controller
 
         $records = $query->paginate(15)->withQueryString();
 
-        return view('admin.campus-prodis.index', compact('records'));
+        $stats = [
+            'total_campuses' => CampusProdi::distinct('campus_name')->count('campus_name'),
+            'total_prodis' => CampusProdi::distinct('prodi_name')->count('prodi_name'),
+            'total_relations' => CampusProdi::count(),
+            'total_s1' => CampusProdi::where('jenjang', 'like', '%S1%')->count(),
+            'total_d4' => CampusProdi::where('jenjang', 'like', '%D4%')->orWhere('jenjang', 'like', '%Sarjana Terapan%')->count(),
+            'total_d3' => CampusProdi::where('jenjang', 'like', '%D3%')->count(),
+        ];
+
+        return view('admin.campus-prodis.index', compact('records', 'stats'));
     }
 
     public function getProdisByCampus(Request $request)
@@ -131,6 +140,18 @@ class CampusProdiController extends Controller
                 'message' => 'Gagal memproses import: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'campus_names' => 'required|array',
+            'campus_names.*' => 'string',
+        ]);
+
+        $deletedCount = CampusProdi::whereIn('campus_name', $request->campus_names)->delete();
+
+        return redirect()->route('admin.campus-prodis.index')->with('success', "Data dari " . count($request->campus_names) . " kampus berhasil dihapus secara massal.");
     }
 
     public function destroyAll()

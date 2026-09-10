@@ -37,184 +37,352 @@
     </div>
 @endif
 
-<!-- Stats Summary Row -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
-        <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.685 0-5.3.233-7.875.682V21A2.25 2.25 0 006.375 23.25h11.25A2.25 2.25 0 0019.5 21z" />
-            </svg>
-        </div>
+<!-- Dashboard-style Stats Summary Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+    <!-- CARD 1: Kampus Terdaftar (Dashboard Style) -->
+    <div class="bg-white rounded-2xl p-5 border border-slate-200/70 shadow-xs flex flex-col justify-between">
         <div>
-            <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Total Kampus</div>
-            <div class="text-xl font-black text-slate-800 mt-0.5">
-                {{ number_format(\App\Models\CampusProdi::distinct('campus_name')->count()) }}
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-1.5">
+                    <h3 class="text-xs font-bold text-slate-700">Perguruan Tinggi</h3>
+                    <span class="w-3.5 h-3.5 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-[9px] font-bold">i</span>
+                </div>
+                <span class="text-[11px] font-semibold text-slate-600 px-2 py-0.5 rounded-lg border border-slate-200/80 bg-white">
+                    Nasional
+                </span>
+            </div>
+
+            <!-- Big Metric & Badge -->
+            <div class="flex items-baseline gap-2.5 mb-3">
+                <span class="text-2xl font-black text-slate-900 tracking-tight">{{ number_format($stats['total_campuses']) }}</span>
+                <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md">
+                    Kampus Aktif
+                </span>
+            </div>
+
+            <!-- Segmented Progress Bar (Orange) -->
+            <div class="h-2 w-full rounded-full bg-slate-100 flex overflow-hidden gap-1 mb-3">
+                <div class="bg-orange-500 rounded-full h-full" style="width: 100%;"></div>
+            </div>
+
+            <div class="flex items-center justify-between text-[11px] font-medium text-slate-500 mb-3">
+                <span class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-orange-500"></span> PTN & PTS Terdata
+                </span>
+                <span class="font-bold text-slate-700">{{ $stats['total_campuses'] }} Kampus</span>
+            </div>
+        </div>
+
+        <div class="border-t border-slate-100 pt-3 text-xs font-semibold">
+            <div class="flex items-center justify-between text-slate-600">
+                <span class="flex items-center gap-1.5 font-medium">
+                    <i class="ti ti-building text-slate-400 text-sm"></i>
+                    Database Kampus
+                </span>
+                <span class="text-emerald-600 font-bold text-[11px]">Terverifikasi</span>
             </div>
         </div>
     </div>
 
-    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
-        <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.62 48.62 0 0112 20.9c4.956-1.936 8.285-6.427 8.285-11.543a48.667 48.667 0 00-16.025-1.579zm11.66-3.414a48.667 48.667 0 00-11.661 0v-.543a3.375 3.375 0 016.75 0v.543a3.375 3.375 0 014.911 0v.543z" />
-            </svg>
-        </div>
+    <!-- CARD 2: Program Studi & Jenjang (Donut & Breakdown Style) -->
+    <div class="bg-white rounded-2xl p-5 border border-slate-200/70 shadow-xs flex flex-col justify-between">
         <div>
-            <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Total Program Studi</div>
-            <div class="text-xl font-black text-slate-800 mt-0.5">
-                {{ number_format(\App\Models\CampusProdi::distinct('prodi_name')->count()) }}
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-1.5">
+                    <h3 class="text-xs font-bold text-slate-700">Program Studi Unik</h3>
+                    <span class="w-3.5 h-3.5 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-[9px] font-bold">i</span>
+                </div>
+                <span class="text-[11px] font-bold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded-md">SNBT / Mandiri</span>
+            </div>
+
+            <!-- Big Metric & Badge -->
+            <div class="flex items-baseline gap-2.5 mb-3">
+                <span class="text-2xl font-black text-slate-900 tracking-tight">{{ number_format($stats['total_prodis']) }}</span>
+                <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md">
+                    Jurusan Berbeda
+                </span>
+            </div>
+
+            <!-- Jenjang Breakdown (S1, D4, D3) -->
+            @php
+                $totalJenjang = max(1, $stats['total_s1'] + $stats['total_d4'] + $stats['total_d3']);
+                $s1Pct = round(($stats['total_s1'] / $totalJenjang) * 100);
+                $d4Pct = round(($stats['total_d4'] / $totalJenjang) * 100);
+                $d3Pct = max(0, 100 - ($s1Pct + $d4Pct));
+            @endphp
+            <div class="h-2 w-full rounded-full bg-slate-100 flex overflow-hidden gap-1 mb-3">
+                <div class="bg-orange-500 rounded-full h-full" style="width: {{ max($s1Pct, 10) }}%;"></div>
+                <div class="bg-amber-400 rounded-full h-full" style="width: {{ max($d4Pct, 10) }}%;"></div>
+                <div class="bg-cyan-500 rounded-full h-full" style="width: {{ max($d3Pct, 10) }}%;"></div>
+            </div>
+
+            <div class="flex items-center gap-3 text-[11px] font-medium text-slate-500 mb-3">
+                <span class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-orange-500"></span> S1 ({{ $stats['total_s1'] }})
+                </span>
+                <span class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-amber-400"></span> D4 ({{ $stats['total_d4'] }})
+                </span>
+                <span class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-cyan-500"></span> D3 ({{ $stats['total_d3'] }})
+                </span>
+            </div>
+        </div>
+
+        <div class="border-t border-slate-100 pt-3 text-xs font-semibold">
+            <div class="flex items-center justify-between text-slate-600">
+                <span class="flex items-center gap-1.5 font-medium">
+                    <i class="ti ti-school text-slate-400 text-sm"></i>
+                    Jenjang Terbanyak
+                </span>
+                <span class="font-bold text-slate-800 text-[11px]">Sarjana (S1)</span>
             </div>
         </div>
     </div>
 
-    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
-        <div class="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center shrink-0">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-            </svg>
-        </div>
+    <!-- CARD 3: Relasi & Pemetaan (Dashboard Metric Breakdown Style) -->
+    <div class="bg-white rounded-2xl p-5 border border-slate-200/70 shadow-xs flex flex-col justify-between">
         <div>
-            <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Total Kombinasi Data</div>
-            <div class="text-xl font-black text-slate-800 mt-0.5">
-                {{ number_format(\App\Models\CampusProdi::count()) }}
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-1.5">
+                    <h3 class="text-xs font-bold text-slate-700">Total Pemetaan Prodi</h3>
+                    <span class="w-3.5 h-3.5 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-[9px] font-bold">i</span>
+                </div>
+                <div class="flex items-center gap-1 text-[11px] font-semibold text-slate-600 px-2 py-0.5 rounded-lg border border-slate-200/80 bg-white">
+                    <span>Database</span>
+                </div>
+            </div>
+
+            <!-- Big Metric & Badge -->
+            <div class="flex items-baseline gap-2.5 mb-3">
+                <span class="text-2xl font-black text-slate-900 tracking-tight">{{ number_format($stats['total_relations']) }}</span>
+                <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md">
+                    Total Entri
+                </span>
+            </div>
+
+            <!-- Equalizer / Visual Indicators matching dashboard style -->
+            <div class="bg-slate-50/70 rounded-xl p-2.5 border border-slate-100 mb-3">
+                <div class="flex items-end justify-between gap-1 h-6 px-1">
+                    <div class="w-1.5 bg-orange-500 rounded-full h-5"></div>
+                    <div class="w-1.5 bg-orange-500 rounded-full h-4"></div>
+                    <div class="w-1.5 bg-orange-500 rounded-full h-6"></div>
+                    <div class="w-1.5 bg-orange-500 rounded-full h-5"></div>
+                    <div class="w-1.5 bg-orange-500 rounded-full h-3"></div>
+                    <div class="w-1.5 bg-orange-500 rounded-full h-6"></div>
+                    <div class="w-1.5 bg-orange-500 rounded-full h-5"></div>
+                    <div class="w-1.5 bg-orange-500 rounded-full h-4"></div>
+                    <div class="w-1.5 bg-orange-500 rounded-full h-6"></div>
+                    <div class="w-1.5 bg-orange-500 rounded-full h-5"></div>
+                    <div class="w-1.5 bg-orange-500 rounded-full h-4"></div>
+                    <div class="w-1.5 bg-orange-500 rounded-full h-6"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-t border-slate-100 pt-3 text-xs font-semibold">
+            <div class="flex items-center justify-between text-slate-600">
+                <span class="flex items-center gap-1.5 font-medium">
+                    <i class="ti ti-database text-slate-400 text-sm"></i>
+                    Rata-rata Prodi / Kampus
+                </span>
+                <span class="font-bold text-slate-900 text-[11px]">
+                    {{ $stats['total_campuses'] > 0 ? round($stats['total_relations'] / $stats['total_campuses'], 1) : 0 }} Prodi
+                </span>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Filters & Search Toolbar -->
-<div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm mb-6">
-    <form action="{{ route('admin.campus-prodis.index') }}" method="GET" class="flex flex-col md:flex-row gap-4 items-center justify-between">
-        <div class="w-full md:flex-1 relative">
-            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path>
-                    <path d="M21 21l-6 -6"></path>
-                </svg>
+<div x-data="{
+    selectedCampuses: [],
+    allCampuses: {{ json_encode($records->pluck('campus_name')->toArray()) }},
+    get allSelected() {
+        return this.allCampuses.length > 0 && this.allCampuses.every(name => this.selectedCampuses.includes(name));
+    },
+    toggleSelectAll() {
+        if (this.allSelected) {
+            this.selectedCampuses = [];
+        } else {
+            this.selectedCampuses = [...this.allCampuses];
+        }
+    },
+    confirmBulkDelete() {
+        if (this.selectedCampuses.length === 0) return;
+        Swal.fire({
+            title: 'Hapus ' + this.selectedCampuses.length + ' Kampus?',
+            text: 'Semua program studi di kampus terpilih akan dihapus secara permanen!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#f97316',
+            cancelButtonColor: '#ef4444',
+            confirmButtonText: 'Ya, Hapus Terpilih!',
+            cancelButtonText: 'Batal',
+            customClass: {
+                popup: 'rounded-3xl shadow-2xl border border-slate-100',
+                confirmButton: 'rounded-xl font-bold text-xs px-5 py-2.5 shadow-md shadow-orange-500/20',
+                cancelButton: 'rounded-xl font-bold text-xs px-5 py-2.5'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('bulk-delete-campus-form').submit();
+            }
+        });
+    }
+}">
+    <!-- Filters & Search Toolbar (Cardless) -->
+    <div class="mb-4">
+        <form action="{{ route('admin.campus-prodis.index') }}" method="GET" class="flex flex-col md:flex-row gap-2.5 items-center justify-between">
+            <div class="w-full md:flex-1 relative">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <i class="ti ti-search text-base"></i>
+                </div>
+                <input type="text" name="search" id="search" value="{{ request('search') }}" 
+                    class="block w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200/80 rounded-xl text-slate-800 placeholder-slate-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-100/50 text-xs transition-all focus:outline-none shadow-2xs" 
+                    placeholder="Cari nama kampus atau program studi...">
             </div>
-            <input type="text" name="search" id="search" value="{{ request('search') }}" 
-                class="block w-full pl-10 pr-4 py-2.5 bg-slate-50 border-none rounded-xl text-slate-800 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-100 text-xs transition-all focus:outline-none" 
-                placeholder="Cari nama kampus atau prodi...">
+
+            <div class="flex items-center gap-2.5 w-full md:w-auto shrink-0">
+                <button type="submit" class="w-full md:w-auto px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold text-xs transition-colors shadow-2xs flex items-center justify-center gap-1.5">
+                    <i class="ti ti-filter text-sm"></i>
+                    <span>Cari</span>
+                </button>
+                @if(request('search'))
+                    <a href="{{ route('admin.campus-prodis.index') }}" class="w-full md:w-auto text-center px-4 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-xs rounded-xl transition-all shadow-2xs">Reset</a>
+                @endif
+            </div>
+        </form>
+    </div>
+
+    <!-- Campus Cards Container -->
+    <div class="space-y-2.5">
+        <!-- Top Action & Selection Bar -->
+        <div class="bg-orange-500 text-white px-5 py-3.5 rounded-2xl shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <!-- Select All Checkbox -->
+                <label class="flex items-center gap-2.5 cursor-pointer select-none">
+                    <input type="checkbox" 
+                           @change="toggleSelectAll()" 
+                           :checked="allSelected" 
+                           class="w-4 h-4 rounded border-white/40 text-orange-600 focus:ring-0 focus:ring-offset-0 bg-white/20 checked:bg-white checked:border-white transition-all cursor-pointer">
+                    <span class="text-xs font-bold tracking-wide">Pilih Semua</span>
+                </label>
+                <span class="text-white/40">|</span>
+                <span class="text-[11px] text-white/85 font-medium">
+                    Total: <strong class="text-white">{{ $records->total() }}</strong> kampus
+                </span>
+            </div>
+            
+            <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                <!-- Bulk Delete Action Trigger -->
+                <button type="button" 
+                        x-show="selectedCampuses.length > 0" 
+                        x-transition 
+                        @click="confirmBulkDelete()" 
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold text-xs shadow-sm transition-all animate-pulse" 
+                        x-cloak>
+                    <i class="ti ti-trash text-sm"></i>
+                    <span>Hapus (<span x-text="selectedCampuses.length"></span>)</span>
+                </button>
+
+                <button onclick="openImportModal()" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white/15 hover:bg-white/25 text-white rounded-xl font-bold text-xs border border-white/20 transition-all active:scale-95">
+                    <i class="ti ti-file-import text-sm"></i>
+                    Import Excel
+                </button>
+
+                @if($records->total() > 0)
+                    <form action="{{ route('admin.campus-prodis.destroy-all') }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus SEMUA data kampus & prodi? Tindakan ini tidak bisa dibatalkan.');" class="inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold text-xs shadow-sm transition-all active:scale-95">
+                            <i class="ti ti-trash-x text-sm"></i>
+                            Hapus Semua
+                        </button>
+                    </form>
+                @endif
+            </div>
         </div>
 
-        <div class="flex items-center gap-3 w-full md:w-auto shrink-0">
-            <button type="submit" class="w-full md:w-auto px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold text-xs transition-colors">
-                Cari
-            </button>
-            @if(request('search'))
-                <a href="{{ route('admin.campus-prodis.index') }}" class="w-full md:w-auto text-center px-4 py-2.5 border border-slate-200 text-slate-650 hover:bg-slate-50 font-bold text-xs rounded-xl transition-all">Reset</a>
-            @endif
-        </div>
-    </form>
-</div>
+        <!-- Compact Campus Cards List -->
+        <div class="space-y-2">
+            @forelse($records as $index => $record)
+            <div class="bg-white px-4 py-3 rounded-xl border border-slate-100 shadow-2xs hover:border-orange-200 transition-all flex flex-col md:flex-row md:items-center justify-between gap-3 group"
+                 :class="selectedCampuses.includes('{{ addslashes($record->campus_name) }}') ? 'border-orange-400 bg-orange-50/20 ring-1 ring-orange-200' : ''">
+                
+                <!-- Left Section: Checkbox, Index, Avatar & Campus Name -->
+                <div class="flex items-center gap-3 min-w-0 flex-1">
+                    <!-- Row Checkbox -->
+                    <input type="checkbox" 
+                           value="{{ $record->campus_name }}" 
+                           x-model="selectedCampuses" 
+                           class="w-4 h-4 rounded border-slate-300 text-orange-500 focus:ring-orange-100 cursor-pointer shrink-0">
+                    
+                    <!-- Index Badge -->
+                    <span class="w-6 h-6 rounded-md bg-slate-100 border border-slate-200 text-slate-500 flex items-center justify-center text-[10px] font-bold shrink-0">
+                        #{{ $records->firstItem() + $index }}
+                    </span>
 
-<!-- Main Table Card -->
-<div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-    <!-- Card Header (Unified Blue Bar) -->
-    <div class="bg-[#153c96] text-white px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <path d="M19 4v16h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12z"></path>
-                    <path d="M19 16h-12a2 2 0 0 0 -2 2"></path>
-                    <path d="M9 8h6"></path>
-                </svg>
+                    <!-- Campus Avatar Icon -->
+                    <div class="w-8 h-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center font-black text-xs shrink-0 ring-1 ring-orange-100">
+                        {{ substr($record->campus_name, 0, 1) }}
+                    </div>
+                    
+                    <!-- Campus Title & Quick Meta -->
+                    <div class="min-w-0">
+                        <h4 class="text-xs font-bold text-slate-800 group-hover:text-orange-600 transition-colors truncate">{{ $record->campus_name }}</h4>
+                        <p class="text-[11px] text-slate-400 truncate mt-0.5 flex items-center gap-1.5">
+                            <i class="ti ti-school text-slate-400 text-xs"></i>
+                            <span>Perguruan Tinggi / Universitas</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Middle Section: Total Prodi Pill -->
+                <div class="flex items-center gap-4 px-2 md:px-0 shrink-0">
+                    <span class="bg-orange-50 text-orange-700 border border-orange-100 px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase tracking-tight flex items-center gap-1.5">
+                        <i class="ti ti-books text-xs"></i>
+                        {{ $record->total_prodi }} Program Studi
+                    </span>
+                </div>
+
+                <!-- Right Section: Action Button -->
+                <div class="flex items-center justify-end gap-1.5 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-50">
+                    <button onclick="openDetailModal('{{ addslashes($record->campus_name) }}')" 
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-orange-50 hover:text-orange-600 text-slate-600 rounded-lg font-bold text-xs transition-all border border-slate-100" 
+                            title="Lihat Rincian Program Studi">
+                        <i class="ti ti-list-details text-sm"></i>
+                        <span>Detail Prodi</span>
+                    </button>
+                </div>
             </div>
-            <div>
-                <h3 class="font-bold text-sm tracking-wide">Daftar Kampus</h3>
-                <p class="text-[10px] text-white/70">Klik detail untuk melihat daftar program studi di setiap kampus</p>
+            @empty
+            <div class="bg-white p-8 rounded-2xl border border-slate-100 text-center">
+                <div class="flex flex-col items-center justify-center gap-2">
+                    <div class="p-3 bg-orange-50 text-orange-500 rounded-xl">
+                        <i class="ti ti-inbox-off text-2xl"></i>
+                    </div>
+                    <h4 class="text-xs font-bold text-slate-700">Belum Ada Data Kampus</h4>
+                    <p class="text-[11px] text-slate-400">Silakan upload data kampus & prodi melalui tombol import Excel.</p>
+                </div>
             </div>
+            @endforelse
         </div>
         
-        <div class="flex items-center gap-3">
-            <button onclick="openImportModal()" class="inline-flex items-center gap-1.5 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold text-xs border border-white/15 transition-all">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
-                    <path d="M7 9l5 -5l5 5"></path>
-                    <path d="M12 4l0 12"></path>
-                </svg>
-                Import Excel
-            </button>
-
-            @if($records->total() > 0)
-                <form action="{{ route('admin.campus-prodis.destroy-all') }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus semua data kampus & prodi? Tindakan ini tidak bisa dibatalkan.');" class="inline">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-bold text-xs shadow-sm transition-all">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                        </svg>
-                        Hapus Semua
-                    </button>
-                </form>
-            @endif
-        </div>
-    </div>
-
-    <!-- Table -->
-    <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-            <thead>
-                <tr class="bg-[#153c96] text-white select-none">
-                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95">No</th>
-                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95">Nama Kampus</th>
-                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95">Jumlah Prodi</th>
-                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white/95 text-right">Aksi</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-50">
-                @forelse($records as $index => $record)
-                    <tr class="hover:bg-slate-50/20 transition-colors group">
-                        <td class="px-6 py-4 text-xs font-bold text-slate-400">
-                            #{{ $records->firstItem() + $index }}
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-white text-xs shadow-sm bg-gradient-to-tr from-blue-600 to-indigo-500">
-                                    {{ substr($record->campus_name, 0, 1) }}
-                                </div>
-                                <div class="font-bold text-slate-800 leading-tight">
-                                    {{ $record->campus_name }}
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-xs font-semibold text-slate-600">
-                            <span class="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg">
-                                {{ $record->total_prodi }} Prodi
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            <button onclick="openDetailModal('{{ addslashes($record->campus_name) }}')" class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-[#153c96] rounded-xl font-bold text-xs transition-colors">
-                                Detail Prodi
-                            </button>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="4" class="px-6 py-12 text-center">
-                            <div class="flex flex-col items-center justify-center text-slate-400 space-y-3">
-                                <svg class="w-12 h-12 text-slate-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.008 1.24l.885 1.77a2.25 2.25 0 002.007 1.24h1.98a2.25 2.25 0 002.007-1.24l.885-1.77a2.25 2.25 0 012.007-1.24h3.89m-18 0h18" />
-                                </svg>
-                                <div class="font-semibold text-sm">Belum Ada Data</div>
-                                <div class="text-xs">Silakan upload data kampus & prodi melalui tombol import Excel.</div>
-                            </div>
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Pagination -->
-    @if($records->hasPages())
-        <div class="p-6 border-t border-slate-50">
+        <!-- Pagination -->
+        @if($records->hasPages())
+        <div class="bg-white px-4 py-3 rounded-xl border border-slate-100 shadow-2xs mt-3">
             {{ $records->links() }}
         </div>
-    @endif
+        @endif
+    </div>
+
+    <!-- Hidden Bulk Delete Form -->
+    <form id="bulk-delete-campus-form" action="{{ route('admin.campus-prodis.bulk-delete') }}" method="POST" style="display: none;">
+        @csrf
+        <template x-for="name in selectedCampuses" :key="name">
+            <input type="hidden" name="campus_names[]" :value="name">
+        </template>
+    </form>
 </div>
 
 <!-- Detail Prodi Modal -->
@@ -230,9 +398,7 @@
                 <p class="text-[10px] text-slate-400 mt-0.5">Daftar jurusan beserta jenjang pendidikan yang tersedia</p>
             </div>
             <button onclick="closeDetailModal()" class="w-8 h-8 rounded-xl hover:bg-slate-50 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <i class="ti ti-x text-base"></i>
             </button>
         </div>
         
@@ -260,7 +426,7 @@
 
         <!-- Inner Loader Overlay -->
         <div id="detail-loader" class="absolute inset-0 bg-white/95 rounded-3xl z-20 flex flex-col items-center justify-center space-y-4">
-            <div class="w-8 h-8 border-4 border-blue-200 border-t-[#153c96] rounded-full animate-spin"></div>
+            <div class="w-8 h-8 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin"></div>
             <div class="text-xs font-bold text-slate-700">Memuat data prodi...</div>
         </div>
     </div>
@@ -315,7 +481,8 @@
                 <button onclick="backToUpload()" class="px-4 py-2 border border-slate-200 text-slate-650 hover:bg-slate-50 font-bold text-xs rounded-xl transition-all">
                     Kembali
                 </button>
-                <button onclick="submitImport()" class="px-5 py-2 bg-[#153c96] hover:bg-blue-800 text-white font-bold text-xs rounded-xl transition-all shadow-sm">
+                <button onclick="submitImport()" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs rounded-xl transition-all shadow-sm flex items-center gap-1.5">
+                    <i class="ti ti-cloud-upload text-sm"></i>
                     Mulai Import
                 </button>
             </div>
