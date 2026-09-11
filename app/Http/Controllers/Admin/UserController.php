@@ -16,16 +16,26 @@ class UserController extends Controller
     {
         $query = User::with('roles');
 
-        if ($request->has('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%')
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
                   ->orWhere('email', 'like', '%' . $request->search . '%');
+            });
         }
 
-        if ($request->has('role') && $request->role != '') {
+        if ($request->filled('role')) {
             $query->role($request->role);
         }
 
-        $users = $query->latest()->paginate(10);
+        $perPage = $request->input('per_page', 10);
+        if ($perPage === 'all') {
+            $totalCount = (clone $query)->count();
+            $perPage = $totalCount > 0 ? $totalCount : 10;
+        } else {
+            $perPage = in_array((int)$perPage, [10, 20, 50, 100]) ? (int)$perPage : 10;
+        }
+
+        $users = $query->latest()->paginate($perPage)->withQueryString();
         $roles = Role::all();
 
         return view('admin.users.index', compact('users', 'roles'));

@@ -88,8 +88,8 @@
                     placeholder="Cari nama atau email pengguna...">
             </div>
 
-            <div class="flex items-center gap-2.5 w-full md:w-auto">
-                <select name="role" class="block w-full md:w-44 py-2.5 px-3 bg-white border border-slate-200/80 rounded-xl text-slate-600 focus:border-orange-500 focus:ring-2 focus:ring-orange-100/50 text-xs transition-all focus:outline-none font-medium shadow-2xs">
+            <div class="flex items-center gap-2.5 w-full md:w-auto flex-wrap sm:flex-nowrap">
+                <select name="role" onchange="this.form.submit()" class="block w-full sm:w-36 py-2.5 px-3 bg-white border border-slate-200/80 rounded-xl text-slate-600 focus:border-orange-500 focus:ring-2 focus:ring-orange-100/50 text-xs transition-all focus:outline-none font-medium shadow-2xs">
                     <option value="">Semua Peran</option>
                     @foreach($roles as $role)
                         <option value="{{ $role->name }}" {{ request('role') == $role->name ? 'selected' : '' }}>
@@ -98,10 +98,22 @@
                     @endforeach
                 </select>
 
-                <button type="submit" class="w-full md:w-auto px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold text-xs transition-colors shrink-0 flex items-center justify-center gap-1.5 shadow-2xs">
+                <select name="per_page" onchange="this.form.submit()" class="block w-full sm:w-36 py-2.5 px-3 bg-white border border-slate-200/80 rounded-xl text-slate-600 focus:border-orange-500 focus:ring-2 focus:ring-orange-100/50 text-xs transition-all focus:outline-none font-medium shadow-2xs">
+                    <option value="10" {{ request('per_page', '10') == '10' ? 'selected' : '' }}>10 / Halaman</option>
+                    <option value="20" {{ request('per_page') == '20' ? 'selected' : '' }}>20 / Halaman</option>
+                    <option value="50" {{ request('per_page') == '50' ? 'selected' : '' }}>50 / Halaman</option>
+                    <option value="100" {{ request('per_page') == '100' ? 'selected' : '' }}>100 / Halaman</option>
+                    <option value="all" {{ request('per_page') == 'all' ? 'selected' : '' }}>Tampilkan Semua</option>
+                </select>
+
+                <button type="submit" class="w-full sm:w-auto px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold text-xs transition-colors shrink-0 flex items-center justify-center gap-1.5 shadow-2xs">
                     <i class="ti ti-filter text-sm"></i>
                     <span>Filter</span>
                 </button>
+
+                @if(request('search') || request('role') || (request('per_page') && request('per_page') != '10'))
+                    <a href="{{ route('admin.users.index') }}" class="w-full sm:w-auto px-4 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-xs rounded-xl transition-all text-center shadow-2xs">Reset</a>
+                @endif
             </div>
         </form>
     </div>
