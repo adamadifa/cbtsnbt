@@ -386,8 +386,14 @@
     @push('scripts')
         <script>
             function examShell() {
+                const storageKey = 'current_question_index_' + {{ $examResult->id }} + '_' + ({{ $currentSubtest->id ?? 0 }});
+                const totalQuestions = {{ count($questions) }};
+                const savedIndex = parseInt(localStorage.getItem(storageKey));
+                const initialIndex = (!isNaN(savedIndex) && savedIndex >= 0 && savedIndex < totalQuestions) ? savedIndex : 0;
+
                 return {
-                    currentIndex: 0,
+                    storageKey: storageKey,
+                    currentIndex: initialIndex,
                     allQuestions: @json($questions),
                     totalExamQuestions: {{ $totalExamQuestions }},
                     answers: @json($userAnswers),
@@ -464,6 +470,7 @@
                     },
 
                     startTransition() {
+                        localStorage.removeItem(this.storageKey);
                         clearInterval(this.timerInterval);
                         this.isTransitioning = true;
                         this.transitionSeconds = {{ $nextSubtestDelay }};
@@ -619,12 +626,14 @@
 
                     goToQuestion(index) {
                         this.currentIndex = index;
+                        localStorage.setItem(this.storageKey, index);
                         this.updateCurrentQuestionState();
                     },
 
                     nextQuestion() {
                         if (this.currentIndex < this.allQuestions.length - 1) {
                             this.currentIndex++;
+                            localStorage.setItem(this.storageKey, this.currentIndex);
                             this.updateCurrentQuestionState();
                         }
                     },
@@ -632,11 +641,13 @@
                     prevQuestion() {
                         if (this.currentIndex > 0) {
                             this.currentIndex--;
+                            localStorage.setItem(this.storageKey, this.currentIndex);
                             this.updateCurrentQuestionState();
                         }
                     },
 
                     finishExam() {
+                        localStorage.removeItem(this.storageKey);
                         this.showFinishModal = true;
                     },
 
