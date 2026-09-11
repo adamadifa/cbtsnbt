@@ -383,44 +383,6 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const selectAllCheckbox = document.getElementById('select-all-checkbox');
-        const questionCheckboxes = document.querySelectorAll('.question-checkbox');
-        const bulkDeleteBtn = document.getElementById('bulk-delete-btn');
-        const bulkDeleteCount = document.getElementById('bulk-delete-count');
-
-        if (selectAllCheckbox) {
-            selectAllCheckbox.addEventListener('change', function () {
-                questionCheckboxes.forEach(cb => {
-                    cb.checked = selectAllCheckbox.checked;
-                });
-                updateBulkDeleteUI();
-            });
-
-            questionCheckboxes.forEach(cb => {
-                cb.addEventListener('change', function () {
-                    // Update Select All state
-                    const allChecked = Array.from(questionCheckboxes).every(c => c.checked);
-                    const someChecked = Array.from(questionCheckboxes).some(c => c.checked);
-                    selectAllCheckbox.checked = allChecked;
-                    selectAllCheckbox.indeterminate = someChecked && !allChecked;
-                    updateBulkDeleteUI();
-                });
-            });
-        }
-
-        function updateBulkDeleteUI() {
-            const checkedCount = document.querySelectorAll('.question-checkbox:checked').length;
-            if (checkedCount > 0) {
-                bulkDeleteBtn.style.display = 'inline-flex';
-                bulkDeleteCount.textContent = checkedCount;
-            } else {
-                bulkDeleteBtn.style.display = 'none';
-                bulkDeleteCount.textContent = '0';
-            }
-        }
-    });
-
     function confirmBulkDeleteQuestions(questionIds) {
         if (!questionIds || questionIds.length === 0) return;
 

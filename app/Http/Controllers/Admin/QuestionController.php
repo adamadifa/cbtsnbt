@@ -200,14 +200,21 @@ class QuestionController extends Controller
 
     public function bulkDelete(Request $request)
     {
+        $ids = $request->input('question_ids', $request->input('ids', []));
+
+        if (empty($ids) || !is_array($ids)) {
+            return back()->with('error', 'Pilih minimal satu soal untuk dihapus.');
+        }
+
+        $request->merge(['question_ids' => $ids]);
         $request->validate([
-            'ids' => 'required|array',
-            'ids.*' => 'required|exists:questions,id',
+            'question_ids' => 'required|array',
+            'question_ids.*' => 'exists:questions,id',
         ]);
 
-        Question::destroy($request->ids);
+        $deletedCount = Question::whereIn('id', $ids)->delete();
 
-        return back()->with('success', count($request->ids) . ' soal berhasil dihapus.');
+        return back()->with('success', "{$deletedCount} soal berhasil dihapus.");
     }
 
     public function importWord(Request $request)

@@ -25,15 +25,15 @@ function getExamResultId(vuId) {
  * =========================================================================
  */
 
-// Konfigurasi Beban Simulasi (100 User Bersamaan)
+// Konfigurasi Beban Simulasi (40 User Bersamaan)
 export const options = {
     hosts: {
         'snbt.gaweid.my.id': '72.61.213.199',
     },
     stages: [
-        { duration: '1m', target: 100 }, // Naikkan perlahan ke 100 user dalam 1 menit
-        { duration: '3m', target: 100 }, // Pertahankan beban 100 user selama 3 menit
-        { duration: '1m', target: 0 },   // Turunkan kembali jumlah user ke 0
+        { duration: '30s', target: 40 }, // Naikkan perlahan ke 40 user dalam 30 detik
+        { duration: '1m30s', target: 40 }, // Pertahankan beban 40 user selama 1.5 menit
+        { duration: '30s', target: 0 },   // Turunkan kembali jumlah user ke 0
     ],
 };
 
