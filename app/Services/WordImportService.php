@@ -82,12 +82,12 @@ class WordImportService
 
         // Check for markers
         if (preg_match('/^\[SOAL\]/i', $text)) {
-            $this->currentQuestion['content'] = preg_replace('/^\[SOAL\]\s*/i', '', $html);
+            $this->currentQuestion['content'] = preg_replace('/^(?:<[^>]+>)*\[SOAL\](?:<\/[^>]+>)*\s*/i', '', $html);
             $this->currentState = 'soal';
         } elseif (preg_match('/^\[([A-Z])\]/i', $text, $matches)) {
             $label = strtoupper($matches[1]);
             $this->currentQuestion['options'][$label] = [
-                'content' => preg_replace('/^\[[A-Z]\]\s*/i', '', $html),
+                'content' => preg_replace('/^(?:<[^>]+>)*\[' . $label . '\](?:<\/[^>]+>)*\s*/i', '', $html),
                 'is_correct' => false,
             ];
             $this->currentState = 'option_' . $label;
@@ -116,7 +116,7 @@ class WordImportService
             }
             $this->currentState = 'kunci';
         } elseif (preg_match('/^\[PEMBAHASAN\]/i', $text)) {
-            $this->currentQuestion['explanation'] = preg_replace('/^\[PEMBAHASAN\]\s*/i', '', $html);
+            $this->currentQuestion['explanation'] = preg_replace('/^(?:<[^>]+>)*\[PEMBAHASAN\](?:<\/[^>]+>)*\s*/i', '', $html);
             $this->currentState = 'explanation';
         } elseif (preg_match('/^\[TIPE\]/i', $text)) {
             $typeInput = trim(strtolower(preg_replace('/^\[TIPE\]\s*/i', '', $text)));
@@ -182,7 +182,7 @@ class WordImportService
         if ($element instanceof TextRun) {
             foreach ($element->getElements() as $child) {
                 if ($child instanceof Text) {
-                    $html .= $child->getText();
+                    $html .= $this->formatTextElement($child);
                 } elseif ($child instanceof Image) {
                     $imagePath = $this->saveImage($child);
                     if ($imagePath) {
@@ -191,7 +191,7 @@ class WordImportService
                 }
             }
         } elseif ($element instanceof Text) {
-            $html = $element->getText();
+            $html = $this->formatTextElement($element);
         } elseif ($element instanceof Image) {
             $imagePath = $this->saveImage($element);
             if ($imagePath) {
@@ -200,6 +200,41 @@ class WordImportService
         }
 
         return $html;
+    }
+
+    protected function formatTextElement(Text $textElement)
+    {
+        $text = htmlspecialchars($textElement->getText(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $fontStyle = $textElement->getFontStyle();
+
+        if ($fontStyle) {
+            if ($fontStyle->isBold()) {
+                $text = '<strong>' . $text . '</strong>';
+            }
+            if ($fontStyle->isItalic()) {
+                $text = '<em>' . $text . '</em>';
+            }
+            if ($fontStyle->getUnderline() && $fontStyle->getUnderline() !== 'none') {
+                $text = '<u>' . $text . '</u>';
+            }
+            if ($fontStyle->isStrikethrough()) {
+                $text = '<s>' . $text . '</s>';
+            }
+            if ($fontStyle->isSuperScript()) {
+                $text = '<sup>' . $text . '</sup>';
+            } elseif ($fontStyle->isSubScript()) {
+                $text = '<sub>' . $text . '</sub>';
+            }
+            if ($fontStyle->getColor()) {
+                $color = $fontStyle->getColor();
+                if (!str_starts_with($color, '#')) {
+                    $color = '#' . $color;
+                }
+                $text = '<span style="color: ' . htmlspecialchars($color) . ';">' . $text . '</span>';
+            }
+        }
+
+        return $text;
     }
 
     protected function renderTableToHtml(Table $table)

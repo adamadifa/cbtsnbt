@@ -261,6 +261,20 @@
                 }
             });
         }
+
+        // Clean up exam localStorage caches once safely on the results page
+        try {
+            localStorage.removeItem('offline_answers_queue_{{ $examResult->id }}');
+            localStorage.removeItem('local_exam_answers_{{ $examResult->id }}');
+            localStorage.removeItem('doubtful_answers_{{ $examResult->id }}');
+            @if(isset($allSubtests))
+                @foreach($allSubtests as $st)
+                    localStorage.removeItem('current_question_index_{{ $examResult->id }}_{{ $st->id }}');
+                @endforeach
+            @endif
+        } catch (e) {
+            console.warn('Storage cleanup notice', e);
+        }
     });
 </script>
 @endpush

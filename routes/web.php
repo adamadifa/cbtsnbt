@@ -22,6 +22,9 @@ Route::middleware(['auth', 'verified', 'redirect_role'])->group(function () {
     // Student Exam Flow
     Route::prefix('exam')->name('student.exam.')->group(function () {
         Route::post('/start', [\App\Http\Controllers\Student\ExamController::class, 'start'])->name('start');
+        Route::get('/csrf-refresh', function () {
+            return response()->json(['token' => csrf_token()]);
+        })->name('csrf-refresh');
         Route::get('/{examResult}', [\App\Http\Controllers\Student\ExamController::class, 'show'])->name('show');
         Route::get('/{examResult}/results', [\App\Http\Controllers\Student\ExamController::class, 'results'])->name('results');
         Route::get('/{examResult}/certificate', [\App\Http\Controllers\Student\ExamController::class, 'downloadCertificate'])->name('certificate');

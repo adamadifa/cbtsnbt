@@ -2,29 +2,94 @@
 
 @section('content')
     <div x-data="examShell()" x-init="initExam()" class="space-y-6 pb-28">
-        {{-- Transition Timer Panel (If next subtest transition) --}}
+        {{-- Transition Timer Panel (If next subtest transition or waiting for network) --}}
         <div x-show="isTransitioning"
             class="fixed inset-0 z-[120] bg-slate-900/95 flex flex-col items-center justify-center text-center p-6 text-white"
             style="display: none;">
-            <div
-                class="w-16 h-16 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-full flex items-center justify-center mb-6 animate-pulse">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            
+            {{-- Normal Countdown State --}}
+            <template x-if="transitionSeconds > 0">
+                <div class="space-y-4 max-w-xs mx-auto">
+                    <div class="w-16 h-16 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full flex items-center justify-center mx-auto animate-pulse">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-base font-extrabold tracking-tight">Waktu Subtest Berakhir!</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Semua jawaban tersimpan. Memuat lembar soal berikutnya dalam:</p>
+                    <span class="text-5xl font-black text-amber-400 block tabular-nums my-2" x-text="transitionSeconds">10</span>
+                    <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Mohon tidak menutup halaman ini</p>
+                </div>
+            </template>
+
+            {{-- Offline Waiting State --}}
+            <template x-if="transitionSeconds <= 0">
+                <div class="space-y-4 max-w-xs mx-auto">
+                    <div class="w-16 h-16 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full flex items-center justify-center mx-auto animate-bounce">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 4.243a9 9 0 01-2.828-6.364m2.828 6.364l-2.829 2.829M3 3l18 18M9.879 9.879a3 3 0 004.242 4.242"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-base font-extrabold tracking-tight text-amber-300">Menunggu Koneksi Internet...</h3>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        Jawaban Anda <strong class="text-emerald-400 font-bold">aman tersimpan</strong> di HP. Sistem menunggu koneksi pulih untuk sinkronisasi.
+                    </p>
+                    <div class="p-3 bg-amber-950/60 rounded-xl border border-amber-500/30 text-left text-[11px] text-amber-200">
+                        <strong class="font-bold block text-white mb-0.5">Petunjuk:</strong>
+                        Harap tetap di halaman ini dan <strong>lapor ke Pengawas</strong> jika WiFi/data terputus.
+                    </div>
+                    <button type="button" @click="moveToNextSubtest()" :disabled="isSyncing"
+                        class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-1.5 mt-2">
+                        <svg x-show="isSyncing" class="w-3.5 h-3.5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                        </svg>
+                        <span x-text="isSyncing ? 'Menyinkronkan...' : '🔄 Coba Sinkronkan & Lanjut'"></span>
+                    </button>
+                </div>
+            </template>
+        </div>
+
+        {{-- Offline Alert Banner (Only shown when truly offline) --}}
+        <div x-show="syncStatus === 'offline'" 
+            x-transition
+            class="bg-amber-500 text-white p-3 rounded-2xl text-xs font-semibold flex items-center justify-between shadow-md"
+            style="display: none;">
+            <div class="flex items-center gap-2 pr-2">
+                <svg class="w-4 h-4 shrink-0 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                 </svg>
+                <span class="text-[11px] leading-tight">
+                    <span>Koneksi terputus!</span>
+                    <span x-text="pendingSyncCount"></span> jawaban menunggu kirim.
+                </span>
             </div>
-            <h3 class="text-lg font-extrabold tracking-tight">Waktu Subtest Berakhir!</h3>
-            <p class="text-xs text-slate-400 mt-2 max-w-xs leading-relaxed">Jawaban Anda telah disimpan. Sistem akan
-                mengarahkan Anda ke subtest berikutnya secara otomatis dalam:</p>
-            <span class="text-5xl font-black text-amber-500 mt-6 block tabular-nums" x-text="transitionSeconds">10</span>
-            <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-8">Mohon tidak menutup halaman ini
-            </p>
+            <button @click="syncOfflineAnswers()" class="px-2 py-1 bg-white text-amber-800 rounded-lg text-[9px] font-bold uppercase tracking-wider hover:bg-amber-50 shrink-0">
+                <span x-text="syncStatus === 'saving' ? '...' : 'Sinkron'"></span>
+            </button>
         </div>
 
         {{-- Top Bar Timer & Subtest Info --}}
         <div class="bg-slate-900 rounded-2xl p-4 text-white shadow-md flex items-center justify-between gap-4">
             <div class="min-w-0">
-                <span class="text-[8px] font-black text-indigo-400 uppercase tracking-wider block">Subtest Ujian</span>
+                <div class="flex items-center gap-1.5">
+                    <span class="text-[8px] font-black text-indigo-400 uppercase tracking-wider">Subtest</span>
+                    {{-- Status Indicator Pill --}}
+                    <span class="inline-flex items-center gap-1 px-1.5 py-0.2 text-[8px] font-bold rounded"
+                        :class="{
+                            'bg-emerald-500/20 text-emerald-300': syncStatus === 'saved',
+                            'bg-blue-500/20 text-blue-300': syncStatus === 'saving',
+                            'bg-amber-500/20 text-amber-300 animate-pulse': syncStatus === 'offline'
+                        }">
+                        <span class="w-1.5 h-1.5 rounded-full"
+                            :class="{
+                                'bg-emerald-400': syncStatus === 'saved',
+                                'bg-blue-400 animate-ping': syncStatus === 'saving',
+                                'bg-amber-400': syncStatus === 'offline'
+                            }"></span>
+                        <span x-text="syncStatus === 'saved' ? 'Tersimpan' : (syncStatus === 'saving' ? 'Menyimpan...' : 'Offline (' + pendingSyncCount + ')')"></span>
+                    </span>
+                </div>
                 <span class="text-xs font-bold text-slate-100 truncate block mt-0.5"
                     x-text="currentQuestion ? currentQuestion.subtest_title : '{{ $currentSubtest->title ?? 'Subtest' }}'"></span>
             </div>
@@ -366,18 +431,42 @@
                         terjawab. Setelah selesai, Anda tidak dapat mengubah jawaban lagi.</p>
                 </div>
 
+                {{-- Pending Sync Warning inside Mobile Finish Modal --}}
+                <template x-if="pendingSyncCount > 0 || !navigator.onLine">
+                    <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl text-left flex items-start gap-2.5">
+                        <div class="p-1 bg-rose-100 text-rose-700 rounded-md shrink-0 mt-0.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                        </div>
+                        <div class="text-[10px] text-rose-900 leading-relaxed font-medium">
+                            <strong class="font-bold block text-rose-800 text-[11px] mb-0.5">Koneksi Belum Terhubung!</strong>
+                            Ada <span class="font-bold px-1 bg-rose-200 text-rose-900 rounded" x-text="pendingSyncCount"></span> jawaban yang belum terkirim. Ujian tidak dapat diselesaikan sekarang agar jawaban tidak hilang. Hubungkan internet lalu klik tombol sinkronkan di bawah.
+                        </div>
+                    </div>
+                </template>
+
                 <div class="flex gap-2 pt-2">
                     <button @click="showFinishModal = false"
                         class="flex-1 py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-650 rounded-lg text-xs font-bold uppercase tracking-wider transition-all">
                         Batal
                     </button>
-                    <form action="{{ route('student.exam.finish', $examResult) }}" method="POST" class="flex-1">
-                        @csrf
-                        <button type="submit"
-                            class="w-full py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-all shadow-sm">
-                            Selesai & Kirim
+                    <template x-if="pendingSyncCount > 0">
+                        <button type="button" @click="syncOfflineAnswers()" :disabled="isSyncing"
+                            class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-1.5">
+                            <svg x-show="isSyncing" class="w-3.5 h-3.5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                            </svg>
+                            <span x-text="isSyncing ? 'Menyinkronkan...' : 'Coba Sinkronkan'"></span>
                         </button>
-                    </form>
+                    </template>
+                    <template x-if="pendingSyncCount === 0">
+                        <button type="button" @click="confirmSubmitExam()"
+                            class="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-1.5">
+                            <span>Selesai & Kirim</span>
+                        </button>
+                    </template>
                 </div>
             </div>
         </div>
@@ -387,16 +476,29 @@
         <script>
             function examShell() {
                 const storageKey = 'current_question_index_' + {{ $examResult->id }} + '_' + ({{ $currentSubtest->id ?? 0 }});
+                const queueKey = 'offline_answers_queue_' + {{ $examResult->id }};
+                const localAnswersKey = 'local_exam_answers_' + {{ $examResult->id }};
                 const totalQuestions = {{ count($questions) }};
                 const savedIndex = parseInt(localStorage.getItem(storageKey));
                 const initialIndex = (!isNaN(savedIndex) && savedIndex >= 0 && savedIndex < totalQuestions) ? savedIndex : 0;
 
+                // Merge server-rendered answers with any locally cached answers
+                let initialAnswers = @json($userAnswers);
+                try {
+                    const cachedLocal = JSON.parse(localStorage.getItem(localAnswersKey) || '{}');
+                    initialAnswers = Object.assign({}, initialAnswers, cachedLocal);
+                } catch (e) {
+                    console.error('Error reading local answers cache', e);
+                }
+
                 return {
                     storageKey: storageKey,
+                    queueKey: queueKey,
+                    localAnswersKey: localAnswersKey,
                     currentIndex: initialIndex,
                     allQuestions: @json($questions),
                     totalExamQuestions: {{ $totalExamQuestions }},
-                    answers: @json($userAnswers),
+                    answers: initialAnswers,
                     examEndTime: new Date("{{ $metadata['subtest_end_time'] }}").getTime(),
                     remainingSeconds: 0,
 
@@ -407,7 +509,14 @@
                     shuffledMatches: [],
                     doubtfulAnswers: JSON.parse(localStorage.getItem('doubtful_answers_' + {{ $examResult->id }}) || '{}'),
 
+                    // Sync & Network status
+                    syncStatus: navigator.onLine ? 'saved' : 'offline',
+                    pendingSyncCount: 0,
+                    isSyncing: false,
+                    csrfToken: '{{ csrf_token() }}',
+
                     timerInterval: null,
+                    syncInterval: null,
                     showFinishModal: false,
                     showQuestionsDrawer: false,
 
@@ -419,7 +528,9 @@
                     transitionInterval: null,
 
                     initExam() {
+                        this.updatePendingCount();
                         this.updateRemainingTime();
+
                         this.timerInterval = setInterval(() => {
                             if (this.isTransitioning) return;
 
@@ -431,6 +542,25 @@
 
                         this.updateCurrentQuestionState();
 
+                        // Background offline queue sync every 5 seconds
+                        this.syncInterval = setInterval(() => {
+                            if (navigator.onLine && this.pendingSyncCount > 0) {
+                                this.syncOfflineAnswers();
+                            }
+                        }, 5000);
+
+                        // Network status listeners (with small jitter to prevent thundering herd on router reconnect)
+                        window.addEventListener('online', () => {
+                            this.syncStatus = 'saved';
+                            setTimeout(() => {
+                                this.syncOfflineAnswers();
+                            }, Math.floor(Math.random() * 1200) + 300);
+                        });
+
+                        window.addEventListener('offline', () => {
+                            this.syncStatus = 'offline';
+                        });
+
                         // Anti-Cheat Tracking
                         document.addEventListener('visibilitychange', () => {
                             if (document.visibilityState === 'hidden') {
@@ -441,6 +571,74 @@
                         window.addEventListener('blur', () => {
                             this.sendViolation('focus_lost');
                         });
+
+                        // Warn student before closing tab if there are pending answers
+                        window.addEventListener('beforeunload', (e) => {
+                            if (this.pendingSyncCount > 0) {
+                                e.preventDefault();
+                                e.returnValue = 'Ada jawaban yang belum tersimpan ke server. Yakin ingin meninggalkan halaman?';
+                                return e.returnValue;
+                            }
+                        });
+
+                        // Initial sync check on page load if items are in queue
+                        if (navigator.onLine && this.pendingSyncCount > 0) {
+                            this.syncOfflineAnswers();
+                        }
+                    },
+
+                    getOfflineQueue() {
+                        try {
+                            return JSON.parse(localStorage.getItem(this.queueKey) || '{}');
+                        } catch (e) {
+                            return {};
+                        }
+                    },
+
+                    setOfflineQueue(queue) {
+                        localStorage.setItem(this.queueKey, JSON.stringify(queue));
+                        this.updatePendingCount();
+                    },
+
+                    updatePendingCount() {
+                        const queue = this.getOfflineQueue();
+                        this.pendingSyncCount = Object.keys(queue).length;
+                    },
+
+                    saveToLocalCache(questionId, payload) {
+                        try {
+                            const local = JSON.parse(localStorage.getItem(this.localAnswersKey) || '{}');
+                            local[questionId] = payload;
+                            localStorage.setItem(this.localAnswersKey, JSON.stringify(local));
+                        } catch (e) {
+                            console.error('Failed saving to localStorage', e);
+                        }
+                    },
+
+                    async refreshCSRFToken() {
+                        try {
+                            const res = await fetch('/exam/csrf-refresh', {
+                                method: 'GET',
+                                headers: { 'Accept': 'application/json' }
+                            });
+                            if (res.ok) {
+                                const data = await res.json();
+                                this.csrfToken = data.token;
+                                const meta = document.querySelector('meta[name="csrf-token"]');
+                                if (meta) meta.setAttribute('content', data.token);
+                                return true;
+                            }
+                        } catch (e) {
+                            console.warn('Failed to refresh CSRF token', e);
+                        }
+                        return false;
+                    },
+
+                    cleanupLocalStorage() {
+                        localStorage.removeItem(this.queueKey);
+                        localStorage.removeItem(this.localAnswersKey);
+                        localStorage.removeItem(this.storageKey);
+                        localStorage.removeItem('doubtful_answers_' + {{ $examResult->id }});
                     },
 
                     sendViolation(type) {
@@ -450,7 +648,7 @@
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                'X-CSRF-TOKEN': this.csrfToken
                             },
                             body: JSON.stringify({ type: type })
                         })
@@ -463,17 +661,25 @@
                         this.remainingSeconds = Math.max(0, Math.floor((this.examEndTime - now) / 1000));
                     },
 
-                    skipToTransition() {
+                    async skipToTransition() {
+                        if (this.pendingSyncCount > 0) {
+                            this.syncStatus = 'saving';
+                            await this.syncOfflineAnswers();
+                        }
                         if (confirm('Yakin ingin menyimpan dan lanjut ke subtest berikutnya? Waktu subtest ini akan hangus dan kamu TIDAK BISA KEMBALI ke soal di subtest ini.')) {
                             this.startTransition();
                         }
                     },
 
-                    startTransition() {
+                    async startTransition() {
                         localStorage.removeItem(this.storageKey);
                         clearInterval(this.timerInterval);
                         this.isTransitioning = true;
                         this.transitionSeconds = {{ $nextSubtestDelay }};
+
+                        if (this.pendingSyncCount > 0) {
+                            this.syncOfflineAnswers();
+                        }
 
                         this.transitionInterval = setInterval(() => {
                             this.transitionSeconds--;
@@ -484,7 +690,23 @@
                         }, 1000);
                     },
 
-                    moveToNextSubtest() {
+                    async moveToNextSubtest() {
+                        this.isTransitioning = true;
+
+                        if (this.pendingSyncCount > 0) {
+                            this.syncStatus = 'saving';
+                            await this.syncOfflineAnswers();
+                        }
+
+                        // If still offline or has pending answers, stay on waiting screen
+                        if (this.pendingSyncCount > 0 || !navigator.onLine) {
+                            this.syncStatus = 'offline';
+                            return;
+                        }
+
+                        // Remove question index pointer for this subtest, but keep queue & answers until exam finishes
+                        localStorage.removeItem(this.storageKey);
+
                         const form = document.createElement('form');
                         form.method = 'POST';
                         form.action = `/exam/{{ $examResult->id }}/next-subtest`;
@@ -492,7 +714,7 @@
                         const csrf = document.createElement('input');
                         csrf.type = 'hidden';
                         csrf.name = '_token';
-                        csrf.value = '{{ csrf_token() }}';
+                        csrf.value = this.csrfToken;
 
                         form.appendChild(csrf);
                         document.body.appendChild(form);
@@ -607,21 +829,113 @@
                             payload.essay_answer = this.essayAnswer;
                         }
 
+                        // 1. Update in-memory answer
                         this.answers[q.id] = payload;
 
-                        fetch(`/exam/{{ $examResult->id }}/save-answer`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify(payload)
-                        })
-                            .then(res => res.json())
-                            .then(data => {
-                                if (!data.success) console.error('Failed to save answer');
-                            })
-                            .catch(err => console.error('Network error during save'));
+                        // 2. Persist to browser's LocalStorage immediately (Safe against disconnect/refresh)
+                        this.saveToLocalCache(q.id, payload);
+
+                        // 3. Put into queue for background server sync
+                        const queue = this.getOfflineQueue();
+                        queue[q.id] = payload;
+                        this.setOfflineQueue(queue);
+
+                        // 4. Send to server
+                        this.syncOfflineAnswers();
+                    },
+
+                    async syncOfflineAnswers() {
+                        if (this.isSyncing) return;
+
+                        const queue = this.getOfflineQueue();
+                        const questionIds = Object.keys(queue);
+                        if (questionIds.length === 0) {
+                            this.syncStatus = navigator.onLine ? 'saved' : 'offline';
+                            return;
+                        }
+
+                        if (!navigator.onLine) {
+                            this.syncStatus = 'offline';
+                            return;
+                        }
+
+                        this.isSyncing = true;
+                        this.syncStatus = 'saving';
+                        let csrfRefreshed = false;
+
+                        // Process each queued answer
+                        for (const qId of questionIds) {
+                            const payload = queue[qId];
+                            try {
+                                const res = await fetch(`/exam/{{ $examResult->id }}/save-answer`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': this.csrfToken
+                                    },
+                                    body: JSON.stringify(payload)
+                                });
+
+                                // Handle CSRF token expiration (419)
+                                if (res.status === 419 && !csrfRefreshed) {
+                                    csrfRefreshed = true;
+                                    const refreshed = await this.refreshCSRFToken();
+                                    if (refreshed) {
+                                        // Retry this same answer with the new token
+                                        const retryRes = await fetch(`/exam/{{ $examResult->id }}/save-answer`, {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                                'X-CSRF-TOKEN': this.csrfToken
+                                            },
+                                            body: JSON.stringify(payload)
+                                        });
+                                        if (retryRes.ok) {
+                                            const retryData = await retryRes.json();
+                                            if (retryData.success) {
+                                                const currentQueue = this.getOfflineQueue();
+                                                delete currentQueue[qId];
+                                                this.setOfflineQueue(currentQueue);
+                                            }
+                                        } else {
+                                            this.syncStatus = 'offline';
+                                            break;
+                                        }
+                                        continue;
+                                    } else {
+                                        this.syncStatus = 'offline';
+                                        break;
+                                    }
+                                }
+
+                                if (res.ok) {
+                                    const data = await res.json();
+                                    if (data.success) {
+                                        // Remove from queue
+                                        const currentQueue = this.getOfflineQueue();
+                                        delete currentQueue[qId];
+                                        this.setOfflineQueue(currentQueue);
+                                    }
+                                } else {
+                                    this.syncStatus = 'offline';
+                                    break;
+                                }
+                            } catch (err) {
+                                console.warn('Network issue while syncing answer for question ' + qId, err);
+                                this.syncStatus = 'offline';
+                                break;
+                            }
+                        }
+
+                        this.isSyncing = false;
+                        this.updatePendingCount();
+                        if (this.pendingSyncCount === 0) {
+                            this.syncStatus = 'saved';
+                            // Auto-advance if student was waiting on the transition screen for network recovery
+                            if (this.isTransitioning && this.transitionSeconds <= 0) {
+                                this.moveToNextSubtest();
+                            }
+                        }
                     },
 
                     goToQuestion(index) {
@@ -649,6 +963,34 @@
                     finishExam() {
                         localStorage.removeItem(this.storageKey);
                         this.showFinishModal = true;
+                    },
+
+                    async confirmSubmitExam() {
+                        if (this.pendingSyncCount > 0) {
+                            this.syncStatus = 'saving';
+                            await this.syncOfflineAnswers();
+                        }
+
+                        if (this.pendingSyncCount > 0 || !navigator.onLine) {
+                            alert(`Tidak dapat mengakhiri ujian karena masih ada ${this.pendingSyncCount} jawaban yang belum tersimpan ke server akibat koneksi terputus. Pastikan koneksi internet terhubung kembali atau laporkan ke pengawas ruangan.`);
+                            return;
+                        }
+
+                        // Clean up local storage caches for this exam
+                        this.cleanupLocalStorage();
+
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = "{{ route('student.exam.finish', $examResult) }}";
+
+                        const csrf = document.createElement('input');
+                        csrf.type = 'hidden';
+                        csrf.name = '_token';
+                        csrf.value = this.csrfToken;
+
+                        form.appendChild(csrf);
+                        document.body.appendChild(form);
+                        form.submit();
                     },
 
                     getQuestionNavClass(qId, idx) {
