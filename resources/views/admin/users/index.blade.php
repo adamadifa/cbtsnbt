@@ -149,6 +149,14 @@
                     <span>Hapus (<span x-text="selectedUsers.length"></span>)</span>
                 </button>
 
+                <button type="button" 
+                        @click="confirmResetStudentPasswords()" 
+                        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white/15 hover:bg-white/25 text-white rounded-xl font-bold text-xs border border-white/20 transition-all active:scale-95"
+                        title="Reset seluruh password akun siswa ke 12345678">
+                    <i class="ti ti-key text-sm"></i>
+                    <span>Reset Password Siswa</span>
+                </button>
+
                 <a href="{{ route('admin.users.export', request()->query()) }}" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white/15 hover:bg-white/25 text-white rounded-xl font-bold text-xs border border-white/20 transition-all active:scale-95">
                     <i class="ti ti-download text-sm"></i>
                     Export
@@ -272,6 +280,11 @@
         </template>
     </form>
 
+    <!-- Hidden Reset All Password Siswa Form -->
+    <form id="reset-student-passwords-form" action="{{ route('admin.users.reset-student-passwords') }}" method="POST" style="display: none;">
+        @csrf
+    </form>
+
     <!-- Import Modal -->
     <div x-show="showImportModal" x-transition.opacity class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm" x-cloak>
         <div @click.away="showImportModal = false" class="bg-white rounded-3xl w-full max-w-md shadow-2xl border border-slate-100 transform transition-all overflow-hidden">
@@ -347,6 +360,28 @@
                 document.getElementById('delete-form-' + userId).submit();
             }
         })
+    }
+
+    function confirmResetStudentPasswords() {
+        Swal.fire({
+            title: 'Reset Password Semua Siswa?',
+            html: 'Semua akun pengguna dengan peran <b>Siswa</b> akan direset passwordnya menjadi:<br><div class=\"mt-3 mb-2\"><span class=\"px-4 py-1.5 bg-orange-100 text-orange-800 rounded-xl font-mono font-bold text-sm tracking-widest border border-orange-200 inline-block\">12345678</span></div><p class=\"text-xs text-slate-400 mt-2\">Peran Admin, Super Admin, dan Guru tidak akan terpengaruh.</p>',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#f97316',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Ya, Reset Password Siswa!',
+            cancelButtonText: 'Batal',
+            customClass: {
+                popup: 'rounded-3xl shadow-2xl border border-slate-100',
+                confirmButton: 'rounded-xl font-bold text-xs px-5 py-2.5 shadow-md shadow-orange-500/20',
+                cancelButton: 'rounded-xl font-bold text-xs px-5 py-2.5'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('reset-student-passwords-form').submit();
+            }
+        });
     }
 
     // Show flash message alert if exists

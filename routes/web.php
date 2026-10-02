@@ -43,6 +43,7 @@ Route::middleware(['auth', 'verified', 'redirect_role'])->group(function () {
         Route::get('users/export', [\App\Http\Controllers\Admin\UserController::class, 'export'])->name('users.export');
         Route::post('users/import', [\App\Http\Controllers\Admin\UserController::class, 'import'])->name('users.import');
         Route::post('users/bulk-delete', [\App\Http\Controllers\Admin\UserController::class, 'bulkDelete'])->name('users.bulk-delete');
+        Route::post('users/reset-student-passwords', [\App\Http\Controllers\Admin\UserController::class, 'resetStudentPasswords'])->name('users.reset-student-passwords');
         Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
         
         // Campus & Prodi management

@@ -191,4 +191,14 @@ class UserController extends Controller
 
         return response()->download($tempFile, 'template_import_siswa.csv')->deleteFileAfterSend(true);
     }
+
+    public function resetStudentPasswords(Request $request)
+    {
+        $updatedCount = User::role('siswa')->update([
+            'password' => Hash::make('12345678'),
+        ]);
+
+        return redirect()->route('admin.users.index')
+            ->with('success', "Berhasil mereset password {$updatedCount} siswa menjadi 12345678.");
+    }
 }
