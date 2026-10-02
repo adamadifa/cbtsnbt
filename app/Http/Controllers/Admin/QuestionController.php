@@ -237,6 +237,7 @@ class QuestionController extends Controller
 
     public function downloadTemplate()
     {
+        \PhpOffice\PhpWord\Settings::setOutputEscapingEnabled(true);
         $phpWord = new \PhpOffice\PhpWord\PhpWord();
         $section = $phpWord->addSection();
 

@@ -447,13 +447,13 @@
                 },
                 options: [
                     @foreach($question->options as $option)
-                        { id: {{ $option->id }}, label: '{{ $option->label }}', content: `{!! addslashes($option->content) !!}`, is_correct: {{ $option->is_correct ? 'true' : 'false' }}, hasContent: true },
+                        { id: {{ $option->id }}, label: @json($option->label), content: @json($option->content), is_correct: {{ $option->is_correct ? 'true' : 'false' }}, hasContent: true },
                     @endforeach
                 ],
                 matchingPairs: [
                     @if($question->type === 'menjodohkan')
                         @foreach($question->options as $option)
-                            { id: {{ $option->id }}, left: `{!! addslashes($option->label) !!}`, right: `{!! addslashes($option->content) !!}` },
+                            { id: {{ $option->id }}, left: @json($option->label), right: @json($option->content) },
                         @endforeach
                     @else
                         { id: Date.now(), left: '', right: '' },
@@ -463,7 +463,7 @@
                 isianAnswers: [
                     @if($question->type === 'isian_singkat')
                         @foreach($question->options as $option)
-                            { id: {{ $option->id }}, content: `{!! addslashes($option->content) !!}` },
+                            { id: {{ $option->id }}, content: @json($option->content) },
                         @endforeach
                     @else
                         { id: Date.now(), content: '' }

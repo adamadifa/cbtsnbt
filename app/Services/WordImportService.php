@@ -9,10 +9,14 @@ use Illuminate\Support\Str;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\Element\Text;
 use PhpOffice\PhpWord\Element\TextRun;
+use PhpOffice\PhpWord\Element\ListItemRun;
+use PhpOffice\PhpWord\Element\ListItem;
+use PhpOffice\PhpWord\Element\Link;
 use PhpOffice\PhpWord\Element\Image;
 use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\Element\Row;
 use PhpOffice\PhpWord\Element\Cell;
+use PhpOffice\PhpWord\Element\TextBreak;
 
 class WordImportService
 {
@@ -25,6 +29,10 @@ class WordImportService
     public function import($filePath, $subjectId)
     {
         $this->currentSubjectId = $subjectId;
+        $this->questions = [];
+        $this->currentQuestion = null;
+        $this->currentState = null;
+
         $phpWord = IOFactory::load($filePath);
 
         $sections = $phpWord->getSections();
@@ -53,6 +61,7 @@ class WordImportService
             if ($this->currentQuestion) {
                 $this->questions[] = $this->currentQuestion;
                 $this->currentQuestion = null;
+                $this->currentState = null;
             }
             return;
         }
@@ -63,6 +72,7 @@ class WordImportService
             if (!empty($this->currentQuestion['content']) || !empty($this->currentQuestion['options'])) {
                 $this->questions[] = $this->currentQuestion;
                 $this->currentQuestion = null;
+                $this->currentState = null;
             }
         }
 
@@ -82,19 +92,20 @@ class WordImportService
 
         // Check for markers
         if (preg_match('/^\[SOAL\]/i', $text)) {
-            $this->currentQuestion['content'] = preg_replace('/^(?:<[^>]+>)*\[SOAL\](?:<\/[^>]+>)*\s*/i', '', $html);
+            $this->currentQuestion['content'] = $this->getElementHtml($element, '[SOAL]');
             $this->currentState = 'soal';
         } elseif (preg_match('/^\[([A-Z])\]/i', $text, $matches)) {
             $label = strtoupper($matches[1]);
+            $marker = '[' . $matches[1] . ']';
             $this->currentQuestion['options'][$label] = [
-                'content' => preg_replace('/^(?:<[^>]+>)*\[' . $label . '\](?:<\/[^>]+>)*\s*/i', '', $html),
+                'content' => $this->getElementHtml($element, $marker),
                 'is_correct' => false,
             ];
             $this->currentState = 'option_' . $label;
         } elseif (preg_match('/^\[KUNCI\]/i', $text)) {
             $kunciText = trim(preg_replace('/^\[KUNCI\]\s*/i', '', $text));
             if ($this->currentQuestion['type'] === 'isian_singkat') {
-                $kuncis = array_map('trim', explode(',', $kunciText));
+                $kuncis = array_filter(array_map('trim', explode(',', $kunciText)));
                 foreach ($kuncis as $kunci) {
                     $this->currentQuestion['options'][$kunci] = [
                         'content' => $kunci,
@@ -102,7 +113,7 @@ class WordImportService
                     ];
                 }
             } else {
-                $kuncis = array_map('trim', explode(',', strtoupper($kunciText)));
+                $kuncis = array_filter(array_map('trim', explode(',', strtoupper($kunciText))));
 
                 foreach ($kuncis as $kunci) {
                     if (isset($this->currentQuestion['options'][$kunci])) {
@@ -116,7 +127,7 @@ class WordImportService
             }
             $this->currentState = 'kunci';
         } elseif (preg_match('/^\[PEMBAHASAN\]/i', $text)) {
-            $this->currentQuestion['explanation'] = preg_replace('/^(?:<[^>]+>)*\[PEMBAHASAN\](?:<\/[^>]+>)*\s*/i', '', $html);
+            $this->currentQuestion['explanation'] = $this->getElementHtml($element, '[PEMBAHASAN]');
             $this->currentState = 'explanation';
         } elseif (preg_match('/^\[TIPE\]/i', $text)) {
             $typeInput = trim(strtolower(preg_replace('/^\[TIPE\]\s*/i', '', $text)));
@@ -143,13 +154,19 @@ class WordImportService
         } else {
             // Append to current state
             if ($this->currentQuestion) {
-                if ($this->currentState == 'soal') {
-                    $this->currentQuestion['content'] .= '<br>' . $html;
+                if ($this->currentState === 'soal') {
+                    if ($html !== '') {
+                        $this->currentQuestion['content'] = ($this->currentQuestion['content'] !== '' ? $this->currentQuestion['content'] . '<br>' : '') . $html;
+                    }
                 } elseif (str_starts_with($this->currentState, 'option_')) {
                     $label = str_replace('option_', '', $this->currentState);
-                    $this->currentQuestion['options'][$label]['content'] .= '<br>' . $html;
-                } elseif ($this->currentState == 'explanation') {
-                    $this->currentQuestion['explanation'] .= '<br>' . $html;
+                    if (isset($this->currentQuestion['options'][$label]) && $html !== '') {
+                        $this->currentQuestion['options'][$label]['content'] = ($this->currentQuestion['options'][$label]['content'] !== '' ? $this->currentQuestion['options'][$label]['content'] . '<br>' : '') . $html;
+                    }
+                } elseif ($this->currentState === 'explanation') {
+                    if ($html !== '') {
+                        $this->currentQuestion['explanation'] = ($this->currentQuestion['explanation'] !== '' ? $this->currentQuestion['explanation'] . '<br>' : '') . $html;
+                    }
                 }
             }
         }
@@ -157,41 +174,74 @@ class WordImportService
 
     protected function getElementText($element)
     {
-        if (method_exists($element, 'getText')) {
-            return $element->getText();
-        }
-        if ($element instanceof TextRun) {
+        if ($element instanceof TextRun || $element instanceof ListItemRun) {
             $text = '';
             foreach ($element->getElements() as $child) {
-                if ($child instanceof Text) {
-                    $text .= $child->getText();
+                if ($child instanceof Text || $child instanceof Link || $child instanceof ListItem) {
+                    $text .= htmlspecialchars_decode($child->getText(), ENT_QUOTES);
+                } elseif ($child instanceof TextBreak) {
+                    $text .= "\n";
+                } elseif (method_exists($child, 'getText')) {
+                    $text .= htmlspecialchars_decode($child->getText(), ENT_QUOTES);
                 }
             }
             return $text;
         }
+
+        if ($element instanceof Text || $element instanceof Link || $element instanceof ListItem) {
+            return htmlspecialchars_decode($element->getText(), ENT_QUOTES);
+        }
+
+        if ($element instanceof TextBreak) {
+            return "\n";
+        }
+
+        if (method_exists($element, 'getText')) {
+            return htmlspecialchars_decode($element->getText(), ENT_QUOTES);
+        }
+
         return '';
     }
 
-    protected function getElementHtml($element)
+    protected function getElementHtml($element, $stripMarker = null)
     {
         if ($element instanceof Table) {
             return $this->renderTableToHtml($element);
         }
 
+        if ($element instanceof TextBreak) {
+            return '<br>';
+        }
+
         $html = '';
-        if ($element instanceof TextRun) {
+        if ($element instanceof TextRun || $element instanceof ListItemRun) {
+            $markerToStrip = $stripMarker;
             foreach ($element->getElements() as $child) {
                 if ($child instanceof Text) {
-                    $html .= $this->formatTextElement($child);
+                    $formatted = $this->formatTextElement($child, $markerToStrip);
+                    $html .= $formatted;
+                    if ($markerToStrip !== null && !empty(trim(htmlspecialchars_decode($child->getText(), ENT_QUOTES)))) {
+                        $markerToStrip = null;
+                    }
+                } elseif ($child instanceof Link) {
+                    $formatted = $this->formatLinkElement($child, $markerToStrip);
+                    $html .= $formatted;
+                    if ($markerToStrip !== null && !empty(trim(htmlspecialchars_decode($child->getText(), ENT_QUOTES)))) {
+                        $markerToStrip = null;
+                    }
                 } elseif ($child instanceof Image) {
                     $imagePath = $this->saveImage($child);
                     if ($imagePath) {
                         $html .= '<img src="' . Storage::url($imagePath) . '" class="max-w-full h-auto my-2">';
                     }
+                } elseif ($child instanceof TextBreak) {
+                    $html .= '<br>';
                 }
             }
         } elseif ($element instanceof Text) {
-            $html = $this->formatTextElement($element);
+            $html = $this->formatTextElement($element, $stripMarker);
+        } elseif ($element instanceof Link) {
+            $html = $this->formatLinkElement($element, $stripMarker);
         } elseif ($element instanceof Image) {
             $imagePath = $this->saveImage($element);
             if ($imagePath) {
@@ -202,9 +252,21 @@ class WordImportService
         return $html;
     }
 
-    protected function formatTextElement(Text $textElement)
+    protected function formatTextElement(Text $textElement, $stripMarker = null)
     {
-        $text = htmlspecialchars($textElement->getText(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $rawText = $textElement->getText();
+        $plainText = htmlspecialchars_decode($rawText, ENT_QUOTES);
+
+        if ($stripMarker !== null) {
+            $pattern = '/^\s*' . preg_quote($stripMarker, '/') . '\s*/i';
+            $plainText = preg_replace($pattern, '', $plainText);
+        }
+
+        if ($plainText === '') {
+            return '';
+        }
+
+        $text = htmlspecialchars($plainText, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
         $fontStyle = $textElement->getFontStyle();
 
         if ($fontStyle) {
@@ -230,11 +292,31 @@ class WordImportService
                 if (!str_starts_with($color, '#')) {
                     $color = '#' . $color;
                 }
-                $text = '<span style="color: ' . htmlspecialchars($color) . ';">' . $text . '</span>';
+                $text = '<span style="color: ' . htmlspecialchars($color, ENT_QUOTES, 'UTF-8') . ';">' . $text . '</span>';
             }
         }
 
         return $text;
+    }
+
+    protected function formatLinkElement(Link $linkElement, $stripMarker = null)
+    {
+        $rawText = $linkElement->getText();
+        $plainText = htmlspecialchars_decode($rawText, ENT_QUOTES);
+
+        if ($stripMarker !== null) {
+            $pattern = '/^\s*' . preg_quote($stripMarker, '/') . '\s*/i';
+            $plainText = preg_replace($pattern, '', $plainText);
+        }
+
+        if ($plainText === '') {
+            return '';
+        }
+
+        $text = htmlspecialchars($plainText, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $target = htmlspecialchars($linkElement->getTarget(), ENT_QUOTES, 'UTF-8');
+
+        return '<a href="' . $target . '" target="_blank" class="text-indigo-600 underline">' . $text . '</a>';
     }
 
     protected function renderTableToHtml(Table $table)
@@ -277,7 +359,8 @@ class WordImportService
             if (!isset($qData['subject_id'])) {
                 continue;
             }
-            if (empty(trim(strip_tags($qData['content']))) && empty($qData['options'])) {
+            $hasContent = !empty(trim(strip_tags($qData['content']))) || str_contains($qData['content'], '<img');
+            if (!$hasContent && empty($qData['options'])) {
                 continue;
             }
 
@@ -297,9 +380,9 @@ class WordImportService
                 $dbLabel = $label;
 
                 if ($qData['type'] === 'menjodohkan' && strpos($content, '=') !== false) {
-                    $parts = explode('=', $content);
-                    $dbLabel = trim(strip_tags($parts[0]));
-                    $content = trim(strip_tags($parts[1]));
+                    $parts = explode('=', $content, 2);
+                    $dbLabel = trim($parts[0]);
+                    $content = trim($parts[1]);
                 }
 
                 QuestionOption::create([
