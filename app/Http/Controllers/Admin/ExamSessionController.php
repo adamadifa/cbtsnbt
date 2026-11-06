@@ -41,6 +41,7 @@ class ExamSessionController extends Controller
         $request->validate([
             'exam_package_id' => 'required|exists:exam_packages,id',
             'title' => 'required|string|max:255',
+            'token' => 'nullable|string|max:20|alpha_num|unique:exam_sessions,token',
             'start_time' => 'required|date',
             'end_time' => 'required|date|after:start_time',
             'max_participants' => 'nullable|integer|min:1',
@@ -50,10 +51,17 @@ class ExamSessionController extends Controller
         try {
             DB::beginTransaction();
 
+            $token = $request->token ? strtoupper($request->token) : null;
+            if (!$token) {
+                do {
+                    $token = strtoupper(Str::random(6));
+                } while (ExamSession::where('token', $token)->exists());
+            }
+
             $session = ExamSession::create([
                 'exam_package_id' => $request->exam_package_id,
                 'title' => $request->title,
-                'token' => strtoupper($request->token ?? Str::random(6)),
+                'token' => $token,
                 'start_time' => $request->start_time,
                 'end_time' => $request->end_time,
                 'max_participants' => $request->max_participants,
@@ -83,6 +91,7 @@ class ExamSessionController extends Controller
         $request->validate([
             'exam_package_id' => 'required|exists:exam_packages,id',
             'title' => 'required|string|max:255',
+            'token' => 'nullable|string|max:20|alpha_num|unique:exam_sessions,token,' . $examSession->id,
             'start_time' => 'required|date',
             'end_time' => 'required|date|after:start_time',
             'max_participants' => 'nullable|integer|min:1',
@@ -166,12 +175,13 @@ class ExamSessionController extends Controller
             
             $avgCorrect = 0;
             if ($completedResults->count() > 0) {
-                // Get pre-calculated points from StudentAnswer for these questions across all completed results
-                $totalPoints = \App\Models\StudentAnswer::whereIn('exam_result_id', $completedResults->pluck('id'))
+                // Hitung jumlah jawaban benar (bukan sum points) agar merefleksikan rata-rata jumlah soal benar
+                $totalCorrect = \App\Models\StudentAnswer::whereIn('exam_result_id', $completedResults->pluck('id'))
                     ->whereIn('question_id', $subtestQuestionIds)
-                    ->sum('points');
+                    ->where('is_correct', true)
+                    ->count();
                 
-                $avgCorrect = $totalPoints / $completedResults->count();
+                $avgCorrect = $totalCorrect / $completedResults->count();
             }
 
             $subtestStats[] = [
@@ -187,12 +197,20 @@ class ExamSessionController extends Controller
             '0-20' => 0, '21-40' => 0, '41-60' => 0, '61-80' => 0, '81-100' => 0
         ];
 
-        // Assume total_score is a percentage or raw points. Adjust logic if needed.
-        // Let's normalize it to 100 for distribution if we know the total questions.
-        $totalPossible = $subtests->sum('total_questions');
+        // Hitung total poin maksimal sebenarnya dari seluruh soal untuk normalisasi persentase
+        $allExamQuestionIds = [];
+        foreach ($subtests as $subtest) {
+            $ids = $subtest->questions()->take($subtest->total_questions)->pluck('questions.id')->toArray();
+            $allExamQuestionIds = array_merge($allExamQuestionIds, $ids);
+        }
+        $maxPossiblePoints = \App\Models\Question::whereIn('id', $allExamQuestionIds)->sum('points');
+        if ($maxPossiblePoints <= 0) {
+            $maxPossiblePoints = $subtests->sum('total_questions');
+        }
         
         foreach ($completedResults as $result) {
-            $percentage = $totalPossible > 0 ? ($result->total_score / $totalPossible) * 100 : 0;
+            $percentage = $maxPossiblePoints > 0 ? ($result->total_score / $maxPossiblePoints) * 100 : 0;
+            $percentage = min(100, max(0, $percentage));
             
             if ($percentage <= 20) $distribution['0-20']++;
             elseif ($percentage <= 40) $distribution['21-40']++;

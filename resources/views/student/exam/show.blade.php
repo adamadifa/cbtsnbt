@@ -471,12 +471,14 @@
                         <div class="flex items-center justify-between mb-2">
                             <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Progres
                                 Subtest</span>
-                            <span class="text-xs font-bold text-slate-800"
-                                x-text="Math.round((Object.keys(answers).length / allQuestions.length) * 100) + '%'">0%</span>
+                            <span class="text-xs font-bold text-slate-800">
+                                <span x-text="answeredSubtestCount">0</span>/<span x-text="allQuestions.length">0</span>
+                                (<span x-text="subtestProgressPercent + '%'">0%</span>)
+                            </span>
                         </div>
                         <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
                             <div class="bg-blue-600 h-full transition-all duration-300"
-                                :style="'width: ' + ((Object.keys(answers).length / allQuestions.length) * 100) + '%'">
+                                :style="'width: ' + subtestProgressPercent + '%'">
                             </div>
                         </div>
                     </div>
@@ -595,7 +597,7 @@
                             <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider leading-none mb-2">Kosong
                             </p>
                             <p class="text-base font-bold text-slate-600 leading-none"
-                                x-text="totalExamQuestions - Object.keys(answers).length"></p>
+                                x-text="Math.max(0, totalExamQuestions - Object.keys(answers).length)"></p>
                         </div>
                     </div>
 
@@ -695,7 +697,16 @@
                 allQuestions: @json($questions),
                 totalExamQuestions: {{ $totalExamQuestions }},
                 answers: initialAnswers,
-                examEndTime: new Date("{{ $metadata['subtest_end_time'] }}").getTime(),
+                // Parsing dengan defensive fallback untuk format lama ("2026-11-05 20:30:00" tanpa timezone)
+                // Format baru sudah ISO 8601 dengan +07:00, tapi data lama di DB mungkin belum
+                examEndTime: (() => {
+                    let raw = "{{ $metadata['subtest_end_time'] }}";
+                    // Jika format lama (tidak ada 'T' atau '+07'), tambahkan timezone WIB manual
+                    if (!raw.includes('T') && !raw.includes('+')) {
+                        raw = raw.replace(' ', 'T') + '+07:00';
+                    }
+                    return new Date(raw).getTime();
+                })(),
                 remainingSeconds: 0,
 
                 // Per-question state
@@ -730,11 +741,16 @@
                     this.updatePendingCount();
                     this.updateRemainingTime();
 
+                    // Grace period 2 detik sebelum mulai cek waktu habis.
+                    // Ini mencegah subtest loncat secara instan saat halaman baru di-load
+                    // (misalnya saat siswa reconnect dan remainingSeconds sempat terbaca 0 sesaat).
+                    const startCheckingAt = Date.now() + 2000;
+
                     this.timerInterval = setInterval(() => {
                         if (this.isTransitioning) return;
 
                         this.updateRemainingTime();
-                        if (this.remainingSeconds <= 0) {
+                        if (this.remainingSeconds <= 0 && Date.now() >= startCheckingAt) {
                             this.startTransition();
                         }
                     }, 1000);
@@ -966,8 +982,19 @@
 
                 prepareShuffledMatches() {
                     const q = this.currentQuestion;
-                    this.shuffledMatches = JSON.parse(JSON.stringify(q.options))
-                        .sort(() => Math.random() - 0.5);
+                    // BUG-08: Gunakan seed dari question ID agar urutan shuffle konsisten
+                    // saat siswa kembali ke soal yang sama. Mencegah kebingungan visual.
+                    const seededShuffle = (arr, seed) => {
+                        const a = JSON.parse(JSON.stringify(arr));
+                        let s = seed;
+                        for (let i = a.length - 1; i > 0; i--) {
+                            s = (s * 9301 + 49297) % 233280;
+                            const j = Math.floor((s / 233280) * (i + 1));
+                            [a[i], a[j]] = [a[j], a[i]];
+                        }
+                        return a;
+                    };
+                    this.shuffledMatches = seededShuffle(q.options, q.id);
                 },
 
                 initSortable(el) {
@@ -1068,14 +1095,20 @@
                     for (const qId of questionIds) {
                         const payload = queue[qId];
                         try {
+                            // BUG-07: Tambah timeout 15 detik agar fetch tidak hang selamanya
+                            const controller = new AbortController();
+                            const timeoutId = setTimeout(() => controller.abort(), 15000);
+
                             const res = await fetch(`/exam/{{ $examResult->id }}/save-answer`, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
                                     'X-CSRF-TOKEN': this.csrfToken
                                 },
-                                body: JSON.stringify(payload)
+                                body: JSON.stringify(payload),
+                                signal: controller.signal
                             });
+                            clearTimeout(timeoutId);
 
                             // Handle CSRF token expiration (419)
                             if (res.status === 419 && !csrfRefreshed) {
@@ -1098,6 +1131,10 @@
                                             delete currentQueue[qId];
                                             this.setOfflineQueue(currentQueue);
                                         }
+                                    } else if (retryRes.status === 403 || retryRes.status === 422) {
+                                        const currentQueue = this.getOfflineQueue();
+                                        delete currentQueue[qId];
+                                        this.setOfflineQueue(currentQueue);
                                     } else {
                                         this.syncStatus = 'offline';
                                         break;
@@ -1117,6 +1154,10 @@
                                     delete currentQueue[qId];
                                     this.setOfflineQueue(currentQueue);
                                 }
+                            } else if (res.status === 403 || res.status === 422) {
+                                const currentQueue = this.getOfflineQueue();
+                                delete currentQueue[qId];
+                                this.setOfflineQueue(currentQueue);
                             } else {
                                 this.syncStatus = 'offline';
                                 break;
@@ -1194,19 +1235,32 @@
                     form.submit();
                 },
 
+                isQuestionAnswered(qId, idx) {
+                    const ans = this.answers[qId];
+                    if (!ans) return false;
+                    const q = this.allQuestions[idx];
+                    if (!q) return false;
+                    if (q.type === 'pilihan_ganda') return !!(typeof ans === 'object' ? ans.option_id : ans);
+                    if (q.type === 'pilihan_ganda_kompleks') return !!(ans.option_ids && ans.option_ids.length > 0);
+                    if (q.type === 'menjodohkan' || q.type === 'benar_salah') return !!(ans.matching_answers && Object.keys(ans.matching_answers).length > 0);
+                    if (q.type === 'essai' || q.type === 'isian_singkat') return !!(ans.essay_answer && ans.essay_answer.trim().length > 0);
+                    return false;
+                },
+
+                get answeredSubtestCount() {
+                    if (!this.allQuestions || this.allQuestions.length === 0) return 0;
+                    return this.allQuestions.filter((q, idx) => this.isQuestionAnswered(q.id, idx)).length;
+                },
+
+                get subtestProgressPercent() {
+                    if (!this.allQuestions || this.allQuestions.length === 0) return 0;
+                    return Math.min(100, Math.round((this.answeredSubtestCount / this.allQuestions.length) * 100));
+                },
+
                 getQuestionNavClass(qId, idx) {
                     const isCurrent = this.currentIndex === idx;
-                    const ans = this.answers[qId];
                     const isDoubtful = !!this.doubtfulAnswers[qId];
-
-                    let isAnswered = false;
-                    if (ans) {
-                        const q = this.allQuestions[idx];
-                        if (q.type === 'pilihan_ganda') isAnswered = !!ans.option_id || !!ans;
-                        else if (q.type === 'pilihan_ganda_kompleks') isAnswered = ans.option_ids && ans.option_ids.length > 0;
-                        else if (q.type === 'menjodohkan' || q.type === 'benar_salah') isAnswered = ans.matching_answers && Object.keys(ans.matching_answers).length > 0;
-                        else if (q.type === 'essai' || q.type === 'isian_singkat') isAnswered = ans.essay_answer && ans.essay_answer.trim().length > 0;
-                    }
+                    const isAnswered = this.isQuestionAnswered(qId, idx);
 
                     if (isCurrent && isDoubtful) {
                         return 'bg-amber-500 text-white border-amber-600 shadow-sm ring-2 ring-amber-100';

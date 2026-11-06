@@ -46,14 +46,17 @@ class ExamController extends Controller
         if (!$result) {
             $firstSubtest = $session->examPackage->subtests()->orderBy('order')->first();
 
+            $startTime = now();
             $result = ExamResult::create([
                 'user_id' => Auth::id(),
                 'exam_session_id' => $session->id,
-                'started_at' => $now,
+                'started_at' => $startTime,
                 'status' => 'in_progress',
                 'metadata' => [
                     'current_subtest_id' => $firstSubtest->id,
-                    'subtest_end_time' => $now->addMinutes($firstSubtest->duration_minutes)->toDateTimeString(),
+                    // Gunakan toIso8601String() agar JavaScript new Date() membaca timezone +07:00 dengan benar
+                    // Format: "2026-11-05T20:30:00+07:00" — mencegah browser salah interpret sebagai UTC
+                    'subtest_end_time' => $startTime->copy()->addMinutes($firstSubtest->duration_minutes)->toIso8601String(),
                     'completed_subtests' => []
                 ]
             ]);
@@ -74,15 +77,26 @@ class ExamController extends Controller
 
         $session = $examResult->examSession()->with('examPackage.subtests')->first();
 
-        $metadata = $examResult->metadata ?? [
-            'current_subtest_id' => $session->examPackage->subtests->first()->id ?? null,
-            'subtest_end_time' => now()->addMinutes($session->examPackage->subtests->first()->duration_minutes ?? 0)->toDateTimeString(),
-            'completed_subtests' => []
-        ];
+        // CATATAN: fallback ini hanya aktif jika metadata benar-benar null di DB.
+        // Jangan reset subtest_end_time di sini — siswa yang reload/reconnect harus
+        // tetap menggunakan end_time yang sudah tersimpan, bukan mendapat waktu baru.
+        $metadata = $examResult->metadata;
+        if (empty($metadata) || !isset($metadata['subtest_end_time'])) {
+            $firstSubtest = $session->examPackage->subtests->sortBy('order')->first();
+            $metadata = [
+                'current_subtest_id' => $firstSubtest->id ?? null,
+                'subtest_end_time' => now()->addMinutes($firstSubtest->duration_minutes ?? 0)->toIso8601String(),
+                'completed_subtests' => []
+            ];
+            // Simpan metadata yang baru dibuat agar tidak ter-reset lagi pada reload berikutnya
+            $examResult->update(['metadata' => $metadata]);
+        }
 
         $currentSubtestId = $metadata['current_subtest_id'];
+
         $currentSubtest = $session->examPackage->subtests->find($currentSubtestId)
-            ?? $session->examPackage->subtests->first();
+            ?? $session->examPackage->subtests->sortBy('order')->first();
+
 
         // Load questions with options ONLY for the current subtest (not all subtests)
         if ($currentSubtest) {
@@ -132,10 +146,20 @@ class ExamController extends Controller
             'option_id' => 'nullable|integer',
             'option_ids' => 'nullable|array',
             'matching_answers' => 'nullable|array',
-            'essay_answer' => 'nullable|string',
+            'essay_answer' => 'nullable|string|max:5000', // BUG-04: batasi panjang essay
         ]);
 
         $question = \App\Models\Question::with('options')->findOrFail($request->question_id);
+
+        // BUG-01: Validasi bahwa soal ini memang bagian dari subtest yang sedang aktif
+        $metadata = $examResult->metadata;
+        $currentSubtestId = $metadata['current_subtest_id'] ?? null;
+        $questionBelongsToCurrentSubtest = $question->subtests()
+            ->where('exam_subtests.id', $currentSubtestId)
+            ->exists();
+        if (!$questionBelongsToCurrentSubtest) {
+            return response()->json(['success' => false, 'message' => 'Soal tidak valid untuk subtest ini.'], 422);
+        }
         $isCorrect = false;
         $points = 0;
 
@@ -218,11 +242,26 @@ class ExamController extends Controller
         if ($examResult->user_id !== Auth::id() || $examResult->status !== 'in_progress')
             abort(403);
 
+        // Duplicate submission guard menggunakan atomic cache lock
+        // Mencegah double-submit dari double-click atau koneksi lambat
+        $lockKey = 'next_subtest_lock_' . $examResult->id;
+        if (!\Illuminate\Support\Facades\Cache::add($lockKey, true, 5)) {
+            // Request duplikat dalam 5 detik — abaikan, redirect ke halaman yang sama
+            return redirect()->route('student.exam.show', $examResult);
+        }
+
         $metadata = $examResult->metadata;
         $session = $examResult->examSession()->with('examPackage.subtests')->first();
-        $subtests = $session->examPackage->subtests->sortBy('order');
+        $subtests = $session->examPackage->subtests->sortBy('order')->values();
 
         $currentIdx = $subtests->search(fn($s) => $s->id == $metadata['current_subtest_id']);
+
+        // Guard: jika current_subtest_id tidak ditemukan (data corrupt), jangan loncat subtest.
+        // Kembalikan siswa ke halaman ujian agar tetap di subtest yang seharusnya.
+        if ($currentIdx === false) {
+            \Log::warning("nextSubtest: current_subtest_id={$metadata['current_subtest_id']} tidak ditemukan untuk examResult={$examResult->id}. Dibatalkan.");
+            return redirect()->route('student.exam.show', $examResult);
+        }
 
         // Mark current as completed
         $completed = $metadata['completed_subtests'] ?? [];
@@ -234,7 +273,7 @@ class ExamController extends Controller
 
         if ($nextSubtest) {
             $metadata['current_subtest_id'] = $nextSubtest->id;
-            $metadata['subtest_end_time'] = now()->addMinutes($nextSubtest->duration_minutes)->toDateTimeString();
+            $metadata['subtest_end_time'] = now()->addMinutes($nextSubtest->duration_minutes)->toIso8601String();
             $metadata['completed_subtests'] = $completed;
             $examResult->update(['metadata' => $metadata]);
 
@@ -245,10 +284,16 @@ class ExamController extends Controller
         return $this->finish($examResult);
     }
 
+
     public function finish(ExamResult $examResult)
     {
         if ($examResult->user_id !== Auth::id())
             abort(403);
+
+        // BUG-03: Guard duplikat — jika sudah completed, langsung redirect ke hasil
+        if ($examResult->status === 'completed') {
+            return redirect()->route('student.exam.results', $examResult);
+        }
 
         DB::transaction(function () use ($examResult) {
             $totalScore = StudentAnswer::where('exam_result_id', $examResult->id)->sum('points');

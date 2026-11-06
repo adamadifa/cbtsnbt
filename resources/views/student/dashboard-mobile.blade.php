@@ -151,10 +151,18 @@
                             </h4>
                             <p class="text-[10px] text-slate-450 font-medium">{{ $result->examSession->examPackage->title }}</p>
                         </div>
-                        <div class="bg-indigo-50 border border-indigo-100 rounded-xl px-3 py-1.5 text-center shrink-0">
-                            <span class="block text-[8px] font-bold text-indigo-650 uppercase tracking-wider">Skor</span>
-                            <span class="text-xs font-black text-indigo-700 block mt-0.5">{{ $result->total_score }}</span>
-                        </div>
+                        @if($result->examSession->examPackage->show_result)
+                            <div class="bg-indigo-50 border border-indigo-100 rounded-xl px-3 py-1.5 text-center shrink-0">
+                                <span class="block text-[8px] font-bold text-indigo-650 uppercase tracking-wider">Skor</span>
+                                <span class="text-xs font-black text-indigo-700 block mt-0.5">{{ $result->total_score }}</span>
+                            </div>
+                        @else
+                            <div class="bg-slate-50 border border-slate-200 rounded-xl w-9 h-9 flex items-center justify-center text-slate-400 shrink-0" title="Nilai dirahasiakan oleh pengawas">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+                                </svg>
+                            </div>
+                        @endif
                     </div>
 
                     <div class="flex items-center justify-between text-[10px] text-slate-450 border-t border-slate-100 pt-3">
@@ -167,15 +175,22 @@
                     </div>
 
                     <div class="flex items-center gap-2.5 pt-1">
-                        <a href="{{ route('student.exam.results', $result) }}" 
-                           class="flex-1 flex items-center justify-center py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all">
-                            Lihat Hasil
-                        </a>
+                        @if($result->examSession->examPackage->show_result)
+                            <a href="{{ route('student.exam.results', $result) }}" 
+                               class="flex-1 flex items-center justify-center py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all">
+                                Lihat Hasil
+                            </a>
+                        @endif
                         @if($result->examSession->examPackage->show_explanation)
                             <a href="{{ route('student.exam.explanation', $result) }}" 
                                class="flex-1 flex items-center justify-center py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all shadow-sm">
                                 Pembahasan
                             </a>
+                        @endif
+                        @if(!$result->examSession->examPackage->show_result && !$result->examSession->examPackage->show_explanation)
+                            <div class="flex-1 py-2 text-center text-[10px] font-medium text-slate-400 italic bg-slate-50 border border-slate-150 rounded-lg">
+                                Hasil & Pembahasan Dirahasiakan
+                            </div>
                         @endif
                     </div>
                 </div>

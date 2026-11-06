@@ -293,7 +293,7 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
                             <i class="ti ti-clock text-sm text-slate-400"></i>
                             <span>{{ $result->started_at ? $result->started_at->format('H:i:s') : '-' }}</span>
                             <span class="text-slate-350">→</span>
-                            <span>{{ $result->completed_at ? $result->completed_at->format('H:i:s') : '...' }}</span>
+                            <span>{{ $result->finished_at ? $result->finished_at->format('H:i:s') : '...' }}</span>
                         </div>
                         <span class="text-[10px] font-bold text-slate-400">
                             {{ $result->started_at ? $result->started_at->format('d M Y') : 'Belum Mulai' }}
@@ -381,7 +381,7 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
                 </div>
             </div>
         @empty
-            <div class="py-16 text-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200" x-show="filteredResultsCount === 0">
+            <div class="py-16 text-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
                 <p class="text-xs font-bold text-slate-400">Belum ada peserta yang mengikuti sesi ujian ini.</p>
             </div>
         @endforelse
@@ -458,7 +458,7 @@ x-transition:enter="transition ease-out duration-300" x-transition:enter-start="
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50">
-                    @foreach($results->where('status', 'completed')->take(10) as $index => $res)
+                    @foreach($results->where('status', 'completed')->sortByDesc('total_score')->values()->take(10) as $index => $res)
                         <tr class="hover:bg-orange-50/20 transition-all">
                             <td class="px-6 py-4">
                                 <div class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm

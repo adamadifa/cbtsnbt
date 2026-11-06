@@ -499,7 +499,14 @@
                     allQuestions: @json($questions),
                     totalExamQuestions: {{ $totalExamQuestions }},
                     answers: initialAnswers,
-                    examEndTime: new Date("{{ $metadata['subtest_end_time'] }}").getTime(),
+                    // Parsing dengan defensive fallback untuk format lama (tanpa timezone info)
+                    examEndTime: (() => {
+                        let raw = "{{ $metadata['subtest_end_time'] }}";
+                        if (!raw.includes('T') && !raw.includes('+')) {
+                            raw = raw.replace(' ', 'T') + '+07:00';
+                        }
+                        return new Date(raw).getTime();
+                    })(),
                     remainingSeconds: 0,
 
                     selectedOptionId: null,
@@ -531,14 +538,18 @@
                         this.updatePendingCount();
                         this.updateRemainingTime();
 
+                        // Grace period 2 detik sebelum mulai cek waktu habis.
+                        const startCheckingAt = Date.now() + 2000;
+
                         this.timerInterval = setInterval(() => {
                             if (this.isTransitioning) return;
 
                             this.updateRemainingTime();
-                            if (this.remainingSeconds <= 0) {
+                            if (this.remainingSeconds <= 0 && Date.now() >= startCheckingAt) {
                                 this.startTransition();
                             }
                         }, 1000);
+
 
                         this.updateCurrentQuestionState();
 
@@ -765,8 +776,18 @@
 
                     prepareShuffledMatches() {
                         const q = this.currentQuestion;
-                        this.shuffledMatches = JSON.parse(JSON.stringify(q.options))
-                            .sort(() => Math.random() - 0.5);
+                        // BUG-08: Seeded shuffle agar urutan konsisten saat siswa kembali ke soal yang sama
+                        const seededShuffle = (arr, seed) => {
+                            const a = JSON.parse(JSON.stringify(arr));
+                            let s = seed;
+                            for (let i = a.length - 1; i > 0; i--) {
+                                s = (s * 9301 + 49297) % 233280;
+                                const j = Math.floor((s / 233280) * (i + 1));
+                                [a[i], a[j]] = [a[j], a[i]];
+                            }
+                            return a;
+                        };
+                        this.shuffledMatches = seededShuffle(q.options, q.id);
                     },
 
                     initSortable(el) {
@@ -867,14 +888,20 @@
                         for (const qId of questionIds) {
                             const payload = queue[qId];
                             try {
+                                // BUG-07: Timeout 15 detik agar fetch tidak hang selamanya
+                                const controller = new AbortController();
+                                const timeoutId = setTimeout(() => controller.abort(), 15000);
+
                                 const res = await fetch(`/exam/{{ $examResult->id }}/save-answer`, {
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/json',
                                         'X-CSRF-TOKEN': this.csrfToken
                                     },
-                                    body: JSON.stringify(payload)
+                                    body: JSON.stringify(payload),
+                                    signal: controller.signal
                                 });
+                                clearTimeout(timeoutId);
 
                                 // Handle CSRF token expiration (419)
                                 if (res.status === 419 && !csrfRefreshed) {
@@ -897,6 +924,10 @@
                                                 delete currentQueue[qId];
                                                 this.setOfflineQueue(currentQueue);
                                             }
+                                        } else if (retryRes.status === 403 || retryRes.status === 422) {
+                                            const currentQueue = this.getOfflineQueue();
+                                            delete currentQueue[qId];
+                                            this.setOfflineQueue(currentQueue);
                                         } else {
                                             this.syncStatus = 'offline';
                                             break;
@@ -916,6 +947,10 @@
                                         delete currentQueue[qId];
                                         this.setOfflineQueue(currentQueue);
                                     }
+                                } else if (res.status === 403 || res.status === 422) {
+                                    const currentQueue = this.getOfflineQueue();
+                                    delete currentQueue[qId];
+                                    this.setOfflineQueue(currentQueue);
                                 } else {
                                     this.syncStatus = 'offline';
                                     break;
@@ -1001,7 +1036,7 @@
                         let isAnswered = false;
                         if (ans) {
                             const q = this.allQuestions[idx];
-                            if (q.type === 'pilihan_ganda') isAnswered = !!ans.option_id || !!ans;
+                            if (q.type === 'pilihan_ganda') isAnswered = !!(typeof ans === 'object' ? ans.option_id : ans);
                             else if (q.type === 'pilihan_ganda_kompleks') isAnswered = ans.option_ids && ans.option_ids.length > 0;
                             else if (q.type === 'menjodohkan' || q.type === 'benar_salah') isAnswered = ans.matching_answers && Object.keys(ans.matching_answers).length > 0;
                             else if (q.type === 'essai' || q.type === 'isian_singkat') isAnswered = ans.essay_answer && ans.essay_answer.trim().length > 0;
